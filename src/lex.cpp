@@ -21,155 +21,156 @@
 #include <cctype>
 #include <iostream>
 
-Lex::Lex(std::ifstream& file) {
+Lex::Lex(const std::string& file)
+    : mFile(file),
+      mPalavrasReservadas({{"SE", Token::TipoToken::SE},
+                           {"FACA", Token::TipoToken::FACA},
+                           {"ACABOU", Token::TipoToken::ACABOU},
+                           {"SENAO", Token::TipoToken::SENAO},
+                           {"ENQUANTO", Token::TipoToken::ENQUANTO}}) {}
+
+Token Lex::getToken(void) {
    int estado = 0;
-   char c;
    std::string lexema;
-   bool aceitacao = false;
    enum { ID = 46 };
-   while (!file.eof()) {
-      try {
-         c = file.get();
-         if (lexema.empty() and ignore(c)) {
-            continue;
-         }
-         if (aceitacao and ignore(c)) {
-         } else {
-            aceitacao = false;
-         }
-         switch (estado) {
-            case 0:
-               switch (c) {
-                  case 'S':
+   Token::TipoToken tipoTk;
+   while (!mFile.eof()) {
+      char c;
+      std::cout << lexema << '\n';
+      switch (estado) {
+         case 0:
+            c = getChar(lexema);
+            switch (c) {
+               case '=':
+                  estado = 7;
+                  break;
+               case ',':
+                  estado = 4;
+                  break;
+               case '+':
+                  estado = 8;
+                  break;
+               case '*':
+                  estado = 9;
+                  break;
+               case '/':
+                  estado = 10;
+                  break;
+               case '-':
+                  estado = 11;
+                  break;
+               case '&':
+                  estado = 12;
+                  break;
+               case '|':
+                  estado = 14;
+                  break;
+               case '!':
+                  estado = 16;
+                  break;
+               case ';':
+                  estado = 18;
+                  break;
+               case -1:
+                  estado = 99;
+                  break;
+
+               default:
+                  if (isalpha(c)) {
                      estado = 1;
-                     break;
-                  case 'E':
-                     estado = 6;
-                     break;
-                  case 'I':
-                     estado = 15;
-                     break;
-                  case 'Q':
-                     estado = 24;
-                     break;
-                  case 'L':
-                     estado = 34;
-                     break;
-                  default:
-                     if (isdigit(c)) {
-                        estado = 42;
-                     } else if (isalpha(c)) {
-                        estado = ID;
-                     }
-                     break;
-               }
-               break;
-            case 1:
-               switch (c) {
-                  case 'E':
-                     estado = 2;
-                     aceitacao = true;
-                     break;
-                  default:
-                     estado = ID;
-                     break;
-               }
-            case 2:
-               switch (c) {
-                  case 'N':
+                  } else if (isdigit(c)) {
                      estado = 3;
-                     break;
-                  default:
-                     estado = ID;
-               }
-            case 3:
-               switch (c) {
-                  case 'A':
-                     estado = 4;
-                     break;
-                  default:
-                     estado = ID;
-               }
+                  } else {
+                     exit(EXIT_FAILURE);
+                  }
+            }
+            break;
+         case 1:
+            c = getChar(lexema);
+            std::cout << c << ", ";
+            if (!(isalpha(c) or isdigit(c))) {
+               estado = 2;
+            }
+            break;
+         case 2:
+            ungetChar(lexema);
+            tipoTk = reservada(lexema);
+            if (tipoTk != Token::TipoToken::INITIAl) {
+               return Token(tipoTk, lexema);
+               /* mTk = Token(tipoTk, lexema); */
+            } else {
+               return Token(Token::TipoToken::ID, lexema);
+            }
+            break;
+         case 3:
+            c = getChar(lexema);
+            if (c == ',') {
+               estado = 4;
+            } else {
+               estado = 5;
+            }
+            break;
+         case 4:
+            c = getChar(lexema);
+            if (isdigit(c)) {
+               estado = 6;
+            } else {
+               exit(EXIT_FAILURE);
+            }
+            break;
+         case 5:
+            ungetChar(lexema);
+            return Token(Token::TipoToken::VALOR, lexema);
+            break;
+
+         case 6:
+            c = getChar(lexema);
+            if (!isdigit(c)) {
+               estado = 5;
+            }
+            break;
+         case 7:
+            return Token(Token::TipoToken::ATRIB, lexema);
+         case 8:
+         case 9:
+         case 10:
+         case 11:
+            return Token(Token::TipoToken::OPA, lexema);
+         case 12:
+            c = getChar(lexema);
+            if (c == '&') {
+               estado = 13;
+            }
+            exit(EXIT_FAILURE);
+            // error
+            break;
+         case 13:
+            return Token(Token::TipoToken::OPB, lexema);
+         case 14:
+            c = getChar(lexema);
+            if (c == '|') {
+               estado = 15;
+            }
+            exit(EXIT_FAILURE);
+            // error
+            break;
+         case 15:
+            return Token(Token::TipoToken::OPB, lexema);
+         case 16:
+            c = getChar(lexema);
+            if (c != '!') {
+               estado = 17;
                break;
-            case 4:
-               switch (c) {
-                  case 'O':
-                     estado = 5;
-                     aceitacao = true;
-                     break;
-                  default:
-                     estado = ID;
-               }
-               break;
-            case 6:
-               switch (c) {
-                  case 'N':
-                     estado = 7;
-                     break;
-                  default:
-                     estado = ID;
-               }
-               break;
-            case 7:
-               switch (c) {
-                  case 'Q':
-                     estado = 8;
-                     break;
-                  default:
-                     estado = ID;
-               }
-               break;
-            case 8:
-               switch (c) {
-                  case 'U':
-                     estado = 9;
-                     break;
-                  default:
-                     estado = ID;
-               }
-               break;
-            case 9:
-               switch (c) {
-                  case 'A':
-                     estado = 10;
-                     break;
-                  default:
-                     estado = ID;
-               }
-               break;
-            case 10:
-               switch (c) {
-                  case 'N':
-                     estado = 11;
-                     break;
-                  default:
-                     estado = ID;
-               }
-               break;
-            case 11:
-               switch (c) {
-                  case 'T':
-                     estado = 12;
-                     break;
-                  default:
-                     estado = ID;
-               }
-               break;
-            case 12:
-               switch (c) {
-                  case 'O':
-                     estado = 13;
-                     aceitacao = true;
-                     break;
-                  default:
-                     estado = ID;
-               }
-               break;
-         }
-      } catch (const std::exception& e) {
-         std::cout << "Transição não reconhecida na linha " << mLine
-                   << ".\nEstado atual: " << static_cast<int>(estado)
-                   << "Caracter lido: " << c << "\n";
+            }
+            break;
+         case 17:
+            ungetChar(lexema);
+            return Token(Token::TipoToken::NEG, lexema);
+         case 18:
+            return Token(Token::TipoToken::PNTVIRG, lexema);
+         case 99:
+            ungetChar(lexema);
+            return Token(Token::TipoToken::FIMARQ, lexema);
       }
    }
 }

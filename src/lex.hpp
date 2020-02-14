@@ -20,6 +20,8 @@
 #include <exception>
 #include <fstream>
 #include <list>
+#include <map>
+#include <stdexcept>
 
 #include "token.hpp"
 
@@ -27,27 +29,30 @@ class Lex {
   private:
    std::string mLexema;
    std::list<Token> mTokens;
+   std::fstream mFile;
+   const std::map<std::string, Token::TipoToken> mPalavrasReservadas;
 
    unsigned mLine{};
 
-   enum class Estado {
-      INICIAL,
-      SE,
-      SENAO,
-      ENQUANTO,
-      INTEIRO,
-      QUEBRADO,
-      LOGICO,
-      VALOR,
-      ID,
-      ATRIB,
-      OPA,
-      OPB,
-      PNTVIRG,
-      NAO_ACEITACAO,
-   };
+   /* enum class Estado { */
+   /*    INICIAL, */
+   /*    SE, */
+   /*    SENAO, */
+   /*    ENQUANTO, */
+   /*    INTEIRO, */
+   /*    QUEBRADO, */
+   /*    LOGICO, */
+   /*    VALOR, */
+   /*    ID, */
+   /*    ATRIB, */
+   /*    OPA, */
+   /*    OPB, */
+   /*    PNTVIRG, */
+   /*    NAO_ACEITACAO, */
+   /* }; */
   public:
-   Lex(std::ifstream &file);
+   Lex(const std::string &file);
+   Token getToken(void);
 
   private:
    inline bool ignore(const char c) {
@@ -59,4 +64,20 @@ class Lex {
       }
       return false;
    }
+   inline Token::TipoToken reservada(const std::string& s) {
+      try {
+         return mPalavrasReservadas.at(s);
+      } catch(std::out_of_range &e) {
+         return {};
+      }
+   }
+   inline char getChar(std::string& s) {
+      s.push_back(mFile.get());
+      return s.back();
+   }
+   inline void ungetChar(std::string& s) {
+      mFile.unget();
+      s.pop_back();
+   }
+
 };

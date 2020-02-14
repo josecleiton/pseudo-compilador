@@ -17,10 +17,9 @@
  */
 
 #pragma once
-#include <string>
+#include <iostream>
 
-class Token {
-public:
+struct Token {
    enum class TipoToken {
       INITIAl,
       ID,
@@ -28,6 +27,7 @@ public:
       VALOR,
       OPB,
       OPA,
+      NEG,
       SE,
       SENAO,
       ENQUANTO,
@@ -35,8 +35,11 @@ public:
       ACABOU,
       ATRIB,
       PNTVIRG,
+      FIMARQ
    };
-   TipoToken id;
+   const TipoToken id;
    const std::string lexema;
-   Token(const std::string& s);
+   Token(const TipoToken& tk, const std::string& s);
+   friend std::ostream& operator<<(std::ostream&, const Token&);
 };
+
