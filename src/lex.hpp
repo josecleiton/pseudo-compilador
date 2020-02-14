@@ -52,6 +52,7 @@ class Lex {
    /* }; */
   public:
    Lex(const std::string &file);
+   ~Lex();
    Token getToken(void);
 
   private:
