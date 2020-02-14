@@ -32,7 +32,6 @@ Lex::Lex(const std::string& file)
 Token Lex::getToken(void) {
    int estado = 0;
    std::string lexema;
-   enum { ID = 46 };
    Token::TipoToken tipoTk;
    while (!mFile.eof()) {
       char c;
@@ -140,8 +139,9 @@ Token Lex::getToken(void) {
             c = getChar(lexema);
             if (c == '&') {
                estado = 13;
+            } else {
+               exit(EXIT_FAILURE);
             }
-            exit(EXIT_FAILURE);
             // error
             break;
          case 13:
@@ -149,13 +149,12 @@ Token Lex::getToken(void) {
          case 14:
             c = getChar(lexema);
             if (c == '|') {
-               estado = 15;
+               estado = 13;
+            } else {
+               exit(EXIT_FAILURE);
             }
-            exit(EXIT_FAILURE);
             // error
             break;
-         case 15:
-            return Token(Token::TipoToken::OPB, lexema);
          case 16:
             c = getChar(lexema);
             if (c != '!') {
@@ -173,5 +172,6 @@ Token Lex::getToken(void) {
             return Token(Token::TipoToken::FIMARQ, lexema);
       }
    }
+   return Token(Token::TipoToken::FIMARQ, lexema);
 }
 
