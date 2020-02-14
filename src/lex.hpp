@@ -19,56 +19,28 @@
 
 #include <exception>
 #include <fstream>
-#include <list>
-#include <map>
 #include <stdexcept>
+#include <unordered_map>
 
 #include "token.hpp"
 
 class Lex {
   private:
    std::string mLexema;
-   std::list<Token> mTokens;
    std::fstream mFile;
-   const std::map<std::string, Token::TipoToken> mPalavrasReservadas;
-
+   const std::unordered_map<std::string, Token::TipoToken> mPalavrasReservadas;
    unsigned mLine{};
 
-   /* enum class Estado { */
-   /*    INICIAL, */
-   /*    SE, */
-   /*    SENAO, */
-   /*    ENQUANTO, */
-   /*    INTEIRO, */
-   /*    QUEBRADO, */
-   /*    LOGICO, */
-   /*    VALOR, */
-   /*    ID, */
-   /*    ATRIB, */
-   /*    OPA, */
-   /*    OPB, */
-   /*    PNTVIRG, */
-   /*    NAO_ACEITACAO, */
-   /* }; */
   public:
-   Lex(const std::string &file);
+   Lex(const std::string& file);
    ~Lex();
    Token getToken(void);
 
   private:
-   inline bool ignore(const char c) {
-      if (c == '\n' or c == '\t' or c == ' ') {
-         if (c == '\n') {
-            mLine++;
-         }
-         return true;
-      }
-      return false;
-   }
    inline Token::TipoToken reservada(const std::string& s) {
       try {
          return mPalavrasReservadas.at(s);
-      } catch(std::out_of_range &e) {
+      } catch (std::out_of_range& e) {
          return {};
       }
    }
@@ -80,5 +52,4 @@ class Lex {
       mFile.unget();
       s.pop_back();
    }
-
 };

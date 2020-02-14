@@ -20,27 +20,27 @@
 #include <iostream>
 
 struct Token {
-  enum class TipoToken {
-    INITIAl,
-    ID,
-    TIPO,
-    VALOR,
-    OPB,
-    OPA,
-    NEG,
-    SE,
-    SENAO,
-    ENQUANTO,
-    FACA,
-    ACABOU,
-    ATRIB,
-    PNTVIRG,
-    ABREPRNT,
-    FECHAPRNT,
-    FIMARQ
-  };
-  TipoToken id;
-  std::string lexema;
-  Token(const TipoToken &tk = TipoToken::INITIAl, const std::string &s = "");
-  friend std::ostream &operator<<(std::ostream &, const Token &);
+   enum class TipoToken {
+      INITIAl,
+      ID,
+      TIPO,
+      VALOR,
+      OPB,
+      OPA,
+      NEG,
+      SE,
+      SENAO,
+      ENQUANTO,
+      FACA,
+      ACABOU,
+      ATRIB,
+      PNTVIRG,
+      ABREPRNT,
+      FECHAPRNT,
+      FIMARQ
+   };
+   TipoToken id;
+   std::string lexema;
+   Token(const TipoToken &tk = TipoToken::INITIAl, const std::string &s = "");
+   friend std::ostream &operator<<(std::ostream &, const Token &);
 };
