@@ -28,13 +28,13 @@ Erro::Erro(Lex* const lex, const TipoErro& tipo, std::string& lexema,
    auto& file = lex->getFile();
    std::string textoLinha{};
    std::stringstream ss;
-   const auto posPrimeiroC = primeiroCaracterNaLinha(file);
+   primeiroCaracterNaLinha(file);
    const auto limpos = limpaLexema(lexema);
    col -= limpos + 1;
    std::getline(file, textoLinha);
    // std::clog << "CURSOR: " << cursor << " / texto: " << textoLinha << '\n';
-   std::clog << "LINHA:" << textoLinha << ". COL:" << col
-             << ". PCL:" << posPrimeiroC << " " << textoLinha.size() << "\n";
+   /* std::clog << "LINHA:" << textoLinha << ". COL:" << col */
+   /*           << ". PCL:" << posPrimeiroC << " " << textoLinha.size() << "\n"; */
    ss << '\t' << linha << " |\t" << textoLinha;
    /* std::clog << ss.str().length() << " " << ss.tellp() << "\n"; */
    std::string sstr = ss.str();
