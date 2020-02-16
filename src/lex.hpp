@@ -26,30 +26,41 @@
 
 class Lex {
   private:
-   std::string mLexema;
-   std::fstream mFile;
-   const std::unordered_map<std::string, Token::TipoToken> mPalavrasReservadas;
-   unsigned mLine{};
+   std::string mLexema, mFilename;
+   std::ifstream mFile;
+   const std::unordered_map<std::string, Token::TipoToken> mPalavrasReservadas{
+       {"SE", Token::TipoToken::SE},
+       {"FACA", Token::TipoToken::FACA},
+       {"ACABOU", Token::TipoToken::ACABOU},
+       {"SENAO", Token::TipoToken::SENAO},
+       {"ENQUANTO", Token::TipoToken::ENQUANTO}};
+   unsigned mLinha{1}, mCol{};
 
   public:
    Lex(const std::string& file);
    ~Lex();
    Token getToken(void);
+   inline const auto& getLinha(void) const { return mLinha; }
+   inline const auto& getCol(void) const { return mCol; }
+   inline const auto& getFilename(void) const { return mFilename; }
+   inline auto& getFile(void) { return mFile; }
 
   private:
-   inline Token::TipoToken reservada(const std::string& s) {
+   inline Token::TipoToken reservada(const std::string& s) const {
       try {
          return mPalavrasReservadas.at(s);
       } catch (std::out_of_range& e) {
          return {};
       }
    }
-   inline char getChar(std::string& s) {
-      s.push_back(mFile.get());
-      return s.back();
+   inline char getChar(std::string& lexema) {
+      mCol++;
+      lexema.push_back(mFile.get());
+      return lexema.back();
    }
-   inline void ungetChar(std::string& s) {
+   inline void ungetChar(std::string& lexema) {
+      mCol--;
       mFile.unget();
-      s.pop_back();
+      lexema.pop_back();
    }
 };

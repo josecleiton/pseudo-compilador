@@ -18,33 +18,45 @@
 
 #include "lex.hpp"
 
+#define DEBUG 1
+
 #include <cctype>
 #include <iostream>
 
-Lex::Lex(const std::string &file)
-    : mFile(file),
-      mPalavrasReservadas({{"SE", Token::TipoToken::SE},
-                           {"FACA", Token::TipoToken::FACA},
-                           {"ACABOU", Token::TipoToken::ACABOU},
-                           {"SENAO", Token::TipoToken::SENAO},
-                           {"ENQUANTO", Token::TipoToken::ENQUANTO}}) {
+#include "erro.hpp"
+
+Lex::Lex(const std::string &filepath) : mFilename(filepath), mFile(mFilename) {
+   const std::string sufixo = ".pl";
+   const int pos = filepath.size() - sufixo.size() - 1;
+   if (pos <= 0 || filepath.find(sufixo, pos) == std::string::npos) {
+      std::cerr << "Arquivos de entrada devem terminar com '" << sufixo
+                << "'\n";
+      std::exit(EXIT_FAILURE);
+   }
    if (!mFile.is_open()) {
-      std::cerr << "Falha na abertura do arquivo: '" << file
+      std::cerr << "Falha na abertura do arquivo: '" << filepath
                 << "'. Verique se o caminho está "
                    "correto.\n";
-      exit(EXIT_FAILURE);
+      std::exit(EXIT_FAILURE);
    }
 }
 
-Lex::~Lex() { mFile.close(); }
+Lex::~Lex() {
+#ifdef DEBUG
+   std::clog << "[DEBUG] Lex - Linhas lidas: " << mLinha << '\n';
+#endif
+   mFile.close();
+}
 
 Token Lex::getToken(void) {
    int estado = 0;
    std::string lexema;
    Token::TipoToken tipoTk;
+   const auto tipoErro = Erro::TipoErro::Lexico;
    while (true) {
       char c;
-      //  std::cout << lexema << ' ' << estado << '\n';
+      std::cout << lexema << ' ' << estado << '\n';
+      std::cout << "inCol:" << mCol << '\n';
       switch (estado) {
          case 0:
             c = getChar(lexema);
@@ -96,12 +108,13 @@ Token Lex::getToken(void) {
                      estado = 3;
                   } else if (isspace(c)) {
                      if (c == '\n') {
-                        mLine++;
+                        mCol = 0;
+                        mLinha++;
                      }
                      lexema.pop_back();
                      break;
                   } else {
-                     exit(EXIT_FAILURE);
+                     Erro(this, tipoErro, lexema, "Σ");
                   }
             }
             break;
@@ -135,7 +148,7 @@ Token Lex::getToken(void) {
             if (isdigit(c)) {
                estado = 6;
             } else {
-               exit(EXIT_FAILURE);
+               Erro(this, tipoErro, lexema, "[0-9]");
             }
             break;
          case 5:
@@ -161,7 +174,7 @@ Token Lex::getToken(void) {
             if (c == '&') {
                estado = 13;
             } else {
-               exit(EXIT_FAILURE);
+               Erro(this, tipoErro, lexema, "&");
             }
             // error
             break;
@@ -172,7 +185,7 @@ Token Lex::getToken(void) {
             if (c == '|') {
                estado = 13;
             } else {
-               exit(EXIT_FAILURE);
+               Erro(this, tipoErro, lexema, "|");
             }
             // error
             break;
