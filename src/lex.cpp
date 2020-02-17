@@ -50,7 +50,6 @@ Lex::~Lex() {
 Token Lex::getToken(void) {
    int estado = 0;
    std::string lexema;
-   Token::TipoToken tipoTk;
    const auto tipoErro = Erro::TipoErro::Lexico;
    while (true) {
       char c;
@@ -130,13 +129,7 @@ Token Lex::getToken(void) {
             // std::cout << "Final do estado 2: " << lexema.back() << "\n";
             ungetChar(lexema);
             // std::cout << "Final do estado 2 (lexema): " << lexema << ".\n";
-            if ((tipoTk = reservada(lexema)) != Token::TipoToken::INITIAl) {
-               return Token(tipoTk, lexema);
-               /* mTk = Token(tipoTk, lexema); */
-            } else {
-               return Token(Token::TipoToken::ID, lexema);
-            }
-            break;
+            return Token(reservadaOuID(lexema), lexema);
          case 3:
             c = getChar(lexema);
             if (c == ',') {
@@ -156,8 +149,6 @@ Token Lex::getToken(void) {
          case 5:
             ungetChar(lexema);
             return Token(Token::TipoToken::VALOR, lexema);
-            break;
-
          case 6:
             c = getChar(lexema);
             if (!isdigit(c)) {
@@ -189,7 +180,6 @@ Token Lex::getToken(void) {
             } else {
                throw Erro(this, tipoErro, lexema, "|");
             }
-            // error
             break;
          case 16:
             c = getChar(lexema);

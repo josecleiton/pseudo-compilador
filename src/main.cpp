@@ -20,23 +20,21 @@
 
 #include "lex.hpp"
 
-inline int usage(void) {
-   std::cerr << "Caminho do arquivo é requirido.\n";
-   return EXIT_FAILURE;
-}
+inline void usage(void) { std::cerr << "Caminho do arquivo é requirido.\n"; }
 
 int main(int argc, char *argv[]) {
    if (argc < 2) {
-      return usage();
+      usage();
+      return EXIT_FAILURE;
    }
    try {
       Lex lex(argv[1]);
-      Token tk{};
+      Token tk;
       while ((tk = lex.getToken()).id != Token::TipoToken::FIMARQ) {
          std::cout << tk << '\n';
       }
       return EXIT_SUCCESS;
-   } catch (std::exception &e) {
+   } catch (const std::exception &e) {
 #ifdef DEBUG
       std::cerr << "[DEBUG] Exception - " << e.what() << '\n';
 #endif

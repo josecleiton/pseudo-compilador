@@ -48,11 +48,11 @@ class Lex {
    inline auto& getFile(void) { return mFile; }
 
   private:
-   inline Token::TipoToken reservada(const std::string& s) const {
+   inline Token::TipoToken reservadaOuID(const std::string& s) const {
       try {
          return mPalavrasReservadas.at(s);
-      } catch (std::out_of_range& e) {
-         return {};
+      } catch (const std::out_of_range& e) {
+         return Token::TipoToken::ID;
       }
    }
    inline char getChar(std::string& lexema) {
