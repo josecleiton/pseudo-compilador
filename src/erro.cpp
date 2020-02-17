@@ -18,10 +18,12 @@
 
 #include "erro.hpp"
 
+#include <iostream>
 #include <sstream>
 
 Erro::Erro(Lex* const lex, const TipoErro& tipo, std::string& lexema,
-           const char* const esperado) {
+           const char* const esperado)
+    : mTipo(tipo) {
    const auto linha = lex->getLinha();
    auto col = lex->getCol();
    const auto filename = lex->getFilename();
@@ -34,20 +36,20 @@ Erro::Erro(Lex* const lex, const TipoErro& tipo, std::string& lexema,
    std::getline(file, textoLinha);
    // std::clog << "CURSOR: " << cursor << " / texto: " << textoLinha << '\n';
    /* std::clog << "LINHA:" << textoLinha << ". COL:" << col */
-   /*           << ". PCL:" << posPrimeiroC << " " << textoLinha.size() << "\n"; */
+   /*           << ". PCL:" << posPrimeiroC << " " << textoLinha.size() << "\n";
+    */
    ss << '\t' << linha << " |\t" << textoLinha;
    /* std::clog << ss.str().length() << " " << ss.tellp() << "\n"; */
    std::string sstr = ss.str();
    const auto seta = getSeta(sstr, col);
 
-   if (tipo == TipoErro::Lexico) {
+   if (mTipo == TipoErro::Lexico) {
       std::clog << filename << ':' << linha << ':' << col
                 << ": erro lexico: esperado '" << esperado << "' recebeu '"
                 << textoLinha[col] << "'\n"
                 << sstr << '\n'
                 << seta << '\n';
    }
-   exit(EXIT_FAILURE);
 }
 
 std::size_t Erro::primeiroCaracterNaLinha(std::ifstream& file) const {

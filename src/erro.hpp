@@ -18,19 +18,38 @@
 
 #pragma once
 #include <cctype>
+#include <exception>
 
 #include "lex.hpp"
 
-class Erro {
+class Erro : public std::exception {
   public:
    enum class TipoErro { Lexico, Sintatico, Semantico };
+
+  private:
+   TipoErro mTipo;
+
+  public:
    Erro(Lex* const lex, const TipoErro& tipo, std::string& lexema,
         const char* const esperado);
+
+   virtual const char* what() const throw() {
+      switch (mTipo) {
+         case TipoErro::Lexico:
+            return "Erro Léxico.";
+         case TipoErro::Sintatico:
+            return "Erro Sintático.";
+         case TipoErro::Semantico:
+            return "Erro Semântico.";
+         default:
+            return "Erro desconhecido.";
+      }
+   }
 
   private:
    std::size_t primeiroCaracterNaLinha(std::ifstream& file) const;
    inline int unget(std::ifstream& file, int n) const {
-      long pos;
+      long pos{};
       while (n--) {
          file.unget();
          if ((pos = file.tellg()) < 1) {

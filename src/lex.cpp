@@ -18,10 +18,9 @@
 
 #include "lex.hpp"
 
-#define DEBUG 1
-
 #include <cctype>
 #include <iostream>
+#include <stdexcept>
 
 #include "erro.hpp"
 
@@ -31,13 +30,13 @@ Lex::Lex(const std::string &filepath) : mFilename(filepath), mFile(mFilename) {
    if (pos <= 0 || filepath.find(sufixo, pos) == std::string::npos) {
       std::cerr << "Arquivos de entrada devem terminar com '" << sufixo
                 << "'\n";
-      std::exit(EXIT_FAILURE);
+      throw std::invalid_argument("Falta extensão '.pl' em arquivo.");
    }
    if (!mFile.is_open()) {
       std::cerr << "Falha na abertura do arquivo: '" << filepath
                 << "'. Verique se o caminho está "
                    "correto.\n";
-      std::exit(EXIT_FAILURE);
+      throw std::runtime_error("Arquivo falhou ao abrir.");
    }
 }
 
@@ -117,7 +116,7 @@ Token Lex::getToken(void) {
                      lexema.pop_back();
                      break;
                   } else {
-                     Erro(this, tipoErro, lexema, "Σ");
+                     throw Erro(this, tipoErro, lexema, "Σ");
                   }
             }
             break;
@@ -151,7 +150,7 @@ Token Lex::getToken(void) {
             if (isdigit(c)) {
                estado = 6;
             } else {
-               Erro(this, tipoErro, lexema, "[0-9]");
+               throw Erro(this, tipoErro, lexema, "[0-9]");
             }
             break;
          case 5:
@@ -177,7 +176,7 @@ Token Lex::getToken(void) {
             if (c == '&') {
                estado = 13;
             } else {
-               Erro(this, tipoErro, lexema, "&");
+               throw Erro(this, tipoErro, lexema, "&");
             }
             // error
             break;
@@ -188,7 +187,7 @@ Token Lex::getToken(void) {
             if (c == '|') {
                estado = 13;
             } else {
-               Erro(this, tipoErro, lexema, "|");
+               throw Erro(this, tipoErro, lexema, "|");
             }
             // error
             break;
@@ -210,13 +209,15 @@ Token Lex::getToken(void) {
             return Token(Token::TipoToken::FECHAPRNT, lexema);
          case 21:
             c = getChar(lexema);
-            if(isspace(c) && c != ' ') {
-               #ifdef DEBUG
+            if (isspace(c) && c != ' ') {
+#ifdef DEBUG
                lexema.pop_back();
                std::clog << "{Comentário: " << lexema << "}\n";
-               #endif
+#endif
                lexema.clear();
                estado = 0;
+            } else if (c == EOF) {
+               estado = 99;
             }
             break;
          case 99:

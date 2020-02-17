@@ -17,6 +17,8 @@
  */
 #pragma once
 
+#define DEBUG 1
+
 #include <exception>
 #include <fstream>
 #include <stdexcept>

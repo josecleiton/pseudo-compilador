@@ -17,7 +17,7 @@
  */
 
 #pragma once
-#include <iostream>
+#include <ostream>
 
 struct Token {
    enum class TipoToken {
