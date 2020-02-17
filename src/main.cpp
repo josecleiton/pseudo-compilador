@@ -20,7 +20,7 @@
 
 #include "lex.hpp"
 
-inline void usage(void) { std::cerr << "Caminho do arquivo é requirido.\n"; }
+inline void usage(void) { std::cerr << "Caminho do arquivo é requerido.\n"; }
 
 int main(int argc, char *argv[]) {
    if (argc < 2) {
