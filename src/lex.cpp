@@ -46,6 +46,9 @@ Lex::Lex(const std::string& inPath, const std::string& outPath)
    if (!mOutputFile.is_open()) {
       falhaAoAbrirArquivo(outPath);
    }
+   mOutputFile << "Lista de pares {COD_TOKEN, LEXEMA}\nO COD_TOKEN pode ser "
+                  "checado no enum 'Token::TipoToken' em 'token.hpp'\nPS: "
+                  "Comentários começam com '#' e vão até o final da linha\n\n";
 }
 
 Lex::~Lex() {
@@ -221,6 +224,5 @@ Token Lex::proxToken(void) {
             break;
       }
    }
-   lexema.pop_back();
-   return Token(Token::TipoToken::FIMARQ, lexema);
+   return Token(Token::TipoToken::FIMARQ, "\"EOF\"");
 }

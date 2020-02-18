@@ -21,23 +21,23 @@
 
 struct Token {
    enum class TipoToken {
-      INITIAl,
-      ID,
-      TIPO,
-      VALOR,
-      OPB,
-      OPA,
-      NEG,
-      SE,
-      SENAO,
-      ENQUANTO,
-      FACA,
-      ACABOU,
-      ATRIB,
-      PNTVIRG,
-      ABREPRNT,
-      FECHAPRNT,
-      FIMARQ
+      INITIAl, // 0
+      ID, // 1
+      TIPO, // 2
+      VALOR, // 3
+      OPB, // 4
+      OPA, // 5
+      NEG, // 6
+      SE, // 7
+      SENAO, // 8
+      ENQUANTO, // 9
+      FACA, // 10
+      ACABOU, // 11
+      ATRIB, // 12
+      PNTVIRG, // 13
+      ABREPRNT, // 14
+      FECHAPRNT, // 15
+      FIMARQ // 16
    };
    TipoToken id;
    std::string lexema;
