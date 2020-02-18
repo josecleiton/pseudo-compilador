@@ -51,7 +51,7 @@ Token Lex::getToken(void) {
    int estado = 0;
    std::string lexema;
    const auto tipoErro = Erro::TipoErro::Lexico;
-   while (true) {
+   while (estado != EOF) {
       char c;
       /* std::cout << lexema << ' ' << estado << '\n'; */
       /* std::cout << "inCol:" << mCol << '\n'; */
@@ -99,7 +99,7 @@ Token Lex::getToken(void) {
                   estado = 21;
                   break;
                case EOF:
-                  estado = 99;
+                  estado = c;
                   break;
 
                default:
@@ -207,13 +207,11 @@ Token Lex::getToken(void) {
                lexema.clear();
                estado = 0;
             } else if (c == EOF) {
-               estado = 99;
+               estado = c;
             }
             break;
-         case 99:
-            ungetChar(lexema);
-            return Token(Token::TipoToken::FIMARQ, lexema);
       }
    }
+   lexema.pop_back();
    return Token(Token::TipoToken::FIMARQ, lexema);
 }

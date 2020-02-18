@@ -22,6 +22,9 @@
 
 #include "lex.hpp"
 
+/**
+ * Classe para formatar erros do compilador
+ */
 class Erro : public std::exception {
   public:
    enum class TipoErro { Lexico, Sintatico, Semantico };
@@ -33,7 +36,7 @@ class Erro : public std::exception {
    Erro(Lex* const lex, const TipoErro& tipo, std::string& lexema,
         const char* const esperado);
 
-   virtual const char* what() const throw() {
+   const char* what() const throw() {
       switch (mTipo) {
          case TipoErro::Lexico:
             return "Erro Léxico.";
@@ -59,14 +62,22 @@ class Erro : public std::exception {
       }
       return pos;
    }
-   inline int limpaLexema(std::string& lexema) const {
-      if (lexema.size() && isspace(lexema.back()) && lexema.back() != ' ') {
-         lexema.pop_back();
-         lexema += ' ';
-         return limpaLexema(lexema) + 1;
+   /*
+    * Substitui \r ou \n por espaço em branco
+    */
+   inline std::size_t limpaLexema(std::string& lexema) const {
+      std::size_t ac{};
+      for(auto& c: lexema) {
+         if(isspace(c) && c != ' ') {
+            c = ' ';
+            ac++;
+         }
       }
-      return 0;
+      return ac;
    }
+   /*
+    * Aponta para o caracter onde está o erro
+    */
    inline std::string getSeta(const std::string& s, const unsigned col) const {
       std::string res = s;
       std::size_t t{};
