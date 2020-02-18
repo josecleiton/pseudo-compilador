@@ -29,7 +29,8 @@
 class Lex {
   private:
    std::string mLexema, mFilename;
-   std::ifstream mFile;
+   std::ifstream mInputFile;
+   std::ofstream mOutputFile;
    const std::unordered_map<std::string, Token::TipoToken> mPalavrasReservadas{
        {"SE", Token::TipoToken::SE},
        {"FACA", Token::TipoToken::FACA},
@@ -39,15 +40,20 @@ class Lex {
    unsigned mLinha{1}, mCol{};
 
   public:
-   Lex(const std::string& file);
+   Lex(const std::string& inPath, const std::string& outPath = "lexemas.txt");
    ~Lex();
-   Token getToken(void);
+   inline Token getToken(void) {
+      auto tk = proxToken();
+      mOutputFile << tk << '\n';
+      return tk;
+   }
    inline const auto& getLinha(void) const { return mLinha; }
    inline const auto& getCol(void) const { return mCol; }
    inline const auto& getFilename(void) const { return mFilename; }
-   inline auto& getFile(void) { return mFile; }
+   inline auto& getFile(void) { return mInputFile; }
 
   private:
+   Token proxToken(void);
    inline Token::TipoToken reservadaOuID(const std::string& s) const {
       try {
          return mPalavrasReservadas.at(s);
@@ -57,12 +63,12 @@ class Lex {
    }
    inline char getChar(std::string& lexema) {
       mCol++;
-      lexema.push_back(mFile.get());
+      lexema.push_back(mInputFile.get());
       return lexema.back();
    }
    inline void ungetChar(std::string& lexema) {
       mCol--;
-      mFile.unget();
+      mInputFile.unget();
       lexema.pop_back();
    }
 };

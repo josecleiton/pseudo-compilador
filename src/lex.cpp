@@ -24,19 +24,27 @@
 
 #include "erro.hpp"
 
-Lex::Lex(const std::string &filepath) : mFilename(filepath), mFile(mFilename) {
+inline void falhaAoAbrirArquivo(const std::string& path) {
+   std::cerr << "Falha na abertura do arquivo: '" << path
+             << "'. Verique se o caminho está "
+                "correto.\n";
+   throw std::runtime_error("Arquivo falhou ao abrir.");
+}
+
+Lex::Lex(const std::string& inPath, const std::string& outPath)
+    : mFilename(inPath), mInputFile(mFilename), mOutputFile(outPath) {
    const std::string sufixo = ".pl";
-   const int pos = filepath.size() - sufixo.size() - 1;
-   if (pos <= 0 || filepath.find(sufixo, pos) == std::string::npos) {
+   const int pos = inPath.size() - sufixo.size() - 1;
+   if (pos <= 0 || inPath.find(sufixo, pos) == std::string::npos) {
       std::cerr << "Arquivos de entrada devem terminar com '" << sufixo
                 << "'\n";
       throw std::invalid_argument("Falta extensão '.pl' em arquivo.");
    }
-   if (!mFile.is_open()) {
-      std::cerr << "Falha na abertura do arquivo: '" << filepath
-                << "'. Verique se o caminho está "
-                   "correto.\n";
-      throw std::runtime_error("Arquivo falhou ao abrir.");
+   if (!mInputFile.is_open()) {
+      falhaAoAbrirArquivo(inPath);
+   }
+   if (!mOutputFile.is_open()) {
+      falhaAoAbrirArquivo(outPath);
    }
 }
 
@@ -44,10 +52,11 @@ Lex::~Lex() {
 #ifdef DEBUG
    std::clog << "[DEBUG] Lex - Linhas lidas: " << mLinha << '\n';
 #endif
-   mFile.close();
+   mInputFile.close();
+   mOutputFile.close();
 }
 
-Token Lex::getToken(void) {
+Token Lex::proxToken(void) {
    int estado = 0;
    std::string lexema;
    const auto tipoErro = Erro::TipoErro::Lexico;
