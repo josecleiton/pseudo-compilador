@@ -33,8 +33,9 @@ class Erro : public std::exception {
    TipoErro mTipo;
 
   public:
-   Erro(Lex* const lex, const TipoErro& tipo, std::string& lexema,
+   Erro(Lex* const lex, std::string& lexema,
         const char* const esperado);
+   /* Erro(Syn* const syn; const Token& tk); */
 
    const char* what() const throw() {
       switch (mTipo) {

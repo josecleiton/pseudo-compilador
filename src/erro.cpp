@@ -21,9 +21,8 @@
 #include <iostream>
 #include <sstream>
 
-Erro::Erro(Lex* const lex, const TipoErro& tipo, std::string& lexema,
-           const char* const esperado)
-    : mTipo(tipo) {
+Erro::Erro(Lex* const lex, std::string& lexema, const char* const esperado)
+    : mTipo(Erro::TipoErro::Lexico) {
    const auto linha = lex->getLinha();
    auto col = lex->getCol();
    const auto filename = lex->getFilename();
@@ -43,13 +42,11 @@ Erro::Erro(Lex* const lex, const TipoErro& tipo, std::string& lexema,
    std::string sstr = ss.str();
    const auto seta = getSeta(sstr, col);
 
-   if (mTipo == TipoErro::Lexico) {
-      std::clog << filename << ':' << linha << ':' << col
-                << ": erro lexico: esperado '" << esperado << "' recebeu '"
-                << textoLinha[col] << "'\n"
-                << sstr << '\n'
-                << seta << '\n';
-   }
+   std::clog << filename << ':' << linha << ':' << col
+             << ": erro lexico: esperado '" << esperado << "' recebeu '"
+             << textoLinha[col] << "'\n"
+             << sstr << '\n'
+             << seta << '\n';
 }
 
 std::size_t Erro::primeiroCaracterNaLinha(std::ifstream& file) const {
