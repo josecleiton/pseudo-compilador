@@ -37,7 +37,22 @@ struct Token {
       PNTVIRG, // 13
       ABREPRNT, // 14
       FECHAPRNT, // 15
-      FIMARQ // 16
+      FIMARQ, // 16
+      // não terminais
+      $,
+      PROGRAMA,
+      BLOCO,
+      COMANDO,
+      STAT,
+      NT_ENQUANTO,
+      SEBLOCO,
+      NT_SE,
+      NT_SENAO,
+      DECL,
+      EXP,
+      EXPL,
+      TERMOEXP,
+      FATOREXP,
    };
    TipoToken id;
    std::string lexema;

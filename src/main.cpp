@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-#include "lex.hpp"
+#include "syn.hpp"
 
 inline void usage(void) { std::cerr << "Caminho do arquivo é requerido.\n"; }
 
@@ -29,10 +29,12 @@ int main(int argc, char *argv[]) {
    }
    try {
       Lex lex(argv[1]);
-      Token tk;
-      while ((tk = lex.getToken()).id != Token::TipoToken::FIMARQ) {
-         std::cout << tk << '\n';
-      }
+      Syn syn(lex);
+      syn.parse();
+      /* Token tk; */
+      /* while ((tk = lex.getToken()).id != Token::TipoToken::FIMARQ) { */
+      /*    std::cout << tk << '\n'; */
+      /* } */
       return EXIT_SUCCESS;
    } catch (const std::exception &e) {
 #ifdef DEBUG

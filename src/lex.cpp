@@ -62,7 +62,6 @@ Lex::~Lex() {
 Token Lex::proxToken(void) {
    int estado = 0;
    std::string lexema;
-   const auto tipoErro = Erro::TipoErro::Lexico;
    while (estado != EOF) {
       char c;
       /* std::cout << lexema << ' ' << estado << '\n'; */
@@ -127,7 +126,7 @@ Token Lex::proxToken(void) {
                      lexema.pop_back();
                      break;
                   } else {
-                     throw Erro(this, tipoErro, lexema, "Σ");
+                     throw Erro(this, lexema, "Σ");
                   }
             }
             break;
@@ -155,7 +154,7 @@ Token Lex::proxToken(void) {
             if (isdigit(c)) {
                estado = 6;
             } else {
-               throw Erro(this, tipoErro, lexema, "[0-9]");
+               throw Erro(this, lexema, "[0-9]");
             }
             break;
          case 5:
@@ -179,7 +178,7 @@ Token Lex::proxToken(void) {
             if (c == '&') {
                estado = 13;
             } else {
-               throw Erro(this, tipoErro, lexema, "&");
+               throw Erro(this, lexema, "&");
             }
             // error
             break;
@@ -190,7 +189,7 @@ Token Lex::proxToken(void) {
             if (c == '|') {
                estado = 13;
             } else {
-               throw Erro(this, tipoErro, lexema, "|");
+               throw Erro(this, lexema, "|");
             }
             break;
          case 16:
