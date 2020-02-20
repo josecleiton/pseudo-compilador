@@ -33,10 +33,6 @@ int main(int argc, char *argv[]) {
       Lex lex(argv[1]);
       Syn syn(lex);
       syn.parse();
-      /* Token tk; */
-      /* while ((tk = lex.getToken()).id != Token::TipoToken::FIMARQ) { */
-      /*    std::cout << tk << '\n'; */
-      /* } */
       return EXIT_SUCCESS;
    } catch (const std::exception &e) {
 #ifdef DEBUG

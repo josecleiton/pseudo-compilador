@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <list>
 #include <stack>
 #include <unordered_map>
 
@@ -44,28 +45,48 @@ class SymbolTable {
       std::unordered_map<std::string, ID> mIDs;
    };
    std::unordered_map<unsigned, Contexto> mContextos{{GLOBAL, {}}};
+   std::stack<unsigned> mPilha;
 
   public:
    SymbolTable(void);
    const ID* buscaID(const unsigned codContexto,
                      const std::string& lexema) const;
-   inline unsigned inserirContexto(const unsigned super = 0) {
-      mContextos[++mContextoCounter].super = super;
+   inline unsigned entrarContexto() {
+      mContextos[++mContextoCounter].super = getContexto();
+      mPilha.push(mContextoCounter);
       return mContextoCounter;
    }
-   bool inserirID(const unsigned codContexto, const std::string&, const Tipo&);
+   inline unsigned getContexto(void) const { return mPilha.top(); }
+   inline void sairContexto(void) { mPilha.pop(); }
+   bool inserirID(const unsigned, const Token&, const Tipo&);
+   bool inserirID(const Token&, const Tipo&);
+   inline Tipo getTipoByLexema(const std::string& lexema) const {
+      if(lexema == "INTEIRO") {
+         return Tipo::INTEIRO;
+      } else if(lexema == "QUEBRADO") {
+         return Tipo::QUEBRADO;
+      }
+      return Tipo::LOGICO;
+   }
 };
 
 class Syn {
    std::stack<TipoToken> mPilha;
+   std::list<Token> mTokens;
    // abaixo está a inicialização da parse table (LL(1))
    const std::unordered_map<TipoToken, std::unordered_map<TipoToken, int>> mLL{
-       {TipoToken::PROGRAMA,
+       {TipoToken::S,
         {{TipoToken::TIPO, 1},
          {TipoToken::ID, 1},
          {TipoToken::SE, 1},
          {TipoToken::ENQUANTO, 1}}},
        {TipoToken::PROGRAMA,
+        {{TipoToken::TIPO, 1},
+         {TipoToken::ID, 1},
+         {TipoToken::SE, 1},
+         {TipoToken::ENQUANTO, 1},
+         {TipoToken::$, 2}}},
+       {TipoToken::BLOCO,
         {{TipoToken::TIPO, 2},
          {TipoToken::ID, 2},
          {TipoToken::SE, 2},
@@ -90,5 +111,8 @@ class Syn {
   public:
    Syn(Lex&);
    unsigned parse(void);
+   void handleContexto(const Token&);
+   inline const auto& getTokens(void) const { return mTokens; }
+   inline const auto& getSymbols(void) const { return mST; }
 };
 }  // namespace AnaliseSintatica

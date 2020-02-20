@@ -18,13 +18,16 @@
 
 #include "syn.hpp"
 
-#ifdef DEBUG
+#ifndef DEBUG
+#define DEBUG 1
 #include <iostream>
 #endif
 
 #include <stdexcept>
 
 namespace AnaliseSintatica {
+
+SymbolTable::SymbolTable(void) { mPilha.push(GLOBAL); }
 
 const SymbolTable::ID* SymbolTable::buscaID(const unsigned codContexto,
                                             const std::string& lexema) const {
@@ -41,45 +44,55 @@ const SymbolTable::ID* SymbolTable::buscaID(const unsigned codContexto,
    return nullptr;
 }
 
-bool SymbolTable::inserirID(const unsigned codContexto,
-                            const std::string& lexema, const Tipo& tipo) {
+bool SymbolTable::inserirID(const unsigned codContexto, const Token& tk,
+                            const Tipo& tipo) {
    const auto itContexto = mContextos.find(codContexto);
    if (itContexto != mContextos.end()) {
       auto& [_, mIDs] = itContexto->second;
-      mIDs[lexema] = {tipo};
+      mIDs[tk.lexema] = {tipo};
       return true;
    }
    return false;
 }
 
+bool SymbolTable::inserirID(const Token& tk, const Tipo& tipo) {
+   auto& [_, mIDs] = mContextos.at(getContexto());
+   mIDs[tk.lexema] = {tipo};
+   return true;
+}
+
 Syn::Syn(Lex& l) : mLex(l) {
    mPilha.push(TipoToken::FIMARQ);
-   mPilha.push(TipoToken::PROGRAMA);
+   mPilha.push(TipoToken::S);
 }
 
 unsigned Syn::parse(void) {
    Token tk = mLex.getToken();
    unsigned count{};
+   Token* tipo{};
    while (mPilha.size()) {
       auto& topo = mPilha.top();
       try {
-         if (tk.id != topo) {
-            const auto& producao = mLL.at(topo).at(tk.id);
+         if (tk != topo) {
+            const auto& producao = mLL.at(topo).at(tk);
             mPilha.pop();
             switch (producao) {
+               case 0:  // S -> programa
+                  mPilha.push(TipoToken::PROGRAMA);
+                  break;
                case 1:  // programa -> comando
+                  mPilha.push(TipoToken::PROGRAMA);
                   mPilha.push(TipoToken::COMANDO);
-                  // inicia contexto global
                   break;
                case 2:  // bloco -> comando
                   mPilha.push(TipoToken::COMANDO);
-                  // insere contexto na arvore de contexto
                   break;
                case 3:  // comando -> sebloco
                   mPilha.push(TipoToken::SEBLOCO);
                   break;
                case 4:  // comando -> enquanto
                   mPilha.push(TipoToken::NT_ENQUANTO);
+                  break;
                case 5:  // comando -> stat;
                   mPilha.push(TipoToken::PNTVIRG);
                   mPilha.push(TipoToken::STAT);
@@ -104,6 +117,7 @@ unsigned Syn::parse(void) {
                   mPilha.push(TipoToken::ACABOU);
                   break;
                case 11:  // senao -> SENAO bloco ACABOU
+                  mST.entrarContexto();
                   mPilha.push(TipoToken::ACABOU);
                   mPilha.push(TipoToken::BLOCO);
                   mPilha.push(TipoToken::SENAO);
@@ -125,9 +139,18 @@ unsigned Syn::parse(void) {
                   mPilha.push(TipoToken::ID);
                   break;
                default:
-                  throw std::runtime_error("Erro sintático");
+                  throw std::runtime_error(
+                      "Erro sintatico - Produção não registrada");
             }
          } else {
+            handleContexto(topo);
+            mTokens.push_back(tk);
+            if (tk == TipoToken::TIPO) {
+               tipo = &mTokens.back();
+            } else if (tipo and tk == TipoToken::ID) {
+               mST.inserirID(tk, mST.getTipoByLexema(tipo->lexema));
+               tipo = nullptr;
+            }
             mPilha.pop();
 #ifdef DEBUG
             std::clog << "[DEBUG - parser] " << tk << '\n';
@@ -135,21 +158,29 @@ unsigned Syn::parse(void) {
             tk = mLex.getToken();
             count++;
          }
-      } catch (const std::out_of_range& e) {
+      } catch (const std::exception& e) {
 #ifdef DEBUG
          std::clog
              << "[DEBUG - parser] Transição não encontrada na parse table.\n";
 #endif
          throw e;
-      } catch (const std::runtime_error& e) {
-#ifdef DEBUG
-         std::clog
-             << "[DEBUG - parser] Produção não registrada na parse table.\n";
-#endif
-         throw e;
       }
    }
    return count;
+}
+void Syn::handleContexto(const Token& tk) {
+   switch (tk) {
+      case TipoToken::SE:
+      case TipoToken::SENAO:
+      case TipoToken::ENQUANTO:
+         mST.entrarContexto();
+         break;
+      case TipoToken::ACABOU:
+         mST.sairContexto();
+         break;
+      default:
+         break;
+   }
 }
 }  // namespace AnaliseSintatica
 

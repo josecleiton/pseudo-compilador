@@ -17,12 +17,11 @@
  */
 #pragma once
 
-#define DEBUG 1
-
 #include <exception>
 #include <fstream>
 #include <stdexcept>
 #include <unordered_map>
+#include <iostream>
 
 #include "token.hpp"
 
@@ -36,7 +35,10 @@ class Lex {
        {"FACA", Token::TipoToken::FACA},
        {"ACABOU", Token::TipoToken::ACABOU},
        {"SENAO", Token::TipoToken::SENAO},
-       {"ENQUANTO", Token::TipoToken::ENQUANTO}};
+       {"ENQUANTO", Token::TipoToken::ENQUANTO},
+       {"INTEIRO", Token::TipoToken::TIPO},
+       {"QUEBRADO", Token::TipoToken::TIPO},
+       {"LOGICO", Token::TipoToken::TIPO}};
    unsigned mLinha{1}, mCol{};
 
   public:
@@ -51,6 +53,12 @@ class Lex {
    inline const auto& getCol(void) const { return mCol; }
    inline const auto& getFilename(void) const { return mFilename; }
    inline auto& getFile(void) { return mInputFile; }
+   inline void analiseAteEOF(void) {
+      Token tk;
+      while ((tk = getToken()) != Token::TipoToken::FIMARQ) {
+         std::cout << tk << '\n';
+      }
+   }
 
   private:
    Token proxToken(void);

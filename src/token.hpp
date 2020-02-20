@@ -40,6 +40,7 @@ struct Token {
       FIMARQ,     // 16
       // não terminais
       $,
+      S,
       PROGRAMA,
       BLOCO,
       COMANDO,
@@ -59,6 +60,7 @@ struct Token {
    TipoToken id;
    std::string lexema;
    Token(const TipoToken &tk = TipoToken::INITIAl, const std::string &s = "");
+   operator TipoToken() const { return id; }
 };
 
 std::ostream &operator<<(std::ostream &, const Token &);

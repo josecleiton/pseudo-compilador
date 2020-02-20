@@ -33,12 +33,13 @@ inline void falhaAoAbrirArquivo(const std::string& path) {
 
 Lex::Lex(const std::string& inPath, const std::string& outPath)
     : mFilename(inPath), mInputFile(mFilename), mOutputFile(outPath) {
-   const std::string sufixo = ".pl";
+   const std::string sufixo = ".c20192";
    const int pos = inPath.size() - sufixo.size() - 1;
    if (pos <= 0 || inPath.find(sufixo, pos) == std::string::npos) {
       std::cerr << "Arquivos de entrada devem terminar com '" << sufixo
                 << "'\n";
-      throw std::invalid_argument("Falta extensão '.pl' em arquivo.");
+      throw std::invalid_argument("Falta extensão '" + sufixo +
+                                  "' em arquivo.");
    }
    if (!mInputFile.is_open()) {
       falhaAoAbrirArquivo(inPath);
