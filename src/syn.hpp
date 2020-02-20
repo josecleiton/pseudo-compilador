@@ -18,13 +18,45 @@
 
 #pragma once
 
-#include <functional>
 #include <stack>
 #include <unordered_map>
 
 #include "lex.hpp"
+namespace AnaliseSintatica {
+typedef Token::TipoToken TipoToken;
+
+class SymbolTable {
+  public:
+   enum class Tipo {
+      INTEIRO,
+      QUEBRADO,
+      LOGICO,
+   };
+   const unsigned GLOBAL{1};
+   unsigned mContextoCounter{1};
+
+  private:
+   struct ID {
+      Tipo tipo;
+   };
+   struct Contexto {
+      unsigned super;
+      std::unordered_map<std::string, ID> mIDs;
+   };
+   std::unordered_map<unsigned, Contexto> mContextos{{GLOBAL, {}}};
+
+  public:
+   SymbolTable(void);
+   const ID* buscaID(const unsigned codContexto,
+                     const std::string& lexema) const;
+   inline unsigned inserirContexto(const unsigned super = 0) {
+      mContextos[++mContextoCounter].super = super;
+      return mContextoCounter;
+   }
+   bool inserirID(const unsigned codContexto, const std::string&, const Tipo&);
+};
+
 class Syn {
-   typedef Token::TipoToken TipoToken;
    std::stack<TipoToken> mPilha;
    // abaixo está a inicialização da parse table (LL(1))
    const std::unordered_map<TipoToken, std::unordered_map<TipoToken, int>> mLL{
@@ -51,9 +83,12 @@ class Syn {
        {TipoToken::DECL, {{TipoToken::TIPO, 13}}},
        {TipoToken::ATRIB, {{TipoToken::ID, 13}}},
    };
+   SymbolTable mST;
+   // referencia do objeto Lex (responsável pela análise léxica)
    Lex& mLex;
 
   public:
    Syn(Lex&);
    unsigned parse(void);
 };
+}  // namespace AnaliseSintatica

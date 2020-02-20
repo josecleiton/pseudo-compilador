@@ -24,7 +24,33 @@
 
 #include <stdexcept>
 
-typedef Token::TipoToken TipoToken;
+namespace AnaliseSintatica {
+
+const SymbolTable::ID* SymbolTable::buscaID(const unsigned codContexto,
+                                            const std::string& lexema) const {
+   const auto itContexto = mContextos.find(codContexto);
+   if (itContexto != mContextos.end()) {
+      // c++17 feature, binda os campos de um objeto para variáveis
+      const auto& [super, mIDs] = itContexto->second;
+      const auto itID = mIDs.find(lexema);
+      if (itID != mIDs.end()) {
+         return &itID->second;
+      }
+      return buscaID(super, lexema);
+   }
+   return nullptr;
+}
+
+bool SymbolTable::inserirID(const unsigned codContexto,
+                            const std::string& lexema, const Tipo& tipo) {
+   const auto itContexto = mContextos.find(codContexto);
+   if (itContexto != mContextos.end()) {
+      auto& [_, mIDs] = itContexto->second;
+      mIDs[lexema] = {tipo};
+      return true;
+   }
+   return false;
+}
 
 Syn::Syn(Lex& l) : mLex(l) {
    mPilha.push(TipoToken::FIMARQ);
@@ -111,18 +137,19 @@ unsigned Syn::parse(void) {
          }
       } catch (const std::out_of_range& e) {
 #ifdef DEBUG
-         std::clog << "[DEBUG - parser] Transição não encontrada na parse table.\n";
+         std::clog
+             << "[DEBUG - parser] Transição não encontrada na parse table.\n";
 #endif
          throw e;
-      } catch(const std::runtime_error& e) {
+      } catch (const std::runtime_error& e) {
 #ifdef DEBUG
-         std::clog << "[DEBUG - parser] Produção não registrada na parse table.\n";
+         std::clog
+             << "[DEBUG - parser] Produção não registrada na parse table.\n";
 #endif
          throw e;
-
       }
    }
    return count;
 }
-
+}  // namespace AnaliseSintatica
 

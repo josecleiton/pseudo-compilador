@@ -20,6 +20,8 @@
 
 #include "syn.hpp"
 
+using namespace AnaliseSintatica;
+
 inline void usage(void) { std::cerr << "Caminho do arquivo é requerido.\n"; }
 
 int main(int argc, char *argv[]) {

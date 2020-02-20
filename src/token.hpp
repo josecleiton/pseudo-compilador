@@ -21,23 +21,23 @@
 
 struct Token {
    enum class TipoToken {
-      INITIAl, // 0
-      ID, // 1
-      TIPO, // 2
-      VALOR, // 3
-      OPB, // 4
-      OPA, // 5
-      NEG, // 6
-      SE, // 7
-      SENAO, // 8
-      ENQUANTO, // 9
-      FACA, // 10
-      ACABOU, // 11
-      ATRIB, // 12
-      PNTVIRG, // 13
-      ABREPRNT, // 14
-      FECHAPRNT, // 15
-      FIMARQ, // 16
+      INITIAl,    // 0
+      ID,         // 1
+      TIPO,       // 2
+      VALOR,      // 3
+      OPB,        // 4
+      OPA,        // 5
+      NEG,        // 6
+      SE,         // 7
+      SENAO,      // 8
+      ENQUANTO,   // 9
+      FACA,       // 10
+      ACABOU,     // 11
+      ATRIB,      // 12
+      PNTVIRG,    // 13
+      ABREPRNT,   // 14
+      FECHAPRNT,  // 15
+      FIMARQ,     // 16
       // não terminais
       $,
       PROGRAMA,
@@ -53,9 +53,12 @@ struct Token {
       EXPL,
       TERMOEXP,
       FATOREXP,
+      TERMOEXPL,
+      FATOREXPL,
    };
    TipoToken id;
    std::string lexema;
    Token(const TipoToken &tk = TipoToken::INITIAl, const std::string &s = "");
-   friend std::ostream &operator<<(std::ostream &, const Token &);
 };
+
+std::ostream &operator<<(std::ostream &, const Token &);
