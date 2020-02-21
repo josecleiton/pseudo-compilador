@@ -25,8 +25,11 @@ struct Token {
       ID,         // 1
       TIPO,       // 2
       VALOR,      // 3
-      OPB,        // 4
-      OPA,        // 5
+      /* OPB,        // 4 */
+      AND,
+      OR,
+      SINAL,        // 5
+      FATOR_OP,
       NEG,        // 6
       SE,         // 7
       SENAO,      // 8
@@ -53,9 +56,13 @@ struct Token {
       EXP,
       EXPL,
       TERMOEXP,
+      TERMOEXP2,
       FATOREXP,
+      FATOREXP2,
       TERMOEXPL,
+      TERMOEXPL2,
       FATOREXPL,
+      FATOREXPL2,
    };
    TipoToken id;
    std::string lexema;

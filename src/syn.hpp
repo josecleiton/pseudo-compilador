@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include <list>
 #include <stack>
 #include <unordered_map>
 
@@ -26,53 +25,9 @@
 namespace AnaliseSintatica {
 typedef Token::TipoToken TipoToken;
 
-class SymbolTable {
-  public:
-   enum class Tipo {
-      INTEIRO,
-      QUEBRADO,
-      LOGICO,
-   };
-   const unsigned GLOBAL{1};
-   unsigned mContextoCounter{1};
-
-  private:
-   struct ID {
-      Tipo tipo;
-   };
-   struct Contexto {
-      unsigned super;
-      std::unordered_map<std::string, ID> mIDs;
-   };
-   std::unordered_map<unsigned, Contexto> mContextos{{GLOBAL, {}}};
-   std::stack<unsigned> mPilha;
-
-  public:
-   SymbolTable(void);
-   const ID* buscaID(const unsigned codContexto,
-                     const std::string& lexema) const;
-   inline unsigned entrarContexto() {
-      mContextos[++mContextoCounter].super = getContexto();
-      mPilha.push(mContextoCounter);
-      return mContextoCounter;
-   }
-   inline unsigned getContexto(void) const { return mPilha.top(); }
-   inline void sairContexto(void) { mPilha.pop(); }
-   bool inserirID(const unsigned, const Token&, const Tipo&);
-   bool inserirID(const Token&, const Tipo&);
-   inline Tipo getTipoByLexema(const std::string& lexema) const {
-      if(lexema == "INTEIRO") {
-         return Tipo::INTEIRO;
-      } else if(lexema == "QUEBRADO") {
-         return Tipo::QUEBRADO;
-      }
-      return Tipo::LOGICO;
-   }
-};
 
 class Syn {
    std::stack<TipoToken> mPilha;
-   std::list<Token> mTokens;
    // abaixo está a inicialização da parse table (LL(1))
    const std::unordered_map<TipoToken, std::unordered_map<TipoToken, int>> mLL{
        {TipoToken::S,
@@ -102,17 +57,27 @@ class Syn {
        {TipoToken::NT_SENAO, {{TipoToken::ACABOU, 10}, {TipoToken::SENAO, 11}}},
        {TipoToken::NT_ENQUANTO, {{TipoToken::ENQUANTO, 12}}},
        {TipoToken::DECL, {{TipoToken::TIPO, 13}}},
-       {TipoToken::ATRIB, {{TipoToken::ID, 13}}},
+       {TipoToken::ATRIB, {{TipoToken::ID, 14}}},
+       {TipoToken::EXP, {{TipoToken::ID, 15}, {TipoToken::ABREPRNT, 15}, {TipoToken::VALOR, 15}, {TipoToken::SINAL, 16}}},
+       {TipoToken::EXPL, {{TipoToken::ID, 17}, {TipoToken::ABREPRNT, 17}, {TipoToken::NEG, 19}}},
+       {TipoToken::TERMOEXP, {{TipoToken::ID, 20}, {TipoToken::ABREPRNT, 20}, {TipoToken::VALOR, 20}}},
+       {TipoToken::TERMOEXP2, {{TipoToken::FACA, 21}, {TipoToken::FECHAPRNT, 21}, {TipoToken::SINAL, 22}, {TipoToken::FATOR_OP, 27}}},
+       {TipoToken::FATOREXP, {{TipoToken::ID,23}, {TipoToken::ABREPRNT,24}, {TipoToken::VALOR,25}}},
+       {TipoToken::FATOREXP2, {{TipoToken::PNTVIRG, 26}, {TipoToken::SINAL,26}, {TipoToken::FATOR_OP,27}, {TipoToken::FECHAPRNT,26}}},
+       {TipoToken::TERMOEXPL, {{TipoToken::ID, 28}, {TipoToken::ABREPRNT, 28}}},
+       {TipoToken::TERMOEXP2, {{TipoToken::FACA,29 }, {TipoToken::OR, 30}, {TipoToken::FECHAPRNT, 29}, {TipoToken::AND, 34}}},
+       {TipoToken::FATOREXPL, {{TipoToken::ID, 31}, {TipoToken::ABREPRNT, 32}}},
+       {TipoToken::FATOREXPL2, {{TipoToken::FACA, 33}, {TipoToken::AND, 34}, {TipoToken::OR, 33}, {TipoToken::FECHAPRNT, 33}}},
+       {TipoToken::NEG, {{TipoToken::NEG, 35}}},
    };
-   SymbolTable mST;
+   unsigned mTkCounter{};
    // referencia do objeto Lex (responsável pela análise léxica)
    Lex& mLex;
 
   public:
    Syn(Lex&);
-   unsigned parse(void);
-   void handleContexto(const Token&);
-   inline const auto& getTokens(void) const { return mTokens; }
-   inline const auto& getSymbols(void) const { return mST; }
+   Token parse(void);
+   /* inline const auto& getTokens(void) const { return mTokens; } */
+   inline unsigned getTkCounter(void) const { return mTkCounter; }
 };
 }  // namespace AnaliseSintatica

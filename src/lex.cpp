@@ -77,17 +77,13 @@ Token Lex::proxToken(void) {
                case ',':
                   estado = 4;
                   break;
+               case '-':
                case '+':
                   estado = 8;
                   break;
                case '*':
-                  estado = 9;
-                  break;
                case '/':
-                  estado = 10;
-                  break;
-               case '-':
-                  estado = 11;
+                  estado = 9;
                   break;
                case '&':
                   estado = 12;
@@ -170,25 +166,22 @@ Token Lex::proxToken(void) {
          case 7:
             return Token(Token::TipoToken::ATRIB, lexema);
          case 8:
+            return Token(Token::TipoToken::SINAL, lexema);
          case 9:
-         case 10:
-         case 11:
-            return Token(Token::TipoToken::OPA, lexema);
+            return Token(Token::TipoToken::FATOR_OP, lexema);
          case 12:
             c = getChar(lexema);
             if (c == '&') {
-               estado = 13;
+               return Token(Token::TipoToken::AND, lexema);
             } else {
                throw Erro(this, lexema, "&");
             }
             // error
             break;
-         case 13:
-            return Token(Token::TipoToken::OPB, lexema);
          case 14:
             c = getChar(lexema);
             if (c == '|') {
-               estado = 13;
+               return Token(Token::TipoToken::OR, lexema);
             } else {
                throw Erro(this, lexema, "|");
             }

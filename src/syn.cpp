@@ -27,49 +27,14 @@
 
 namespace AnaliseSintatica {
 
-SymbolTable::SymbolTable(void) { mPilha.push(GLOBAL); }
-
-const SymbolTable::ID* SymbolTable::buscaID(const unsigned codContexto,
-                                            const std::string& lexema) const {
-   const auto itContexto = mContextos.find(codContexto);
-   if (itContexto != mContextos.end()) {
-      // c++17 feature, binda os campos de um objeto para variáveis
-      const auto& [super, mIDs] = itContexto->second;
-      const auto itID = mIDs.find(lexema);
-      if (itID != mIDs.end()) {
-         return &itID->second;
-      }
-      return buscaID(super, lexema);
-   }
-   return nullptr;
-}
-
-bool SymbolTable::inserirID(const unsigned codContexto, const Token& tk,
-                            const Tipo& tipo) {
-   const auto itContexto = mContextos.find(codContexto);
-   if (itContexto != mContextos.end()) {
-      auto& [_, mIDs] = itContexto->second;
-      mIDs[tk.lexema] = {tipo};
-      return true;
-   }
-   return false;
-}
-
-bool SymbolTable::inserirID(const Token& tk, const Tipo& tipo) {
-   auto& [_, mIDs] = mContextos.at(getContexto());
-   mIDs[tk.lexema] = {tipo};
-   return true;
-}
-
 Syn::Syn(Lex& l) : mLex(l) {
    mPilha.push(TipoToken::FIMARQ);
    mPilha.push(TipoToken::S);
 }
 
-unsigned Syn::parse(void) {
+Token Syn::parse(void) {
    Token tk = mLex.getToken();
-   unsigned count{};
-   Token* tipo{};
+   mTkCounter++;
    while (mPilha.size()) {
       auto& topo = mPilha.top();
       try {
@@ -117,7 +82,6 @@ unsigned Syn::parse(void) {
                   mPilha.push(TipoToken::ACABOU);
                   break;
                case 11:  // senao -> SENAO bloco ACABOU
-                  mST.entrarContexto();
                   mPilha.push(TipoToken::ACABOU);
                   mPilha.push(TipoToken::BLOCO);
                   mPilha.push(TipoToken::SENAO);
@@ -138,25 +102,86 @@ unsigned Syn::parse(void) {
                   mPilha.push(TipoToken::ATRIB);
                   mPilha.push(TipoToken::ID);
                   break;
+               case 15:  // exp -> termoexp termoexp2
+                  mPilha.push(TipoToken::TERMOEXP2);
+                  mPilha.push(TipoToken::TERMOEXP);
+                  break;
+               case 16:  // exp -> sinal termoexp
+                  mPilha.push(TipoToken::TERMOEXP);
+                  mPilha.push(TipoToken::SINAL);
+                  break;
+               case 17:  // exp -> termoexpl termoexpl2
+                  mPilha.push(TipoToken::TERMOEXPL2);
+                  mPilha.push(TipoToken::TERMOEXPL);
+                  break;
+               case 19:
+                  mPilha.push(TipoToken::EXPL);
+                  mPilha.push(TipoToken::NEG);
+                  break;
+               case 20:
+                  mPilha.push(TipoToken::FATOREXP2);
+                  mPilha.push(TipoToken::FATOREXP);
+                  break;
+
+               case 33:
+               case 29:
+               case 26:
+               case 21:
+                  // transicao nula
+                  // mPilha.pop();
+                  break;
+               case 22:
+                  mPilha.push(TipoToken::TERMOEXP);
+                  mPilha.push(TipoToken::SINAL);
+                  break;
+               case 23:
+               case 31:
+                  mPilha.push(TipoToken::ID);
+                  break;
+               case 24:
+                  mPilha.push(TipoToken::FECHAPRNT);
+                  mPilha.push(TipoToken::EXP);
+                  mPilha.push(TipoToken::ABREPRNT);
+                  break;
+               case 25:
+                  mPilha.push(TipoToken::VALOR);
+                  break;
+               case 27:
+                  mPilha.push(TipoToken::FATOREXP);
+                  mPilha.push(TipoToken::FATOR_OP);
+                  break;
+               case 28:
+                  mPilha.push(TipoToken::FATOREXPL2);
+                  mPilha.push(TipoToken::FATOREXPL);
+                  break;
+               case 30:
+                  mPilha.push(TipoToken::TERMOEXPL);
+                  mPilha.push(TipoToken::OR);
+                  break;
+               case 32:
+                  mPilha.push(TipoToken::FECHAPRNT);
+                  mPilha.push(TipoToken::EXPL);
+                  mPilha.push(TipoToken::ABREPRNT);
+                  break;
+               case 34:
+                  mPilha.push(TipoToken::FATOREXP);
+                  mPilha.push(TipoToken::AND);
+                  break;
+               case 35:
+                  mPilha.push(TipoToken::EXPL);
+                  mPilha.push(TipoToken::NEG);
+                  break;
+
                default:
                   throw std::runtime_error(
                       "Erro sintatico - Produção não registrada");
             }
          } else {
-            handleContexto(topo);
-            mTokens.push_back(tk);
-            if (tk == TipoToken::TIPO) {
-               tipo = &mTokens.back();
-            } else if (tipo and tk == TipoToken::ID) {
-               mST.inserirID(tk, mST.getTipoByLexema(tipo->lexema));
-               tipo = nullptr;
-            }
             mPilha.pop();
 #ifdef DEBUG
             std::clog << "[DEBUG - parser] " << tk << '\n';
 #endif
-            tk = mLex.getToken();
-            count++;
+            return tk;
          }
       } catch (const std::exception& e) {
 #ifdef DEBUG
@@ -166,21 +191,7 @@ unsigned Syn::parse(void) {
          throw e;
       }
    }
-   return count;
-}
-void Syn::handleContexto(const Token& tk) {
-   switch (tk) {
-      case TipoToken::SE:
-      case TipoToken::SENAO:
-      case TipoToken::ENQUANTO:
-         mST.entrarContexto();
-         break;
-      case TipoToken::ACABOU:
-         mST.sairContexto();
-         break;
-      default:
-         break;
-   }
+   return Token(TipoToken::FIMARQ);
 }
 }  // namespace AnaliseSintatica
 

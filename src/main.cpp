@@ -32,7 +32,8 @@ int main(int argc, char *argv[]) {
    try {
       Lex lex(argv[1]);
       Syn syn(lex);
-      syn.parse();
+      while (syn.parse() != TipoToken::FIMARQ) {
+      }
       return EXIT_SUCCESS;
    } catch (const std::exception &e) {
 #ifdef DEBUG
