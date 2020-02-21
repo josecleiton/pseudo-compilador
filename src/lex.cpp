@@ -24,6 +24,8 @@
 
 #include "erro.hpp"
 
+typedef Token::TipoToken TipoToken;
+
 inline void falhaAoAbrirArquivo(const std::string& path) {
    std::cerr << "Falha na abertura do arquivo: '" << path
              << "'. Verique se o caminho está "
@@ -56,8 +58,6 @@ Lex::~Lex() {
 #ifdef DEBUG
    std::clog << "[DEBUG] Lex - Linhas lidas: " << mLinha << '\n';
 #endif
-   mInputFile.close();
-   mOutputFile.close();
 }
 
 Token Lex::proxToken(void) {
@@ -156,7 +156,7 @@ Token Lex::proxToken(void) {
             break;
          case 5:
             ungetChar(lexema);
-            return Token(Token::TipoToken::VALOR, lexema);
+            return Token(TipoToken::VALOR, lexema);
          case 6:
             c = getChar(lexema);
             if (!isdigit(c)) {
@@ -164,15 +164,15 @@ Token Lex::proxToken(void) {
             }
             break;
          case 7:
-            return Token(Token::TipoToken::ATRIB, lexema);
+            return Token(TipoToken::ATRIB, lexema);
          case 8:
-            return Token(Token::TipoToken::SINAL, lexema);
+            return Token(TipoToken::SINAL, lexema);
          case 9:
-            return Token(Token::TipoToken::FATOR_OP, lexema);
+            return Token(TipoToken::FATOR_OP, lexema);
          case 12:
             c = getChar(lexema);
             if (c == '&') {
-               return Token(Token::TipoToken::AND, lexema);
+               return Token(TipoToken::AND, lexema);
             } else {
                throw Erro(this, lexema, "&");
             }
@@ -181,7 +181,7 @@ Token Lex::proxToken(void) {
          case 14:
             c = getChar(lexema);
             if (c == '|') {
-               return Token(Token::TipoToken::OR, lexema);
+               return Token(TipoToken::OR, lexema);
             } else {
                throw Erro(this, lexema, "|");
             }
@@ -195,13 +195,13 @@ Token Lex::proxToken(void) {
             break;
          case 17:
             ungetChar(lexema);
-            return Token(Token::TipoToken::NEG, lexema);
+            return Token(TipoToken::NEG, lexema);
          case 18:
-            return Token(Token::TipoToken::PNTVIRG, lexema);
+            return Token(TipoToken::PNTVIRG, lexema);
          case 19:
-            return Token(Token::TipoToken::ABREPRNT, lexema);
+            return Token(TipoToken::ABREPRNT, lexema);
          case 20:
-            return Token(Token::TipoToken::FECHAPRNT, lexema);
+            return Token(TipoToken::FECHAPRNT, lexema);
          case 21:
             c = getChar(lexema);
             if (isspace(c) && c != ' ') {
@@ -217,5 +217,5 @@ Token Lex::proxToken(void) {
             break;
       }
    }
-   return Token(Token::TipoToken::FIMARQ, "\"EOF\"");
+   return Token(TipoToken::FIMARQ, "\"EOF\"");
 }

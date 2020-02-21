@@ -30,6 +30,65 @@ namespace AnaliseSintatica {
 Syn::Syn(Lex& l) : mLex(l) {
    mPilha.push(TipoToken::FIMARQ);
    mPilha.push(TipoToken::S);
+   mLL[TipoToken::S][TipoToken::TIPO] = mLL[TipoToken::S][TipoToken::ID] =
+       mLL[TipoToken::S][TipoToken::SE] =
+           mLL[TipoToken::S][TipoToken::ENQUANTO] = 1;
+   mLL[TipoToken::PROGRAMA][TipoToken::TIPO] =
+       mLL[TipoToken::PROGRAMA][TipoToken::ID] =
+           mLL[TipoToken::PROGRAMA][TipoToken::SE] =
+               mLL[TipoToken::PROGRAMA][TipoToken::ENQUANTO] = 1;
+   mLL[TipoToken::PROGRAMA][TipoToken::FIMARQ] = 21;
+   mLL[TipoToken::BLOCO][TipoToken::TIPO] =
+       mLL[TipoToken::BLOCO][TipoToken::ID] =
+           mLL[TipoToken::BLOCO][TipoToken::SE] =
+               mLL[TipoToken::BLOCO][TipoToken::ENQUANTO] = 2;
+   mLL[TipoToken::COMANDO][TipoToken::SE] = 3;
+   mLL[TipoToken::COMANDO][TipoToken::ENQUANTO] = 4;
+   mLL[TipoToken::COMANDO][TipoToken::TIPO] =
+       mLL[TipoToken::COMANDO][TipoToken::ID] = 5;
+   mLL[TipoToken::STAT][TipoToken::TIPO] = 6;
+   mLL[TipoToken::STAT][TipoToken::ID] = 7;
+   mLL[TipoToken::SEBLOCO][TipoToken::SE] = 8;
+   mLL[TipoToken::NT_SE][TipoToken::SE] = 9;
+   mLL[TipoToken::NT_SENAO][TipoToken::ACABOU] = 10;
+   mLL[TipoToken::NT_SENAO][TipoToken::SENAO] = 11;
+   mLL[TipoToken::NT_ENQUANTO][TipoToken::ENQUANTO] = 12;
+   mLL[TipoToken::DECL][TipoToken::TIPO] = 13;
+   mLL[TipoToken::ATRIB][TipoToken::ID] = 14;
+   mLL[TipoToken::EXP][TipoToken::ID] =
+       mLL[TipoToken::EXP][TipoToken::ABREPRNT] =
+           mLL[TipoToken::EXP][TipoToken::VALOR] = 15;
+   mLL[TipoToken::EXP][TipoToken::SINAL] = 16;
+   mLL[TipoToken::EXPL][TipoToken::ID] =
+       mLL[TipoToken::EXPL][TipoToken::ABREPRNT] = 17;
+   mLL[TipoToken::EXPL][TipoToken::NEG] = 19;
+   mLL[TipoToken::TERMOEXP][TipoToken::ID] =
+       mLL[TipoToken::TERMOEXP][TipoToken::ABREPRNT] =
+           mLL[TipoToken::TERMOEXP][TipoToken::VALOR] = 20;
+   mLL[TipoToken::TERMOEXP2][TipoToken::PNTVIRG] =
+       mLL[TipoToken::TERMOEXP2][TipoToken::FECHAPRNT] = 21;
+   mLL[TipoToken::TERMOEXP2][TipoToken::SINAL] = 22;
+   mLL[TipoToken::TERMOEXP2][TipoToken::FATOR_OP] = 27;
+   mLL[TipoToken::FATOREXP][TipoToken::ID] = 23;
+   mLL[TipoToken::FATOREXP][TipoToken::ABREPRNT] = 24;
+   mLL[TipoToken::FATOREXP][TipoToken::VALOR] = 25;
+   mLL[TipoToken::FATOREXP2][TipoToken::PNTVIRG] =
+       mLL[TipoToken::FATOREXP2][TipoToken::SINAL] =
+           mLL[TipoToken::FATOREXP2][TipoToken::FECHAPRNT] = 26;
+   mLL[TipoToken::FATOREXP2][TipoToken::FATOR_OP] = 27;
+   mLL[TipoToken::TERMOEXPL][TipoToken::ID] =
+       mLL[TipoToken::TERMOEXPL][TipoToken::ABREPRNT] = 28;
+   mLL[TipoToken::TERMOEXPL2][TipoToken::FACA] =
+       mLL[TipoToken::TERMOEXPL2][TipoToken::FECHAPRNT] = 29;
+   mLL[TipoToken::TERMOEXPL2][TipoToken::OR] = 30;
+   mLL[TipoToken::TERMOEXPL2][TipoToken::AND] = 34;
+   mLL[TipoToken::FATOREXPL][TipoToken::ID] = 31;
+   mLL[TipoToken::FATOREXPL][TipoToken::ABREPRNT] = 32;
+   mLL[TipoToken::FATOREXPL2][TipoToken::FACA] =
+       mLL[TipoToken::FATOREXPL2][TipoToken::FECHAPRNT] =
+           mLL[TipoToken::FATOREXPL2][TipoToken::OR] = 33;
+   mLL[TipoToken::FATOREXPL2][TipoToken::AND] = 34;
+   mLL[TipoToken::NEG][TipoToken::NEG] = 35;
 }
 
 Token Syn::parse(void) {
@@ -123,10 +182,10 @@ Token Syn::parse(void) {
                   mPilha.push(TipoToken::FATOREXP);
                   break;
 
-               case 33:
-               case 29:
-               case 26:
                case 21:
+               case 26:
+               case 29:
+               case 33:
                   // transicao nula
                   // mPilha.pop();
                   break;
