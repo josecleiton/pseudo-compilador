@@ -1,5 +1,8 @@
 INTEIRO id;
-SE id ENTAO FACA id = 4 ACABOU
-k = 32312314,42331 * 321939129301 / (test * ( 54))
-trinta = 321#lol
-FUNCIONANDO = ACABOU
+SE id FACA id = 4; ACABOU
+k = 32312314,42331 * 321939129301 / (test * ( 54));
+trinta = 321;#lol
+ENQUANTO trinta FACA
+oito = quatro;
+INTEIRO tres;
+ACABOU

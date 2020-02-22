@@ -42,6 +42,8 @@ Syn::Syn(Lex& l) : mLex(l) {
        mLL[TipoToken::BLOCO][TipoToken::ID] =
            mLL[TipoToken::BLOCO][TipoToken::SE] =
                mLL[TipoToken::BLOCO][TipoToken::ENQUANTO] = 2;
+   mLL[TipoToken::BLOCO][TipoToken::ACABOU] =
+       mLL[TipoToken::BLOCO][TipoToken::FACA] = 21;
    mLL[TipoToken::COMANDO][TipoToken::SE] = 3;
    mLL[TipoToken::COMANDO][TipoToken::ENQUANTO] = 4;
    mLL[TipoToken::COMANDO][TipoToken::TIPO] =
@@ -109,13 +111,16 @@ Token Syn::parse(void) {
                   mPilha.push(TipoToken::COMANDO);
                   break;
                case 2:  // bloco -> comando
+                  mPilha.push(TipoToken::BLOCO);
                   mPilha.push(TipoToken::COMANDO);
                   break;
                case 3:  // comando -> sebloco
                   mPilha.push(TipoToken::SEBLOCO);
+                  // cria node SEBLOCO
                   break;
                case 4:  // comando -> enquanto
                   mPilha.push(TipoToken::NT_ENQUANTO);
+                  // cria node NT_ENQUANTO
                   break;
                case 5:  // comando -> stat;
                   mPilha.push(TipoToken::PNTVIRG);
@@ -123,9 +128,11 @@ Token Syn::parse(void) {
                   break;
                case 6:  // stat -> decl
                   mPilha.push(TipoToken::DECL);
+                  // cria node DECL
                   break;
                case 7:  // stat -> atrib
                   mPilha.push(TipoToken::ATRIB);
+                  // cria node ATRIB
                   break;
                case 8:  // sebloco -> se senao
                   mPilha.push(TipoToken::NT_SENAO);
@@ -144,6 +151,7 @@ Token Syn::parse(void) {
                   mPilha.push(TipoToken::ACABOU);
                   mPilha.push(TipoToken::BLOCO);
                   mPilha.push(TipoToken::SENAO);
+                  // cria node senao
                   break;
                case 12:  // enquanto -> ENQUANTO expl FACA bloco ACABOU
                   mPilha.push(TipoToken::ACABOU);

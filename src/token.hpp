@@ -21,14 +21,14 @@
 
 struct Token {
    enum class TipoToken {
-      INITIAl,    // 0
-      ID,         // 1
-      TIPO,       // 2
-      VALOR,      // 3
+      INITIAl,  // 0
+      ID,       // 1
+      TIPO,     // 2
+      VALOR,    // 3
       /* OPB,        // 4 */
       AND,
       OR,
-      SINAL,        // 5
+      SINAL,  // 5
       FATOR_OP,
       NEG,        // 6
       SE,         // 7
@@ -67,7 +67,7 @@ struct Token {
    TipoToken id;
    std::string lexema;
    Token(const TipoToken &tk = TipoToken::INITIAl, const std::string &s = "");
-   operator TipoToken() const { return id; }
+   inline operator TipoToken() const { return id; }
 };
 
 std::ostream &operator<<(std::ostream &, const Token &);

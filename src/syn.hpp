@@ -21,22 +21,23 @@
 #include <stack>
 #include <unordered_map>
 
+#include "ast.hpp"
 #include "lex.hpp"
 namespace AnaliseSintatica {
 typedef Token::TipoToken TipoToken;
 
 class Syn {
    std::stack<TipoToken> mPilha;
-   // abaixo está a inicialização da parse table (LL(1))
+   // LL(1) table
    std::unordered_map<TipoToken, std::unordered_map<TipoToken, int>> mLL;
    unsigned mTkCounter{};
    // referencia do objeto Lex (responsável pela análise léxica)
    Lex& mLex;
+   AST mAST;
 
   public:
    Syn(Lex&);
    Token parse(void);
-   /* inline const auto& getTokens(void) const { return mTokens; } */
    inline unsigned getTkCounter(void) const { return mTkCounter; }
 };
 }  // namespace AnaliseSintatica
