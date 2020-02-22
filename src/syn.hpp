@@ -18,6 +18,10 @@
 
 #pragma once
 
+#ifndef DEBUG
+#define DEBUG 1
+#endif
+
 #include <stack>
 #include <unordered_map>
 
@@ -34,10 +38,12 @@ class Syn {
    // referencia do objeto Lex (responsável pela análise léxica)
    Lex& mLex;
    AST mAST;
+   AST::Node* mBloco;
 
   public:
    Syn(Lex&);
-   Token parse(void);
-   inline unsigned getTkCounter(void) const { return mTkCounter; }
+   const AST& parse(void);
+   inline auto getTkCounter(void) const { return mTkCounter; }
+   inline const auto& getAST(void) const { return mAST; }
 };
 }  // namespace AnaliseSintatica

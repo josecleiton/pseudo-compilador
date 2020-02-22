@@ -18,8 +18,7 @@
 
 #include "syn.hpp"
 
-#ifndef DEBUG
-#define DEBUG 1
+#ifdef DEBUG
 #include <iostream>
 #endif
 
@@ -27,7 +26,7 @@
 
 namespace AnaliseSintatica {
 
-Syn::Syn(Lex& l) : mLex(l) {
+Syn::Syn(Lex& l) : mLex(l), mBloco(mAST.atual()) {
    mPilha.push(TipoToken::FIMARQ);
    mPilha.push(TipoToken::S);
    mLL[TipoToken::S][TipoToken::TIPO] = mLL[TipoToken::S][TipoToken::ID] =
@@ -93,7 +92,7 @@ Syn::Syn(Lex& l) : mLex(l) {
    mLL[TipoToken::NEG][TipoToken::NEG] = 35;
 }
 
-Token Syn::parse(void) {
+const AST& Syn::parse(void) {
    Token tk = mLex.getToken();
    mTkCounter++;
    while (mPilha.size()) {
@@ -109,10 +108,12 @@ Token Syn::parse(void) {
                case 1:  // programa -> comando
                   mPilha.push(TipoToken::PROGRAMA);
                   mPilha.push(TipoToken::COMANDO);
+                  // mAST.subirNivel(mBloco);
                   break;
                case 2:  // bloco -> comando
                   mPilha.push(TipoToken::BLOCO);
                   mPilha.push(TipoToken::COMANDO);
+                  // mAST.subirNivel(mBloco);
                   break;
                case 3:  // comando -> sebloco
                   mPilha.push(TipoToken::SEBLOCO);
@@ -143,6 +144,7 @@ Token Syn::parse(void) {
                   mPilha.push(TipoToken::FACA);
                   mPilha.push(TipoToken::EXPL);
                   mPilha.push(TipoToken::SE);
+                  mBloco = mAST.inserirNode(TipoToken::NT_SE, AST::Tipo::BLOCO);
                   break;
                case 10:  // senao -> ACABOU
                   mPilha.push(TipoToken::ACABOU);
@@ -151,6 +153,8 @@ Token Syn::parse(void) {
                   mPilha.push(TipoToken::ACABOU);
                   mPilha.push(TipoToken::BLOCO);
                   mPilha.push(TipoToken::SENAO);
+                  mBloco =
+                      mAST.inserirNode(TipoToken::NT_SENAO, AST::Tipo::BLOCO);
                   // cria node senao
                   break;
                case 12:  // enquanto -> ENQUANTO expl FACA bloco ACABOU
@@ -159,15 +163,19 @@ Token Syn::parse(void) {
                   mPilha.push(TipoToken::FACA);
                   mPilha.push(TipoToken::EXPL);
                   mPilha.push(TipoToken::ENQUANTO);
+                  mBloco = mAST.inserirNode(TipoToken::NT_ENQUANTO,
+                                            AST::Tipo::BLOCO);
                   break;
                case 13:  // decl -> tipo id
                   mPilha.push(TipoToken::ID);
                   mPilha.push(TipoToken::TIPO);
+                  mAST.inserirNode(TipoToken::DECL);
                   break;
                case 14:  // atrib -> id = exp
                   mPilha.push(TipoToken::EXP);
                   mPilha.push(TipoToken::ATRIB);
                   mPilha.push(TipoToken::ID);
+                  mAST.inserirNode(TipoToken::ATRIB);
                   break;
                case 15:  // exp -> termoexp termoexp2
                   mPilha.push(TipoToken::TERMOEXP2);
@@ -177,11 +185,11 @@ Token Syn::parse(void) {
                   mPilha.push(TipoToken::TERMOEXP);
                   mPilha.push(TipoToken::SINAL);
                   break;
-               case 17:  // exp -> termoexpl termoexpl2
+               case 17:  // expl -> termoexpl termoexpl2
                   mPilha.push(TipoToken::TERMOEXPL2);
                   mPilha.push(TipoToken::TERMOEXPL);
                   break;
-               case 19:
+               case 19:  // expl -> ! expl
                   mPilha.push(TipoToken::EXPL);
                   mPilha.push(TipoToken::NEG);
                   break;
@@ -245,10 +253,24 @@ Token Syn::parse(void) {
             }
          } else {
             mPilha.pop();
+            switch (tk) {
+               case TipoToken::ID:
+                  mAST.inserirFolha(tk);
+                  break;
+               case TipoToken::TIPO:
+                  mAST.inserirFolha(tk);
+                  break;
+               case TipoToken::PNTVIRG:
+               case TipoToken::ACABOU:
+                  mAST.subirNivel(1);
+                  break;
+               default:
+                  break;
+            }
 #ifdef DEBUG
             std::clog << "[DEBUG - parser] " << tk << '\n';
 #endif
-            return tk;
+            tk = mLex.getToken();
          }
       } catch (const std::exception& e) {
 #ifdef DEBUG
@@ -258,7 +280,7 @@ Token Syn::parse(void) {
          throw e;
       }
    }
-   return Token(TipoToken::FIMARQ);
+   return mAST;
 }
 }  // namespace AnaliseSintatica
 

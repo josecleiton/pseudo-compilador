@@ -18,22 +18,25 @@
 
 #include <iostream>
 
+#include "sem.hpp"
 #include "syn.hpp"
 
 using namespace AnaliseSintatica;
+using namespace AnaliseSemantica;
 
-inline void usage(void) { std::cerr << "Caminho do arquivo é requerido.\n"; }
+inline void usage(void) {
+   std::cerr << "Caminho do arquivo é requerido.\n";
+   throw std::invalid_argument("Falta argv.");
+}
 
 int main(int argc, char *argv[]) {
-   if (argc < 2) {
-      usage();
-      return EXIT_FAILURE;
-   }
    try {
+      if (argc < 2) {
+         usage();
+      }
       Lex lex(argv[1]);
       Syn syn(lex);
-      while (syn.parse() != TipoToken::FIMARQ) {
-      }
+      Sem sem(syn.parse());
       return EXIT_SUCCESS;
    } catch (const std::exception &e) {
 #ifdef DEBUG
