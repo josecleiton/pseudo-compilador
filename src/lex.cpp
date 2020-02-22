@@ -147,6 +147,7 @@ Token Lex::proxToken(void) {
             }
             break;
          case 4:
+            lexema.back() = '.';
             c = getChar(lexema);
             if (isdigit(c)) {
                estado = 6;

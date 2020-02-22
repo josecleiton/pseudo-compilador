@@ -18,7 +18,11 @@
 
 #include "sem.hpp"
 
+#include <iostream>
+
 namespace AnaliseSemantica {
-Sem::Sem(const AnaliseSintatica::AST& ast) : mAST(ast) {}
+Sem::Sem(const AnaliseSintatica::AST& ast) : mAST(ast) {
+   std::clog << "[SEMANTICO] - AST com " << mAST.size() << " nós.\n";
+}
 }  // namespace AnaliseSemantica
 

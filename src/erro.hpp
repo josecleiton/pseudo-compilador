@@ -33,8 +33,7 @@ class Erro : public std::exception {
    TipoErro mTipo;
 
   public:
-   Erro(Lex* const lex, std::string& lexema,
-        const char* const esperado);
+   Erro(Lex* const lex, std::string& lexema, const char* const esperado);
    /* Erro(Syn* const syn; const Token& tk); */
 
    const char* what() const throw() {
@@ -68,14 +67,15 @@ class Erro : public std::exception {
     */
    inline std::size_t limpaLexema(std::string& lexema) const {
       std::size_t ac{};
-      for(auto& c: lexema) {
-         if(isspace(c) && c != ' ') {
+      for (auto& c : lexema) {
+         if (isspace(c) && c != ' ') {
             c = ' ';
             ac++;
          }
       }
       return ac;
    }
+
    /*
     * Aponta para o caracter onde está o erro
     */

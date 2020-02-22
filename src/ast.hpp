@@ -27,6 +27,7 @@
 
 namespace AnaliseSemantica {
 enum class Tipo {
+   NULO,
    INTEIRO,
    QUEBRADO,
    LOGICO,
@@ -60,10 +61,7 @@ class AST {
   public:
    enum class Tipo {
       BLOCO,
-      EXP_NUM,
-      EXP_OP,
-      EXPL_PROP,
-      EXPL_OP,
+      EXP,
       REGULAR,
    };
    struct Node {
@@ -77,11 +75,17 @@ class AST {
       AnaliseSemantica::SymbolTable st;
       NodeBloco(const Token&, const Tipo& = Tipo::REGULAR, Node* = nullptr);
    };
+   struct NodeExp : public Node {
+      AnaliseSemantica::Tipo tipoDado{};
+      double valor{};
+      // AnaliseSemantica::Exp expTree;
+      NodeExp(const Token&, const Tipo& = Tipo::REGULAR, Node* = nullptr);
+   };
 
   private:
    std::unique_ptr<Node> root;
    std::stack<Node*> mPilha;
-   unsigned nodeCounter{1};
+   unsigned mNodeCounter{1};
 
   public:
    AST(void);
@@ -117,6 +121,6 @@ class AST {
       return i;
    }
    inline Node* atual(void) { return mPilha.top(); }
-   inline unsigned size(void) const { return nodeCounter; }
+   inline auto size(void) const { return mNodeCounter; }
 };
 }  // namespace AnaliseSintatica

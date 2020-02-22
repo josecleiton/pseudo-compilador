@@ -239,7 +239,7 @@ const AST& Syn::parse(void) {
                   mPilha.push(TipoToken::ABREPRNT);
                   break;
                case 34:
-                  mPilha.push(TipoToken::FATOREXP);
+                  mPilha.push(TipoToken::FATOREXPL);
                   mPilha.push(TipoToken::AND);
                   break;
                case 35:
@@ -270,7 +270,9 @@ const AST& Syn::parse(void) {
 #ifdef DEBUG
             std::clog << "[DEBUG - parser] " << tk << '\n';
 #endif
-            tk = mLex.getToken();
+            if (tk != TipoToken::FIMARQ) {
+               tk = mLex.getToken();
+            }
          }
       } catch (const std::exception& e) {
 #ifdef DEBUG

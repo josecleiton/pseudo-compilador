@@ -32,6 +32,7 @@ Erro::Erro(Lex* const lex, std::string& lexema, const char* const esperado)
    primeiroCaracterNaLinha(file);
    const auto limpos = limpaLexema(lexema);
    col -= limpos + 1;
+   Token::substituiDelSeValor(lexema);
    std::getline(file, textoLinha);
    // std::clog << "CURSOR: " << cursor << " / texto: " << textoLinha << '\n';
    /* std::clog << "LINHA:" << textoLinha << ". COL:" << col */

@@ -24,7 +24,7 @@
 using namespace AnaliseSintatica;
 using namespace AnaliseSemantica;
 
-inline void usage(void) {
+void usage(void) {
    std::cerr << "Caminho do arquivo é requerido.\n";
    throw std::invalid_argument("Falta argv.");
 }

@@ -66,6 +66,7 @@ struct Token {
    };
    TipoToken id;
    std::string lexema;
+   static bool substituiDelSeValor(std::string &lexema);
    Token(const TipoToken &tk = TipoToken::INITIAl, const std::string &s = "");
    inline operator TipoToken() const { return id; }
 };
