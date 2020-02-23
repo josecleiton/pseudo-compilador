@@ -25,6 +25,7 @@
 #include <stdexcept>
 
 namespace AnaliseSintatica {
+enum { NULA = 99 };
 
 Syn::Syn(Lex& l) : mLex(l), mBloco(mAST.atual()) {
    mPilha.push(TipoToken::FIMARQ);
@@ -36,13 +37,13 @@ Syn::Syn(Lex& l) : mLex(l), mBloco(mAST.atual()) {
        mLL[TipoToken::PROGRAMA][TipoToken::ID] =
            mLL[TipoToken::PROGRAMA][TipoToken::SE] =
                mLL[TipoToken::PROGRAMA][TipoToken::ENQUANTO] = 1;
-   mLL[TipoToken::PROGRAMA][TipoToken::FIMARQ] = 21;
+   mLL[TipoToken::PROGRAMA][TipoToken::FIMARQ] = NULA;
    mLL[TipoToken::BLOCO][TipoToken::TIPO] =
        mLL[TipoToken::BLOCO][TipoToken::ID] =
            mLL[TipoToken::BLOCO][TipoToken::SE] =
                mLL[TipoToken::BLOCO][TipoToken::ENQUANTO] = 2;
    mLL[TipoToken::BLOCO][TipoToken::ACABOU] =
-       mLL[TipoToken::BLOCO][TipoToken::FACA] = 21;
+       mLL[TipoToken::BLOCO][TipoToken::FACA] = NULA;
    mLL[TipoToken::COMANDO][TipoToken::SE] = 3;
    mLL[TipoToken::COMANDO][TipoToken::ENQUANTO] = 4;
    mLL[TipoToken::COMANDO][TipoToken::TIPO] =
@@ -59,40 +60,30 @@ Syn::Syn(Lex& l) : mLex(l), mBloco(mAST.atual()) {
    mLL[TipoToken::EXP][TipoToken::ID] =
        mLL[TipoToken::EXP][TipoToken::ABREPRNT] =
            mLL[TipoToken::EXP][TipoToken::VALOR] = 15;
-   mLL[TipoToken::EXP][TipoToken::SINAL] = 16;
-   mLL[TipoToken::EXPL][TipoToken::ID] =
-       mLL[TipoToken::EXPL][TipoToken::ABREPRNT] = 17;
-   mLL[TipoToken::EXPL][TipoToken::NEG] = 19;
-   mLL[TipoToken::TERMOEXP][TipoToken::ID] =
-       mLL[TipoToken::TERMOEXP][TipoToken::ABREPRNT] =
-           mLL[TipoToken::TERMOEXP][TipoToken::VALOR] = 20;
-   mLL[TipoToken::TERMOEXP2][TipoToken::PNTVIRG] =
-       mLL[TipoToken::TERMOEXP2][TipoToken::FECHAPRNT] = 21;
-   mLL[TipoToken::TERMOEXP2][TipoToken::SINAL] = 22;
-   mLL[TipoToken::TERMOEXP2][TipoToken::FATOR_OP] = 27;
-   mLL[TipoToken::FATOREXP][TipoToken::ID] = 23;
-   mLL[TipoToken::FATOREXP][TipoToken::ABREPRNT] = 24;
-   mLL[TipoToken::FATOREXP][TipoToken::VALOR] = 25;
-   mLL[TipoToken::FATOREXP2][TipoToken::PNTVIRG] =
-       mLL[TipoToken::FATOREXP2][TipoToken::SINAL] =
-           mLL[TipoToken::FATOREXP2][TipoToken::FECHAPRNT] = 26;
-   mLL[TipoToken::FATOREXP2][TipoToken::FATOR_OP] = 27;
-   mLL[TipoToken::TERMOEXPL][TipoToken::ID] =
-       mLL[TipoToken::TERMOEXPL][TipoToken::ABREPRNT] = 28;
-   mLL[TipoToken::TERMOEXPL2][TipoToken::FACA] =
-       mLL[TipoToken::TERMOEXPL2][TipoToken::FECHAPRNT] = 29;
-   mLL[TipoToken::TERMOEXPL2][TipoToken::OR] = 30;
-   mLL[TipoToken::TERMOEXPL2][TipoToken::AND] = 34;
-   mLL[TipoToken::FATOREXPL][TipoToken::ID] = 31;
-   mLL[TipoToken::FATOREXPL][TipoToken::ABREPRNT] = 32;
-   mLL[TipoToken::FATOREXPL2][TipoToken::FACA] =
-       mLL[TipoToken::FATOREXPL2][TipoToken::FECHAPRNT] =
-           mLL[TipoToken::FATOREXPL2][TipoToken::OR] = 33;
-   mLL[TipoToken::FATOREXPL2][TipoToken::AND] = 34;
-   mLL[TipoToken::NEG][TipoToken::NEG] = 35;
+   mLL[TipoToken::EXP][TipoToken::SINAL] = mLL[TipoToken::EXP][TipoToken::NEG] =
+       16;
+   mLL[TipoToken::TERMO][TipoToken::SINAL] =
+       mLL[TipoToken::TERMO][TipoToken::BINOP] = 17;
+   mLL[TipoToken::TERMO][TipoToken::PNTVIRG] =
+       mLL[TipoToken::TERMO][TipoToken::FACA] =
+           mLL[TipoToken::TERMO][TipoToken::FECHAPRNT] = NULA;
+   mLL[TipoToken::FATOR][TipoToken::ID] = 18;
+   mLL[TipoToken::FATOR][TipoToken::ABREPRNT] = 19;
+   mLL[TipoToken::FATOR][TipoToken::VALOR] = 20;
+   mLL[TipoToken::OP][TipoToken::SINAL] = 21;
+   mLL[TipoToken::OP][TipoToken::BINOP] = 22;
+   mLL[TipoToken::UNOP][TipoToken::TIPO] =
+       mLL[TipoToken::UNOP][TipoToken::ABREPRNT] = NULA;
+   mLL[TipoToken::UNOP][TipoToken::SINAL] = 21;
+   mLL[TipoToken::UNOP][TipoToken::NEG] = 23;
+   mLL[TipoToken::COND][TipoToken::ID] =
+       mLL[TipoToken::COND][TipoToken::ABREPRNT] =
+           mLL[TipoToken::COND][TipoToken::VALOR] =
+               mLL[TipoToken::COND][TipoToken::SINAL] =
+                   mLL[TipoToken::COND][TipoToken::NEG] = 24;
 }
 
-const AST& Syn::parse(void) {
+AST& Syn::parse(void) {
    Token tk = mLex.getToken();
    mTkCounter++;
    while (mPilha.size()) {
@@ -139,10 +130,10 @@ const AST& Syn::parse(void) {
                   mPilha.push(TipoToken::NT_SENAO);
                   mPilha.push(TipoToken::NT_SE);
                   break;
-               case 9:  // se -> SE expl FACA bloco
+               case 9:  // se -> SE exp FACA bloco
                   mPilha.push(TipoToken::BLOCO);
                   mPilha.push(TipoToken::FACA);
-                  mPilha.push(TipoToken::EXPL);
+                  mPilha.push(TipoToken::COND);
                   mPilha.push(TipoToken::SE);
                   mBloco = mAST.inserirNode(TipoToken::NT_SE, AST::Tipo::BLOCO);
                   break;
@@ -157,11 +148,11 @@ const AST& Syn::parse(void) {
                       mAST.inserirNode(TipoToken::NT_SENAO, AST::Tipo::BLOCO);
                   // cria node senao
                   break;
-               case 12:  // enquanto -> ENQUANTO expl FACA bloco ACABOU
+               case 12:  // enquanto -> ENQUANTO exp FACA bloco ACABOU
                   mPilha.push(TipoToken::ACABOU);
                   mPilha.push(TipoToken::BLOCO);
                   mPilha.push(TipoToken::FACA);
-                  mPilha.push(TipoToken::EXPL);
+                  mPilha.push(TipoToken::COND);
                   mPilha.push(TipoToken::ENQUANTO);
                   mBloco = mAST.inserirNode(TipoToken::NT_ENQUANTO,
                                             AST::Tipo::BLOCO);
@@ -177,74 +168,44 @@ const AST& Syn::parse(void) {
                   mPilha.push(TipoToken::ID);
                   mAST.inserirNode(TipoToken::ATRIB);
                   break;
-               case 15:  // exp -> termoexp termoexp2
-                  mPilha.push(TipoToken::TERMOEXP2);
-                  mPilha.push(TipoToken::TERMOEXP);
+               case 15:  // exp -> termo fator
+                  mPilha.push(TipoToken::TERMO);
+                  mPilha.push(TipoToken::FATOR);
                   break;
-               case 16:  // exp -> sinal termoexp
-                  mPilha.push(TipoToken::TERMOEXP);
-                  mPilha.push(TipoToken::SINAL);
+               case 16:  // exp -> unop exp
+                  mPilha.push(TipoToken::EXP);
+                  mPilha.push(TipoToken::UNOP);
                   break;
-               case 17:  // expl -> termoexpl termoexpl2
-                  mPilha.push(TipoToken::TERMOEXPL2);
-                  mPilha.push(TipoToken::TERMOEXPL);
+               case 17:  // termo -> op exp
+                  mPilha.push(TipoToken::EXP);
+                  mPilha.push(TipoToken::OP);
                   break;
-               case 19:  // expl -> ! expl
-                  mPilha.push(TipoToken::EXPL);
-                  mPilha.push(TipoToken::NEG);
-                  break;
-               case 20:
-                  mPilha.push(TipoToken::FATOREXP2);
-                  mPilha.push(TipoToken::FATOREXP);
-                  break;
-
-               case 21:
-               case 26:
-               case 29:
-               case 33:
-                  // transicao nula
-                  // mPilha.pop();
-                  break;
-               case 22:
-                  mPilha.push(TipoToken::TERMOEXP);
-                  mPilha.push(TipoToken::SINAL);
-                  break;
-               case 23:
-               case 31:
+               case 18:  // fator -> id
                   mPilha.push(TipoToken::ID);
                   break;
-               case 24:
+               case 19:  // fator -> (exp)
                   mPilha.push(TipoToken::FECHAPRNT);
                   mPilha.push(TipoToken::EXP);
                   mPilha.push(TipoToken::ABREPRNT);
                   break;
-               case 25:
+               case 20:  // fator -> valor
                   mPilha.push(TipoToken::VALOR);
                   break;
-               case 27:
-                  mPilha.push(TipoToken::FATOREXP);
-                  mPilha.push(TipoToken::FATOR_OP);
+               case 21:  // op -> sinal || unop -> sinal
+                  mPilha.push(TipoToken::SINAL);
                   break;
-               case 28:
-                  mPilha.push(TipoToken::FATOREXPL2);
-                  mPilha.push(TipoToken::FATOREXPL);
+               case 22:  // op -> binop
+                  mPilha.push(TipoToken::BINOP);
                   break;
-               case 30:
-                  mPilha.push(TipoToken::TERMOEXPL);
-                  mPilha.push(TipoToken::OR);
-                  break;
-               case 32:
-                  mPilha.push(TipoToken::FECHAPRNT);
-                  mPilha.push(TipoToken::EXPL);
-                  mPilha.push(TipoToken::ABREPRNT);
-                  break;
-               case 34:
-                  mPilha.push(TipoToken::FATOREXPL);
-                  mPilha.push(TipoToken::AND);
-                  break;
-               case 35:
-                  mPilha.push(TipoToken::EXPL);
+               case 23:  // unop -> !
                   mPilha.push(TipoToken::NEG);
+                  break;
+               case 24:  // cond -> exp
+                  mPilha.push(TipoToken::EXP);
+                  mAST.inserirNode(TipoToken::EXP, AST::Tipo::EXP);
+                  break;
+
+               case NULA:
                   break;
 
                default:
@@ -255,13 +216,20 @@ const AST& Syn::parse(void) {
             mPilha.pop();
             switch (tk) {
                case TipoToken::ID:
-                  mAST.inserirFolha(tk);
+               case TipoToken::SINAL:
+               case TipoToken::NEG:
+               case TipoToken::BINOP:
+               case TipoToken::ABREPRNT:
+               case TipoToken::FECHAPRNT:
+               case TipoToken::VALOR:
+                  mAST.inserirFolha(tk, AST::Tipo::EXP);
                   break;
                case TipoToken::TIPO:
                   mAST.inserirFolha(tk);
                   break;
-               case TipoToken::PNTVIRG:
                case TipoToken::ACABOU:
+               case TipoToken::PNTVIRG:
+               case TipoToken::FACA:
                   mAST.subirNivel(1);
                   break;
                default:

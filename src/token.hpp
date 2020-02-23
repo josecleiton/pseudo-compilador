@@ -26,10 +26,7 @@ struct Token {
       TIPO,     // 2
       VALOR,    // 3
       /* OPB,        // 4 */
-      AND,
-      OR,
-      SINAL,  // 5
-      FATOR_OP,
+      SINAL,      // 5
       NEG,        // 6
       SE,         // 7
       SENAO,      // 8
@@ -42,7 +39,6 @@ struct Token {
       FECHAPRNT,  // 15
       FIMARQ,     // 16
       // não terminais
-      $,
       S,
       PROGRAMA,
       BLOCO,
@@ -53,16 +49,13 @@ struct Token {
       NT_SE,
       NT_SENAO,
       DECL,
+      COND,
       EXP,
-      EXPL,
-      TERMOEXP,
-      TERMOEXP2,
-      FATOREXP,
-      FATOREXP2,
-      TERMOEXPL,
-      TERMOEXPL2,
-      FATOREXPL,
-      FATOREXPL2,
+      TERMO,
+      FATOR,
+      OP,
+      UNOP,
+      BINOP,
    };
    TipoToken id;
    std::string lexema;

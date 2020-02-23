@@ -17,6 +17,7 @@
  */
 #pragma once
 
+#include <functional>
 #include <list>
 #include <memory>
 #include <stack>
@@ -32,22 +33,32 @@ enum class Tipo {
    QUEBRADO,
    LOGICO,
 };
-struct ID {
+Tipo lexemaTipo(const std::string&);
+class Dado {
+  public:
    Tipo tipo;
-   double valor{};
+   double valor;
+   Dado() = default;
+   Dado(const Tipo&, const double = 0.0f);
+   Dado(const Dado&);
+
+  private:
+   void preencheTipo(void);
 };
 class SymbolTable {
-   std::unordered_map<std::string, ID> mTable;
-   inline const ID* getID(const std::string& lexema) const {
+   std::unordered_map<std::string, Dado> mTable;
+
+  public:
+   inline Dado* getDado(const std::string& lexema) {
       try {
          return &mTable.at(lexema);
       } catch (const std::out_of_range& e) {
          return nullptr;
       }
    }
-   inline void insereID(const std::string& lexema, const Tipo& t,
-                        const double v) {
-      if (getID(lexema)) {
+   inline void insereDado(const std::string& lexema, const Tipo& t,
+                          const double v = {}) {
+      if (getDado(lexema)) {
          throw std::domain_error(
              "Sobescrever uma entrada na tabela de simbolos não é permitido");
       }
@@ -70,16 +81,18 @@ class AST {
       std::list<std::unique_ptr<Node>> childs;
       Node* super{};
       Node(const Token&, const Tipo& = Tipo::REGULAR, Node* = nullptr);
+      virtual ~Node() {}
    };
    struct NodeBloco : public Node {
       AnaliseSemantica::SymbolTable st;
       NodeBloco(const Token&, const Tipo& = Tipo::REGULAR, Node* = nullptr);
+      ~NodeBloco() {}
    };
    struct NodeExp : public Node {
-      AnaliseSemantica::Tipo tipoDado{};
-      double valor{};
+      AnaliseSemantica::Dado dado;
       // AnaliseSemantica::Exp expTree;
       NodeExp(const Token&, const Tipo& = Tipo::REGULAR, Node* = nullptr);
+      ~NodeExp() {}
    };
 
   private:
@@ -91,6 +104,7 @@ class AST {
    AST(void);
    Node* inserirNode(const Token&, const Tipo& = Tipo::REGULAR);
    Node* inserirFolha(const Token&, const Tipo& = Tipo::REGULAR);
+   std::size_t DFS(const std::function<bool(Node*)>&);
    inline std::size_t subirNivel(Node* blocoAtual) {
       std::size_t count{};
       while (mPilha.size() and blocoAtual != mPilha.top()) {
@@ -120,7 +134,17 @@ class AST {
       }
       return i;
    }
+   inline NodeBloco* getBlocoAcima(const Node* const atual) {
+      Node* result = atual->super;
+      while (result and result->tipo != Tipo::BLOCO) {
+         result = result->super;
+      }
+      return result ? dynamic_cast<NodeBloco*>(result) : nullptr;
+   }
    inline Node* atual(void) { return mPilha.top(); }
    inline auto size(void) const { return mNodeCounter; }
+
+  private:
+   std::size_t DFS(Node* atual, const std::function<bool(Node*)>& func);
 };
 }  // namespace AnaliseSintatica

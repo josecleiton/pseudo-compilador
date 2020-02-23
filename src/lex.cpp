@@ -169,11 +169,11 @@ Token Lex::proxToken(void) {
          case 8:
             return Token(TipoToken::SINAL, lexema);
          case 9:
-            return Token(TipoToken::FATOR_OP, lexema);
+            return Token(TipoToken::BINOP, lexema);
          case 12:
             c = getChar(lexema);
             if (c == '&') {
-               return Token(TipoToken::AND, lexema);
+               return Token(TipoToken::BINOP, lexema);
             } else {
                throw Erro(this, lexema, "&");
             }
@@ -182,20 +182,12 @@ Token Lex::proxToken(void) {
          case 14:
             c = getChar(lexema);
             if (c == '|') {
-               return Token(TipoToken::OR, lexema);
+               return Token(TipoToken::BINOP, lexema);
             } else {
                throw Erro(this, lexema, "|");
             }
             break;
          case 16:
-            c = getChar(lexema);
-            if (c != '!') {
-               estado = 17;
-               break;
-            }
-            break;
-         case 17:
-            ungetChar(lexema);
             return Token(TipoToken::NEG, lexema);
          case 18:
             return Token(TipoToken::PNTVIRG, lexema);

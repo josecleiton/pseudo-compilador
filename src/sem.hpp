@@ -22,10 +22,24 @@
 
 namespace AnaliseSemantica {
 class Sem {
-   const AnaliseSintatica::AST& mAST;
+   typedef AnaliseSintatica::AST AST;
+   AST& mAST;
 
   public:
-   Sem(const AnaliseSintatica::AST&);
+   Sem(AnaliseSintatica::AST&);
+   void analisaArvore(void);
+   Dado avaliaExpressao(AST::NodeExp*) const;
+   bool declaraVariavel(AST::Node*) const;
+   void atribueVariavel(AST::Node*) const;
+   double getValorVariavel(AST::NodeExp*) const;
+   void aplicaBinop(AST::NodeExp* no1, AST::NodeExp* op,
+                    AST::NodeExp* no2) const;
+
+  private:
+   Dado avaliaExpressao(
+       std::list<std::unique_ptr<AST::Node>>::const_iterator,
+       std::list<std::unique_ptr<AST::Node>>::const_iterator) const;
+   bool tipoValido(const Tipo&, const Tipo&) const;
 };
 }  // namespace AnaliseSemantica
 

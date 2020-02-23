@@ -1,5 +1,6 @@
 INTEIRO id;
-id = 3;
+LOGICO id;
+id = 32 * 5,32;
 SE id FACA id = 4; LOGICO c; ACABOU
 k = 32312314,42331 * 321939129301 / (test * ( 54));
 trinta = 321;#lol

@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
       Lex lex(argv[1]);
       Syn syn(lex);
       Sem sem(syn.parse());
+      sem.analisaArvore();
       return EXIT_SUCCESS;
    } catch (const std::exception &e) {
 #ifdef DEBUG

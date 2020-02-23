@@ -42,7 +42,7 @@ class Syn {
 
   public:
    Syn(Lex&);
-   const AST& parse(void);
+   AST& parse(void);
    inline auto getTkCounter(void) const { return mTkCounter; }
    inline const auto& getAST(void) const { return mAST; }
 };
