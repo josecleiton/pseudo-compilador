@@ -91,7 +91,7 @@ class Sem {
    void aplicaBinop(AST::NodeExp* no1, AST::NodeExp* op,
                     AST::NodeExp* no2) const;
    /*
-    * Aplica os operadores +, !, - no no1 ou no2
+    * Aplica os operadores +, !, - no no1
     */
    void aplicaUnop(AST::NodeExp* no1, AST::NodeExp* op) const;
 };
