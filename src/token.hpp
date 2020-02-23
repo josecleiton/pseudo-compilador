@@ -22,9 +22,9 @@
 struct Token {
    enum class TipoToken {
       INITIAl,
-      ID,       // 1
-      TIPO,     // 2
-      VALOR,    // 3
+      ID,         // 1
+      TIPO,       // 2
+      VALOR,      // 3
       SINAL,      // 4
       NEG,        // 5
       SE,         // 6
@@ -58,9 +58,20 @@ struct Token {
    };
    TipoToken id;
    std::string lexema;
+   /*
+    * Substitue a virgula por ponto em tokens do tipo VALOR
+    */
    static bool substituiDelSeValor(std::string &lexema);
    Token(const TipoToken &tk = TipoToken::INITIAl, const std::string &s = "");
+   /*
+    * Todo token é implicitamente um TipoToken
+    * apenas um shorthand para evitar tk.tipo == TipoToken::VALOR
+    * visto que assim permite apenas: tk == TipoToken::VALOR
+    */
    inline operator TipoToken() const { return id; }
 };
 
+/*
+ * Função para printar o Token
+ */
 std::ostream &operator<<(std::ostream &, const Token &);

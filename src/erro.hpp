@@ -3,7 +3,7 @@
  *
  *       Filename:  error.hpp
  *
- *    Description: Objeto Erro com algumas perfumarias
+ *    Description: Formatador de Erros (perfumarias)
  *
  *        Version:  1.0
  *        Created:  02/15/2020 05:16:52 PM

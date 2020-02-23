@@ -3,7 +3,7 @@
  *
  *       Filename:  lex.cpp
  *
- *    Description:
+ *    Description: Analisador léxico
  *
  *        Version:  1.0
  *        Created:  02/13/2020 03:13:48 PM
@@ -35,6 +35,9 @@ inline void falhaAoAbrirArquivo(const std::string& path) {
 
 Lex::Lex(const std::string& inPath, const std::string& outPath)
     : mFilename(inPath), mInputFile(mFilename), mOutputFile(outPath) {
+   /*
+    * Verifica se o arquivo de entrada tem o sufixo .c20192
+    */
    const std::string sufixo = ".c20192";
    const int pos = inPath.size() - sufixo.size() - 1;
    if (pos <= 0 || inPath.find(sufixo, pos) == std::string::npos) {
@@ -49,6 +52,9 @@ Lex::Lex(const std::string& inPath, const std::string& outPath)
    if (!mOutputFile.is_open()) {
       falhaAoAbrirArquivo(outPath);
    }
+   /*
+    * Cabeçalho de ajuda no arquivo de saída
+    */
    mOutputFile << "Lista de pares {COD_TOKEN, LEXEMA}\nO COD_TOKEN pode ser "
                   "checado no enum 'Token::TipoToken' em 'token.hpp'\nPS: "
                   "Comentários começam com '#' e vão até o final da linha\n\n";
@@ -65,8 +71,6 @@ Token Lex::proxToken(void) {
    std::string lexema;
    while (estado != EOF) {
       char c;
-      /* std::cout << lexema << ' ' << estado << '\n'; */
-      /* std::cout << "inCol:" << mCol << '\n'; */
       switch (estado) {
          case 0:
             c = getChar(lexema);
@@ -134,9 +138,7 @@ Token Lex::proxToken(void) {
             }
             break;
          case 2:
-            // std::cout << "Final do estado 2: " << lexema.back() << "\n";
             ungetChar(lexema);
-            // std::cout << "Final do estado 2 (lexema): " << lexema << ".\n";
             return Token(reservadaOuID(lexema), lexema);
          case 3:
             c = getChar(lexema);

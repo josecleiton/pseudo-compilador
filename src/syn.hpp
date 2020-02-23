@@ -33,18 +33,35 @@ namespace AnaliseSintatica {
 typedef Token::TipoToken TipoToken;
 
 class Syn {
+   /*
+    * Pilha auxiliar para o controle das transições entre produções
+    */
    std::stack<TipoToken> mPilha;
-   // LL(1) table
+   /*
+    * LL(1) parser table
+    */
    std::unordered_map<TipoToken, std::unordered_map<TipoToken, int>> mLL;
    unsigned mTkCounter{};
-   // referencia do objeto Lex (responsável pela análise léxica)
+   /* referencia do objeto Lex (responsável pela análise léxica) */
    Lex& mLex;
-   // Abstract Syntax Tree (já podada e pronta pro semantico)
+   /*
+    * Abstract Syntax Tree - Vai sendo construída ao decorrer do parsing
+    * Ao final está num estado semi ótimo para o semântico
+    */
    AST mAST;
 
   public:
    Syn(Lex&);
+   /*
+    * Verifica as regras definidas em mLL com os tokens sendo lidos do Lexico
+    * Se nenhum erro for encontrado, então o programa está sintaticamente e
+    * lexicamente correto. A partir dai é retornada a AST resultante.
+    */
    AST& parse(void);
+   inline auto proximoToken(void) {
+      mTkCounter++;
+      return mLex.getToken();
+   }
    inline auto getTkCounter(void) const { return mTkCounter; }
    inline const auto& getAST(void) const { return mAST; }
 };

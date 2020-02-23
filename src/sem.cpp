@@ -3,7 +3,7 @@
  *
  *       Filename:  sem.cpp
  *
- *    Description:
+ *    Description: Analise semantica (documentação no sem.hpp)
  *
  *        Version:  1.0
  *        Created:  02/22/2020 09:32:51 AM

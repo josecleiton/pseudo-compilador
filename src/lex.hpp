@@ -26,9 +26,12 @@
 
 class Lex {
   private:
-   std::string mLexema, mFilename;
+   std::string mFilename;
    std::ifstream mInputFile;
    std::ofstream mOutputFile;
+   /*
+    * Palavras reservadas
+    */
    const std::unordered_map<std::string, Token::TipoToken> mPalavrasReservadas{
        {"SE", Token::TipoToken::SE},
        {"FACA", Token::TipoToken::FACA},
@@ -38,11 +41,19 @@ class Lex {
        {"INTEIRO", Token::TipoToken::TIPO},
        {"QUEBRADO", Token::TipoToken::TIPO},
        {"LOGICO", Token::TipoToken::TIPO}};
+   /*
+    * Contador de linha e coluna
+    */
    unsigned mLinha{1}, mCol{};
 
   public:
    Lex(const std::string& inPath, const std::string& outPath = "lexemas.txt");
    ~Lex();
+   /*
+    * Pega token vindo do arquivo de entrada
+    * Grava no arquivo "lexemas.txt"
+    * Retorna o token
+    */
    inline Token getToken(void) {
       auto tk = proxToken();
       mOutputFile << tk << '\n';
@@ -52,6 +63,9 @@ class Lex {
    inline const auto& getCol(void) const { return mCol; }
    inline const auto& getFilename(void) const { return mFilename; }
    inline auto& getFile(void) { return mInputFile; }
+   /*
+    * Função para testes, lê todos os tokens e printa na tela
+    */
    inline void analiseAteEOF(void) {
       Token tk;
       while ((tk = getToken()) != Token::TipoToken::FIMARQ) {
@@ -60,19 +74,32 @@ class Lex {
    }
 
   private:
+   /*
+    * Implementação do AFD da linguagem
+    */
    Token proxToken(void);
-   inline Token::TipoToken reservadaOuID(const std::string& s) const {
+   /*
+    * Se o lexema for uma palavra reservada, retorne o seu respectivo token,
+    * senão retorne token id
+    */
+   inline Token::TipoToken reservadaOuID(const std::string& lexema) const {
       try {
-         return mPalavrasReservadas.at(s);
+         return mPalavrasReservadas.at(lexema);
       } catch (const std::out_of_range& e) {
          return Token::TipoToken::ID;
       }
    }
+   /*
+    * Função auxiliar para pegar o próx char do buffer
+    */
    inline char getChar(std::string& lexema) {
       mCol++;
       lexema.push_back(mInputFile.get());
       return lexema.back();
    }
+   /*
+    * Função auxiliar para colocar char no buffer
+    */
    inline void ungetChar(std::string& lexema) {
       mCol--;
       mInputFile.unget();

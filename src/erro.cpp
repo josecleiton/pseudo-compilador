@@ -3,7 +3,7 @@
  *
  *       Filename:  erro.cpp
  *
- *    Description:
+ *    Description: Erro
  *
  *        Version:  1.0
  *        Created:  02/15/2020 05:26:33 PM

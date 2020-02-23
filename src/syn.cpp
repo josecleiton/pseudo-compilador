@@ -28,8 +28,16 @@ namespace AnaliseSintatica {
 enum { NULA = 99 };
 
 Syn::Syn(Lex& l) : mLex(l) {
+   /*
+    * Inicializa a pilha com
+    * S -> START
+    * $ -> EOF
+    */
    mPilha.push(TipoToken::FIMARQ);
    mPilha.push(TipoToken::S);
+   /*
+    * Inicializa a parser table com as devidas produções
+    */
    mLL[TipoToken::S][TipoToken::TIPO] = mLL[TipoToken::S][TipoToken::ID] =
        mLL[TipoToken::S][TipoToken::SE] =
            mLL[TipoToken::S][TipoToken::ENQUANTO] = 1;
@@ -84,12 +92,15 @@ Syn::Syn(Lex& l) : mLex(l) {
 }
 
 AST& Syn::parse(void) {
-   Token tk = mLex.getToken();
-   mTkCounter++;
+   Token tk = proximoToken();
    while (mPilha.size()) {
       auto& topo = mPilha.top();
       try {
          if (tk != topo) {
+            /*
+             * Verifica REGRA mLL[topo][tk],
+             * caso não exista a regra, o map dispara uma exceção
+             */
             const auto& producao = mLL.at(topo).at(tk);
             mPilha.pop();
             switch (producao) {
@@ -135,6 +146,9 @@ AST& Syn::parse(void) {
                   mPilha.push(TipoToken::FACA);
                   mPilha.push(TipoToken::COND);
                   mPilha.push(TipoToken::SE);
+                  /*
+                   * Ao ler SE cria-se um novo escopo na AST
+                   */
                   mAST.inserirNode(TipoToken::NT_SE, AST::Tipo::BLOCO);
                   break;
                case 10:  // senao -> ACABOU
@@ -144,6 +158,9 @@ AST& Syn::parse(void) {
                   mPilha.push(TipoToken::ACABOU);
                   mPilha.push(TipoToken::BLOCO);
                   mPilha.push(TipoToken::SENAO);
+                  /*
+                   * Ao ler SENAO cria-se um novo escopo na AST
+                   */
                   mAST.inserirNode(TipoToken::NT_SENAO, AST::Tipo::BLOCO);
                   // cria node senao
                   break;
@@ -153,6 +170,9 @@ AST& Syn::parse(void) {
                   mPilha.push(TipoToken::FACA);
                   mPilha.push(TipoToken::COND);
                   mPilha.push(TipoToken::ENQUANTO);
+                  /*
+                   * Ao ler ENQUANTO cria-se um novo escopo na AST
+                   */
                   mAST.inserirNode(TipoToken::NT_ENQUANTO, AST::Tipo::BLOCO);
                   break;
                case 13:  // decl -> tipo id
@@ -203,7 +223,7 @@ AST& Syn::parse(void) {
                   mAST.inserirNode(TipoToken::EXP, AST::Tipo::EXP);
                   break;
 
-               case NULA:
+               case NULA: // producao -> ε
                   break;
 
                default:
@@ -211,6 +231,7 @@ AST& Syn::parse(void) {
                       "Erro sintatico - Produção não registrada");
             }
          } else {
+            // terminal retornado pelo lexico bate com o token no topo da pilha
             mPilha.pop();
             switch (tk) {
                case TipoToken::ID:
@@ -220,24 +241,39 @@ AST& Syn::parse(void) {
                case TipoToken::ABREPRNT:
                case TipoToken::FECHAPRNT:
                case TipoToken::VALOR:
+                  /*
+                   * Tokens que fazem parte de uma expressão
+                   * criar-se nós folha que serão analisados e resolvidos no semântico
+                   */
                   mAST.inserirFolha(tk, AST::Tipo::EXP);
                   break;
                case TipoToken::TIPO:
+                  /*
+                   * Token que faz parte de um Node DECL
+                   */
                   mAST.inserirFolha(tk);
                   break;
                case TipoToken::ACABOU:
                case TipoToken::PNTVIRG:
                case TipoToken::FACA:
+                  /*
+                   * Tokens que representam final do Node
+                   * após ele subimos 1 nível na arvore
+                   */
                   mAST.subirNivel(1);
                   break;
                default:
+                  /*
+                   * Alguns Tokens terminais não devem entrar na AST
+                   * Exemplo: ;, FACA, SE, SENAO, etc
+                   */
                   break;
             }
 #ifdef DEBUG
             std::clog << "[DEBUG - parser] " << tk << '\n';
 #endif
             if (tk != TipoToken::FIMARQ) {
-               tk = mLex.getToken();
+               tk = proximoToken();
             }
          }
       } catch (const std::exception& e) {
