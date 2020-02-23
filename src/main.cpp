@@ -37,7 +37,15 @@ int main(int argc, char *argv[]) {
       Lex lex(argv[1]);
       Syn syn(lex);
       Sem sem(syn.parse());
-      sem.analisaArvore();
+      std::cout << "[SINTATICO] - O seu programa foi aceito sintatica e "
+                   "lexicamente!\n";
+      auto acNodes = sem.analisaArvore();
+#ifdef DEBUG
+      std::cout << "[SINTATICO] - O total de nós da AST é: "
+                << syn.getAST().size() << "\n[SEMANTICO] - Foram visitados "
+                << acNodes << " nós na AST.\n";
+#endif
+      std::cout << "[SEMANTICO] - O seu programa foi aceito!\n";
       return EXIT_SUCCESS;
    } catch (const std::exception &e) {
 #ifdef DEBUG

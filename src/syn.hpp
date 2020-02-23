@@ -27,7 +27,9 @@
 
 #include "ast.hpp"
 #include "lex.hpp"
+
 namespace AnaliseSintatica {
+
 typedef Token::TipoToken TipoToken;
 
 class Syn {
@@ -37,8 +39,8 @@ class Syn {
    unsigned mTkCounter{};
    // referencia do objeto Lex (responsável pela análise léxica)
    Lex& mLex;
+   // Abstract Syntax Tree (já podada e pronta pro semantico)
    AST mAST;
-   AST::Node* mBloco;
 
   public:
    Syn(Lex&);

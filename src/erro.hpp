@@ -33,6 +33,9 @@ class Erro : public std::exception {
    TipoErro mTipo;
 
   public:
+   /*
+    * Erro lexico
+    */
    Erro(Lex* const lex, std::string& lexema, const char* const esperado);
    /* Erro(Syn* const syn; const Token& tk); */
 
@@ -50,7 +53,14 @@ class Erro : public std::exception {
    }
 
   private:
+   /*
+    * deixa o buffer no inicio da linha/arquivo
+    */
    std::size_t primeiroCaracterNaLinha(std::ifstream& file) const;
+   /*
+    * volta o buffer n vezes ou até o início
+    * (função auxiliar a acima)
+    */
    inline int unget(std::ifstream& file, int n) const {
       long pos{};
       while (n--) {

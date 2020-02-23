@@ -27,7 +27,7 @@ class Sem {
 
   public:
    Sem(AnaliseSintatica::AST&);
-   void analisaArvore(void);
+   std::size_t analisaArvore(void);
 
   private:
    Dado avaliaExpressao(AST::NodeExp*) const;

@@ -26,12 +26,11 @@ using namespace AnaliseSintatica;
 typedef Token::TipoToken TipoToken;
 Sem::Sem(AST& ast) : mAST(ast) {}
 
-void Sem::analisaArvore(void) {
-   mAST.DFS([this](AST::Node* no) -> bool {
+std::size_t Sem::analisaArvore(void) {
+   return mAST.DFS([this](AST::Node* no) -> bool {
       if (!no) {
          return false;
       }
-      Dado exp;
       if (no->tipo == AST::Tipo::BLOCO) {
          AST::NodeExp* aux;
          switch (no->tk) {
@@ -39,9 +38,9 @@ void Sem::analisaArvore(void) {
             case TipoToken::NT_SENAO:
             case TipoToken::NT_ENQUANTO:
                aux = dynamic_cast<AST::NodeExp*>(no->childs.front().get());
-               exp = avaliaExpressao(aux);
-               if (exp.tipo != Tipo::LOGICO) {
-                  throw std::domain_error("Expressão deveria ser lógica.");
+               aux->dado = avaliaExpressao(aux);
+               if (aux->dado != Tipo::LOGICO) {
+                  throw std::domain_error("Condição deve retornar tipo LOGICO.");
                }
                break;
             default:

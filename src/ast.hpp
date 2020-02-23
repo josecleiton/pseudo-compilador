@@ -33,7 +33,9 @@ enum class Tipo {
    QUEBRADO,
    LOGICO,
 };
+
 Tipo lexemaTipo(const std::string&);
+
 class Dado {
   public:
    Tipo tipo{};
@@ -52,6 +54,7 @@ class Dado {
   private:
    void preencheTipo(void);
 };
+
 class SymbolTable {
    std::unordered_map<std::string, Dado> mTable;
 
@@ -72,9 +75,11 @@ class SymbolTable {
       mTable[lexema] = {t, v};
    }
 };
+
 }  // namespace AnaliseSemantica
 
 namespace AnaliseSintatica {
+
 class AST {
   public:
    enum class Tipo {
@@ -82,6 +87,7 @@ class AST {
       EXP,
       REGULAR,
    };
+
    struct Node {
       Token tk;
       Tipo tipo;
@@ -90,11 +96,13 @@ class AST {
       Node(const Token&, const Tipo& = Tipo::REGULAR, Node* = nullptr);
       virtual ~Node() {}
    };
+
    struct NodeBloco : public Node {
       AnaliseSemantica::SymbolTable st;
       NodeBloco(const Token&, const Tipo& = Tipo::REGULAR, Node* = nullptr);
       ~NodeBloco() {}
    };
+
    struct NodeExp : public Node {
       AnaliseSemantica::Dado dado;
       // AnaliseSemantica::Exp expTree;
@@ -112,28 +120,6 @@ class AST {
    Node* inserirNode(const Token&, const Tipo& = Tipo::REGULAR);
    Node* inserirFolha(const Token&, const Tipo& = Tipo::REGULAR);
    std::size_t DFS(const std::function<bool(Node*)>&);
-   inline std::size_t subirNivel(Node* blocoAtual) {
-      std::size_t count{};
-      while (mPilha.size() and blocoAtual != mPilha.top()) {
-         mPilha.pop();
-         count++;
-      }
-      return count;
-   }
-   inline std::size_t subirNivel(void) {
-      std::size_t count{};
-      bool retirado{};
-      while (mPilha.size() and mPilha.top()->tipo != Tipo::BLOCO) {
-         mPilha.pop();
-         retirado = true;
-         count++;
-      }
-      if (retirado and mPilha.size() > 1) {
-         mPilha.pop();
-         count++;
-      }
-      return count;
-   }
    inline std::size_t subirNivel(const std::size_t n) {
       std::size_t i = 0;
       for (; mPilha.size() and i < n; i++) {
@@ -154,4 +140,5 @@ class AST {
   private:
    std::size_t DFS(Node* atual, const std::function<bool(Node*)>& func);
 };
+
 }  // namespace AnaliseSintatica

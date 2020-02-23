@@ -27,7 +27,7 @@
 namespace AnaliseSintatica {
 enum { NULA = 99 };
 
-Syn::Syn(Lex& l) : mLex(l), mBloco(mAST.atual()) {
+Syn::Syn(Lex& l) : mLex(l) {
    mPilha.push(TipoToken::FIMARQ);
    mPilha.push(TipoToken::S);
    mLL[TipoToken::S][TipoToken::TIPO] = mLL[TipoToken::S][TipoToken::ID] =
@@ -135,7 +135,7 @@ AST& Syn::parse(void) {
                   mPilha.push(TipoToken::FACA);
                   mPilha.push(TipoToken::COND);
                   mPilha.push(TipoToken::SE);
-                  mBloco = mAST.inserirNode(TipoToken::NT_SE, AST::Tipo::BLOCO);
+                  mAST.inserirNode(TipoToken::NT_SE, AST::Tipo::BLOCO);
                   break;
                case 10:  // senao -> ACABOU
                   mPilha.push(TipoToken::ACABOU);
@@ -144,8 +144,7 @@ AST& Syn::parse(void) {
                   mPilha.push(TipoToken::ACABOU);
                   mPilha.push(TipoToken::BLOCO);
                   mPilha.push(TipoToken::SENAO);
-                  mBloco =
-                      mAST.inserirNode(TipoToken::NT_SENAO, AST::Tipo::BLOCO);
+                  mAST.inserirNode(TipoToken::NT_SENAO, AST::Tipo::BLOCO);
                   // cria node senao
                   break;
                case 12:  // enquanto -> ENQUANTO exp FACA bloco ACABOU
@@ -154,8 +153,7 @@ AST& Syn::parse(void) {
                   mPilha.push(TipoToken::FACA);
                   mPilha.push(TipoToken::COND);
                   mPilha.push(TipoToken::ENQUANTO);
-                  mBloco = mAST.inserirNode(TipoToken::NT_ENQUANTO,
-                                            AST::Tipo::BLOCO);
+                  mAST.inserirNode(TipoToken::NT_ENQUANTO, AST::Tipo::BLOCO);
                   break;
                case 13:  // decl -> tipo id
                   mPilha.push(TipoToken::ID);

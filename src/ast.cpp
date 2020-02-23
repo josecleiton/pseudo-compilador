@@ -107,7 +107,7 @@ std::size_t AST::DFS(const std::function<bool(AST::Node*)>& func) {
 }
 std::size_t AST::DFS(AST::Node* atual,
                      const std::function<bool(AST::Node*)>& func) {
-   const auto descer = func(atual);
+   const bool descer = func(atual);
    std::size_t ac{1};
    if (descer) {
       for (auto& no : atual->childs) {

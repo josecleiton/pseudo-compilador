@@ -17,7 +17,6 @@
  */
 #pragma once
 
-#include <exception>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
