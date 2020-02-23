@@ -40,7 +40,8 @@ std::size_t Sem::analisaArvore(void) {
                aux = dynamic_cast<AST::NodeExp*>(no->childs.front().get());
                aux->dado = avaliaExpressao(aux);
                if (aux->dado != Tipo::LOGICO) {
-                  throw std::domain_error("Condição deve retornar tipo LOGICO.");
+                  throw std::domain_error(
+                      "Condição deve retornar tipo LOGICO.");
                }
                break;
             default:
@@ -63,9 +64,12 @@ constexpr int precedencia(const char op) {
    switch (op) {
       case '+':
       case '-':
+      case '!':
+      case '|':
          return 1;
       case '*':
       case '/':
+      case '&':
          return 2;
       default:
          return 0;
@@ -156,14 +160,15 @@ Dado Sem::avaliaExpressao(
             ops.push(no);
             break;
          case TipoToken::FECHAPRNT:
-            while (!ops.empty() and ops.top()->tk != TipoToken::ABREPRNT) {
+            while (ops.size() and ops.top()->tk != TipoToken::ABREPRNT) {
                resolveOp(nums, ops);
             }
             ops.pop();
             break;
          case TipoToken::SINAL:
          case TipoToken::BINOP:
-            while (!ops.empty() and
+         case TipoToken::NEG:
+            while (ops.size() and
                    precedencia(getOp(ops.top())) >= precedencia(getOp(no))) {
                resolveOp(nums, ops);
             }
