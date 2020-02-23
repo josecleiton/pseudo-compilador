@@ -36,11 +36,18 @@ enum class Tipo {
 Tipo lexemaTipo(const std::string&);
 class Dado {
   public:
-   Tipo tipo;
-   double valor;
+   Tipo tipo{};
+   double valor{};
    Dado() = default;
    Dado(const Tipo&, const double = 0.0f);
    Dado(const Dado&);
+   Dado(const double);
+   inline void setValor(const double v) {
+      valor = v;
+      preencheTipo();
+   }
+   Dado& operator=(const Dado&);
+   inline operator Tipo() const { return tipo; }
 
   private:
    void preencheTipo(void);
@@ -134,7 +141,7 @@ class AST {
       }
       return i;
    }
-   inline NodeBloco* getBlocoAcima(const Node* const atual) {
+   inline NodeBloco* getBlocoAcima(const Node* const atual) const {
       Node* result = atual->super;
       while (result and result->tipo != Tipo::BLOCO) {
          result = result->super;

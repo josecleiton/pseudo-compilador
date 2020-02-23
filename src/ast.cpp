@@ -34,16 +34,46 @@ Tipo lexemaTipo(const std::string& lexema) {
 }
 
 Dado::Dado(const Tipo& t, const double v) : tipo(t), valor(v) {}
-Dado::Dado(const Dado& d) : tipo(d.tipo), valor(d.valor) { preencheTipo(); }
+Dado::Dado(const Dado& d) : tipo(d.tipo), valor(d.valor) {
+   if(tipo == Tipo::NULO) {
+      preencheTipo();
+   }
+}
+Dado::Dado(const double v): valor(v) {
+   preencheTipo();
+}
 
 void Dado::preencheTipo(void) {
-   if (valor == 1 or valor == 0.0) {
+   if (valor == 1 or valor == 0.0f) {
       tipo = Tipo::LOGICO;
    } else if (valor == ceilf(valor)) {
       tipo = Tipo::INTEIRO;
    } else {
       tipo = Tipo::QUEBRADO;
    }
+}
+
+Dado& Dado::operator=(const Dado& other) {
+   if (this != &other) {
+      bool valido = true;
+      switch (tipo) {
+         case Tipo::INTEIRO:
+            valido = other.tipo != Tipo::QUEBRADO;
+            break;
+         case Tipo::LOGICO:
+            valido = other.tipo == Tipo::LOGICO;
+            break;
+         default:
+            break;
+      }
+      if (valido) {
+         tipo = other.tipo;
+      } else {
+         throw std::domain_error("Tipos incompatíveis.");
+      }
+      valor = other.valor;
+   }
+   return *this;
 }
 
 }  // namespace AnaliseSemantica
@@ -53,25 +83,23 @@ AST::AST(void)
    mPilha.push(root.get());
 }
 AST::Node* AST::inserirNode(const Token& tk, const Tipo& tipo) {
-   auto& topo = mPilha.top();
-   switch (tipo) {
-      case Tipo::BLOCO:
-         topo->childs.push_back(std::make_unique<NodeBloco>(tk, tipo, topo));
-         break;
-      case Tipo::EXP:
-         topo->childs.push_back(std::make_unique<NodeExp>(tk, tipo, topo));
-         break;
-      default:
-         topo->childs.push_back(std::make_unique<Node>(tk, tipo, topo));
-   }
-   mPilha.push(topo->childs.back().get());
-   mNodeCounter++;
+   mPilha.push(inserirFolha(tk, tipo));
    return mPilha.top();
 }
 AST::Node* AST::inserirFolha(const Token& tk, const Tipo& tipo) {
-   auto node = inserirNode(tk, tipo);
-   mPilha.pop();
-   return node;
+   auto& topo = mPilha.top();
+   switch (tipo) {
+      case Tipo::BLOCO:
+         topo->childs.emplace_back(std::make_unique<NodeBloco>(tk, tipo, topo));
+         break;
+      case Tipo::EXP:
+         topo->childs.emplace_back(std::make_unique<NodeExp>(tk, tipo, topo));
+         break;
+      default:
+         topo->childs.emplace_back(std::make_unique<Node>(tk, tipo, topo));
+   }
+   mNodeCounter++;
+   return topo->childs.back().get();
 }
 
 std::size_t AST::DFS(const std::function<bool(AST::Node*)>& func) {

@@ -19,7 +19,7 @@
 #include <list>
 #include <iostream>
 
-#include "ast.hpp"
+#include "../src/ast.hpp"
 using namespace std;
 using namespace AnaliseSintatica;
 using namespace AnaliseSemantica;

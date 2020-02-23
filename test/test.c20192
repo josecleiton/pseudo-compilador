@@ -1,9 +1,9 @@
+
 INTEIRO id;
-LOGICO id;
-id = 32 * 5,32;
+id = 1 && 0;
 SE id FACA id = 4; LOGICO c; ACABOU
 k = 32312314,42331 * 321939129301 / (test * ( 54));
-trinta = 321;#lol
+trinta = 0;#lol
 ENQUANTO trinta FACA
 oito = quatro;
 INTEIRO tres;
