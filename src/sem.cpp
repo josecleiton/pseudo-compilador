@@ -18,7 +18,6 @@
 
 #include "sem.hpp"
 
-#include <limits>
 #include <stdexcept>
 
 namespace AnaliseSemantica {
@@ -146,11 +145,11 @@ void Sem::resolveOp(std::stack<AST::NodeExp*>& nums,
 }
 
 Dado Sem::avaliaExpressao(
-    std::list<std::unique_ptr<AST::Node>>::const_iterator begin,
-    std::list<std::unique_ptr<AST::Node>>::const_iterator end) const {
+    std::list<std::unique_ptr<AST::Node>>::const_iterator atual,
+    std::list<std::unique_ptr<AST::Node>>::const_iterator fim) const {
    std::stack<AST::NodeExp*> nums, ops;
-   while (begin != end) {
-      auto no = dynamic_cast<AST::NodeExp*>(begin->get());
+   while (atual != fim) {
+      auto no = dynamic_cast<AST::NodeExp*>(atual->get());
       switch (no->tk) {
          case TipoToken::ID:
          case TipoToken::VALOR:
@@ -177,7 +176,7 @@ Dado Sem::avaliaExpressao(
          default:
             break;
       }
-      begin++;
+      atual++;
    }
    while (!ops.empty()) {
       resolveOp(nums, ops);
@@ -216,9 +215,8 @@ void Sem::atribueVariavel(AST::Node* no) const {
    auto itList = no->childs.cbegin();
    const auto& variavel = itList->get()->tk.lexema;
    itList++;
-   auto const varDado = getVariavel(no, variavel);
-   const auto dado = avaliaExpressao(itList, no->childs.cend());
-   *varDado = dado;
+   Dado* const var = getVariavel(no, variavel);
+   *var = avaliaExpressao(itList, no->childs.cend());
 }
 
 }  // namespace AnaliseSemantica
