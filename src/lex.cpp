@@ -33,7 +33,7 @@ void falhaAoAbrirArquivo(const std::string& path) {
    throw std::runtime_error("Arquivo falhou ao abrir.");
 }
 
-Lex::Lex(const std::filesystem::path& in, const std::filesystem::path& out)
+Lex::Lex(const fs::path& in, const fs::path& out)
     : mFilename(in.filename()), mInputFile(in), mOutputFile(out) {
    /*
     * Verifica se o arquivo de entrada tem o sufixo .c20192
