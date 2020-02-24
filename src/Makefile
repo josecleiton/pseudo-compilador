@@ -1,22 +1,23 @@
 .POSIX:
-CC = g++
-CFLAGS = -O2 -Wall -Wextra -Wcast-align --std=c++17
+CXX ?= g++
+CXXO ?= -O2
+CXXFLAGS = -Wall -Wextra -Wcast-align --std=c++17
 SRCS = ast.cpp erro.cpp lex.cpp main.cpp sem.cpp syn.cpp token.cpp
 OBJS = $(SRCS:.cpp=.o)
 LIBS = -lm
 MAIN = pcc
-VERSION = 0.1
+VERSION = 1.0
 
 
 all: $(MAIN)
-	   @echo Compilação terminada, use o binário $(MAIN)
+	   @echo Compilação do Pseudo Compilador $(VERSION) finalizada, use o binário $(MAIN)
 
 $(MAIN): $(OBJS)
-	       $(CC) $(CFLAGS) -o $(MAIN) $(OBJS) $(LIBS)
+	       $(CXX) $(CXXO) $(CXXFLAGS) -o $(MAIN) $(OBJS) $(LIBS)
 				 $(CLEAN)
 
 .cpp.o:
-			$(CC) $(CFLAGS) -c $< -o $@
+			$(CXX) $(CXXO) $(CXXFLAGS) -c $< -o $@
 
 clean:
 			$(RM) *.o *~ $(MAIN)
