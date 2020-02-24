@@ -35,13 +35,11 @@ Tipo lexemaTipo(const std::string& lexema) {
 
 Dado::Dado(const Tipo& t, const double v) : tipo(t), valor(v) {}
 Dado::Dado(const Dado& d) : tipo(d.tipo), valor(d.valor) {
-   if(tipo == Tipo::NULO) {
+   if (tipo == Tipo::NULO) {
       preencheTipo();
    }
 }
-Dado::Dado(const double v): valor(v) {
-   preencheTipo();
-}
+Dado::Dado(const double v) : valor(v) { preencheTipo(); }
 
 void Dado::preencheTipo(void) {
    if (valor == 1 or valor == 0.0f) {
