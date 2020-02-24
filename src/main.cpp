@@ -39,11 +39,11 @@ int main(int argc, char *argv[]) {
       Sem sem(syn.parse());
       std::cout << "[SINTATICO] - O seu programa foi aceito sintatica e "
                    "lexicamente!\n";
-      auto acNodes = sem.analisaArvore();
+      auto nodeCounter = sem.analisaArvore();
 #ifdef DEBUG
       std::cout << "[SINTATICO] - O total de nós da AST é: "
                 << syn.getAST().size() << "\n[SEMANTICO] - Foram visitados "
-                << acNodes << " nós na AST.\n";
+                << nodeCounter << " nós na AST.\n";
 #endif
       std::cout << "[SEMANTICO] - O seu programa foi aceito!\n";
       std::cout << "[COMPILADOR] - O código fonte passou em todas as fases de "

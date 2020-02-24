@@ -79,14 +79,14 @@ class Erro : public std::exception {
     * Substitui \r ou \n por espaço em branco
     */
    inline std::size_t limpaLexema(std::string& lexema) const {
-      std::size_t ac{};
+      std::size_t counter{};
       for (auto& c : lexema) {
          if (isspace(c) && c != ' ') {
             c = ' ';
-            ac++;
+            counter++;
          }
       }
-      return ac;
+      return counter;
    }
 
    /*

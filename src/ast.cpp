@@ -108,13 +108,13 @@ std::size_t AST::DFS(const std::function<bool(AST::Node*)>& func) {
 std::size_t AST::DFS(AST::Node* atual,
                      const std::function<bool(AST::Node*)>& func) {
    const bool descer = func(atual);
-   std::size_t ac{1};
+   std::size_t counter{1};
    if (descer) {
       for (auto& no : atual->childs) {
-         ac += DFS(no.get(), func);
+         counter += DFS(no.get(), func);
       }
    }
-   return ac;
+   return counter;
 }
 
 AST::Node::Node(const Token& _tk, const Tipo& _t, Node* _super)
