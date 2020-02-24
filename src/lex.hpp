@@ -17,13 +17,20 @@
  */
 #pragma once
 
-#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <unordered_map>
 
 #include "token.hpp"
+
+#if __GNUC__ > 7
+#include <filesystem>
+namespace fs = std::filesystem;
+#else
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#endif
 
 class Lex {
   private:
@@ -53,8 +60,7 @@ class Lex {
     * o caminho do arquivo de entrada (vem do argv)
     * o caminho do arquivo de saida, que contera todos os lexemas lidos
     */
-   Lex(const std::filesystem::path& in,
-       const std::filesystem::path& out = "lexemas.txt");
+   Lex(const fs::path& in, const fs::path& out = "lexemas.txt");
    ~Lex();
    /*
     * Pega token vindo do arquivo de entrada
