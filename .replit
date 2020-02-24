@@ -1,0 +1,3 @@
+language = "cpp"
+  run = "cd src; make; ./pcc ../test/valido.c20192"
+  

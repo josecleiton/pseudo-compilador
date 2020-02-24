@@ -5,6 +5,8 @@ Trabalho proposto na disciplina de Compiladores 2019.2 na [Universidade do Estad
 
 # Build and Run
 
+[![Run on Repl.it](https://repl.it/badge/github/josecleiton/pseudo-compilador)](https://repl.it/github/josecleiton/pseudo-compilador)
+
 Dependências:
 - Compilador C++17
 
