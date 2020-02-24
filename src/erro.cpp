@@ -17,13 +17,14 @@
  */
 
 #include "erro.hpp"
+#include "lex.hpp"
 
 #include <iostream>
 #include <sstream>
 
 Erro::Erro(Lex* const lex, std::string& lexema, const char* const esperado)
     : mTipo(Erro::TipoErro::Lexico) {
-   const auto& linha = lex->getLinha();
+   const auto linha = lex->getLinha();
    auto col = lex->getCol();
    const auto& filename = lex->getFilename();
    auto& file = lex->getFile();
@@ -54,8 +55,8 @@ std::size_t Erro::primeiroCaracterNaLinha(std::ifstream& file) const {
    std::size_t count = 1;
    char c;
    auto pos = unget(file, 2);
-   while ((c = file.get()) != EOF && pos && c != '\n' && c != '\r') {
-      count++;
+   while ((c = file.get()) != EOF and pos and c != '\n' and c != '\r') {
+      ++count;
       pos = unget(file, 2);
    }
    if (!pos) {

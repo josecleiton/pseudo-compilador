@@ -33,24 +33,24 @@ void falhaAoAbrirArquivo(const std::string& path) {
    throw std::runtime_error("Arquivo falhou ao abrir.");
 }
 
-Lex::Lex(const std::string& inPath, const std::string& outPath)
-    : mFilename(inPath), mInputFile(mFilename), mOutputFile(outPath) {
+Lex::Lex(const std::filesystem::path& in, const std::filesystem::path& out)
+    : mFilename(in.filename()), mInputFile(in), mOutputFile(out) {
    /*
     * Verifica se o arquivo de entrada tem o sufixo .c20192
     */
    const std::string sufixo = ".c20192";
-   const int pos = inPath.size() - sufixo.size() - 1;
-   if (pos <= 0 || inPath.find(sufixo, pos) == std::string::npos) {
+   const int pos = mFilename.size() - sufixo.size() - 1;
+   if (pos <= 0 || mFilename.find(sufixo, pos) == std::string::npos) {
       std::cerr << "Arquivos de entrada devem terminar com '" << sufixo
                 << "'\n";
       throw std::invalid_argument("Falta extensão '" + sufixo +
                                   "' em arquivo.");
    }
    if (!mInputFile.is_open()) {
-      falhaAoAbrirArquivo(inPath);
+      falhaAoAbrirArquivo(in);
    }
    if (!mOutputFile.is_open()) {
-      falhaAoAbrirArquivo(outPath);
+      falhaAoAbrirArquivo(out);
    }
    /*
     * Cabeçalho de ajuda no arquivo de saída
@@ -122,7 +122,7 @@ Token Lex::proxToken(void) {
                   } else if (isspace(c)) {
                      if (c == '\n') {
                         mCol = 0;
-                        mLinha++;
+                        ++mLinha;
                      }
                      lexema.pop_back();
                      break;

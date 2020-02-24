@@ -33,7 +33,7 @@ Tipo lexemaTipo(const std::string& lexema) {
    }
 }
 
-Dado::Dado(const Tipo& t, const double v) : tipo(t), valor(v) {}
+Dado::Dado(const Tipo t, const double v) : tipo(t), valor(v) {}
 Dado::Dado(const Dado& d) : tipo(d.tipo), valor(d.valor) {
    if (tipo == Tipo::NULO) {
       preencheTipo();
@@ -77,26 +77,30 @@ Dado& Dado::operator=(const Dado& other) {
 }  // namespace AnaliseSemantica
 namespace AnaliseSintatica {
 AST::AST(void)
-    : root(std::make_unique<NodeBloco>(TipoToken::PROGRAMA, AST::Tipo::BLOCO)) {
+    : root(std::make_unique<NodeBloco>(TipoToken::PROGRAMA, nullptr,
+                                       AST::Tipo::BLOCO)) {
    mPilha.push(root.get());
 }
-AST::Node* AST::inserirNode(const Token& tk, const Tipo& tipo) {
+AST::Node* AST::inserirNode(const Token& tk, const Tipo tipo) {
    mPilha.push(inserirFolha(tk, tipo));
    return mPilha.top();
 }
-AST::Node* AST::inserirFolha(const Token& tk, const Tipo& tipo) {
-   auto& topo = mPilha.top();
+AST::Node* AST::inserirFolha(const Token& tk, const Tipo tipo) {
+   auto const topo = mPilha.top();
    switch (tipo) {
       case Tipo::BLOCO:
-         topo->childs.emplace_back(std::make_unique<NodeBloco>(tk, tipo, topo));
+         topo->childs.emplace_back(std::make_unique<NodeBloco>(tk, topo));
          break;
       case Tipo::EXP:
-         topo->childs.emplace_back(std::make_unique<NodeExp>(tk, tipo, topo));
+         topo->childs.emplace_back(std::make_unique<NodeExp>(tk, topo));
+         break;
+      case Tipo::ATRIB:
+         topo->childs.emplace_back(std::make_unique<NodeAtrib>(tk, topo));
          break;
       default:
-         topo->childs.emplace_back(std::make_unique<Node>(tk, tipo, topo));
+         topo->childs.emplace_back(std::make_unique<Node>(tk, topo, tipo));
    }
-   mNodeCounter++;
+   ++mNodeCount;
    return topo->childs.back().get();
 }
 
@@ -106,20 +110,22 @@ std::size_t AST::DFS(const std::function<bool(AST::Node*)>& func) {
 std::size_t AST::DFS(AST::Node* atual,
                      const std::function<bool(AST::Node*)>& func) {
    const bool descer = func(atual);
-   std::size_t counter{1};
+   std::size_t count{1};
    if (descer) {
       for (auto& no : atual->childs) {
-         counter += DFS(no.get(), func);
+         count += DFS(no.get(), func);
       }
    }
-   return counter;
+   return count;
 }
 
-AST::Node::Node(const Token& _tk, const Tipo& _t, Node* _super)
+AST::Node::Node(const Token& _tk, Node* _super, const Tipo _t)
     : tk(_tk), tipo(_t), super(_super) {}
-AST::NodeBloco::NodeBloco(const Token& _tk, const Tipo& _t, Node* _super)
-    : Node(_tk, _t, _super) {}
-AST::NodeExp::NodeExp(const Token& _tk, const Tipo& _t, Node* _super)
-    : Node(_tk, _t, _super) {}
+AST::NodeBloco::NodeBloco(const Token& _tk, Node* _super, const Tipo _t)
+    : Node(_tk, _super, _t) {}
+AST::NodeExp::NodeExp(const Token& _tk, Node* _super, const Tipo _t)
+    : Node(_tk, _super, _t) {}
+AST::NodeAtrib::NodeAtrib(const Token& _tk, Node* _super, const Tipo _t)
+    : Node(_tk, _super, _t) {}
 }  // namespace AnaliseSintatica
 

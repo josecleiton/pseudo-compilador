@@ -58,7 +58,7 @@ class Dado {
     * Um monte de construtores simplesmente
     * para shorthand
     */
-   Dado(const Tipo&, const double = 0.0f);
+   Dado(const Tipo, const double = 0.0f);
    Dado(const Dado&);
    Dado(const double);
    /*
@@ -74,6 +74,7 @@ class Dado {
     * Se não forem compatíveis -> throw exception
     */
    Dado& operator=(const Dado& other);
+   Dado& operator=(Dado&&) = default;
    /*
     * Conversão implícita evitando coisas como:
     * d.tipo == Tipo::INTEIRO; -> d == Tipo::INTEIRO;
@@ -108,7 +109,7 @@ class SymbolTable {
     * Insere nova variável na hash table
     * Se o lexema já estiver na hash table -> throw exception
     */
-   inline void insereDado(const std::string& lexema, const Tipo& t,
+   inline void insereDado(const std::string& lexema, const Tipo t,
                           const double v = {}) {
       if (getDado(lexema)) {
          throw std::domain_error(
@@ -133,13 +134,10 @@ class AST {
     * Os nós podem ser de tipo BLOCO, EXP, REGULAR
     * BLOCO - Mantém junto a ele uma tabela de símbolos (escopo)
     * EXP - Utilizado para as expressões
-    * REGULAR - Utilizado para comandos como ATRIB, DECL
+    * ATRIB
+    * DECL
     */
-   enum class Tipo {
-      BLOCO,
-      EXP,
-      REGULAR,
-   };
+   enum class Tipo { REGULAR, BLOCO, EXP, ATRIB };
 
    /*
     * Um nó regular da AST, exemplo conceitual:
@@ -163,7 +161,7 @@ class AST {
       std::list<std::unique_ptr<Node>> childs;
       Node* super{};
 
-      Node(const Token&, const Tipo& = Tipo::REGULAR, Node* = nullptr);
+      Node(const Token&, Node* = nullptr, const Tipo = Tipo::REGULAR);
       virtual ~Node() {}
    };
 
@@ -190,7 +188,7 @@ class AST {
    struct NodeBloco : public Node {
       AnaliseSemantica::SymbolTable st;
 
-      NodeBloco(const Token&, const Tipo& = Tipo::BLOCO, Node* = nullptr);
+      NodeBloco(const Token&, Node* = nullptr, const Tipo = Tipo::BLOCO);
       ~NodeBloco() {}
    };
 
@@ -219,8 +217,15 @@ class AST {
    struct NodeExp : public Node {
       AnaliseSemantica::Dado dado;
 
-      NodeExp(const Token&, const Tipo& = Tipo::EXP, Node* = nullptr);
+      NodeExp(const Token&, Node* = nullptr, const Tipo = Tipo::EXP);
       ~NodeExp() {}
+   };
+
+   struct NodeAtrib : public Node {
+      AnaliseSemantica::Dado* var{};
+      std::unique_ptr<AnaliseSemantica::Dado> resultadoExp;
+      NodeAtrib(const Token&, Node* = nullptr, const Tipo = Tipo::ATRIB);
+      ~NodeAtrib() {}
    };
 
   private:
@@ -229,7 +234,7 @@ class AST {
     * Pilha utilizada pelo Sintatico para a inserção de nós
     */
    std::stack<Node*> mPilha;
-   std::size_t mNodeCounter{1};
+   std::size_t mNodeCount{1};
 
   public:
    AST(void);
@@ -237,11 +242,11 @@ class AST {
     * inserirNode Insere um child no Nó que está no topo da mPilha
     * o novo child se torna o novo topo da mPilha
     */
-   Node* inserirNode(const Token&, const Tipo& = Tipo::REGULAR);
+   Node* inserirNode(const Token&, const Tipo = Tipo::REGULAR);
    /*
     * Insere um child no Nó que está no topo da mPilha
     */
-   Node* inserirFolha(const Token&, const Tipo& = Tipo::REGULAR);
+   Node* inserirFolha(const Token&, const Tipo = Tipo::REGULAR);
    /*
     * DFS faz um busca em profundidade na AST.
     *
@@ -258,7 +263,7 @@ class AST {
     */
    inline auto subirNivel(const std::size_t n) {
       std::size_t i = 0;
-      for (; mPilha.size() and i < n; i++) {
+      for (; mPilha.size() and i < n; ++i) {
          mPilha.pop();
       }
       return i;
@@ -274,7 +279,7 @@ class AST {
       return result ? dynamic_cast<NodeBloco*>(result) : nullptr;
    }
    inline Node* atual(void) { return mPilha.top(); }
-   inline auto size(void) const { return mNodeCounter; }
+   inline auto size(void) const { return mNodeCount; }
 
   private:
    std::size_t DFS(Node* atual, const std::function<bool(Node*)>& func);

@@ -26,6 +26,7 @@
 #include <unordered_map>
 
 #include "ast.hpp"
+
 #include "lex.hpp"
 
 namespace AnaliseSintatica {
@@ -41,7 +42,7 @@ class Syn {
     * LL(1) parser table
     */
    std::unordered_map<TipoToken, std::unordered_map<TipoToken, int>> mLL;
-   std::size_t mTkCounter{};
+   std::size_t mTkCount{};
    /* referencia do objeto Lex (responsável pela análise léxica) */
    Lex& mLex;
    /*
@@ -62,10 +63,10 @@ class Syn {
     */
    AST& parse(void);
    inline auto proximoToken(void) {
-      mTkCounter++;
+      ++mTkCount;
       return mLex.getToken();
    }
-   inline auto getTkCounter(void) const { return mTkCounter; }
+   inline auto getTkCounter(void) const { return mTkCount; }
    inline const auto& getAST(void) const { return mAST; }
 };
 }  // namespace AnaliseSintatica

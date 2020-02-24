@@ -58,7 +58,7 @@ class Sem {
     * Senao
     *   erro
     */
-   void atribueVariavel(AST::Node*) const;
+   void atribueVariavel(AST::NodeAtrib*) const;
    /*
     * Se for VALOR então
     *   retorna VALOR

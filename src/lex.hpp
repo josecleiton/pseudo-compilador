@@ -17,6 +17,7 @@
  */
 #pragma once
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -52,7 +53,8 @@ class Lex {
     * o caminho do arquivo de entrada (vem do argv)
     * o caminho do arquivo de saida, que contera todos os lexemas lidos
     */
-   Lex(const std::string& inPath, const std::string& outPath = "lexemas.txt");
+   Lex(const std::filesystem::path& in,
+       const std::filesystem::path& out = "lexemas.txt");
    ~Lex();
    /*
     * Pega token vindo do arquivo de entrada
@@ -98,7 +100,7 @@ class Lex {
     * Função auxiliar para pegar o próx char do buffer
     */
    inline char getChar(std::string& lexema) {
-      mCol++;
+      ++mCol;
       lexema.push_back(mInputFile.get());
       return lexema.back();
    }

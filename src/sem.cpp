@@ -36,20 +36,13 @@ std::size_t Sem::analisaArvore(void) {
           * NT_SE/NT_SENAO/NT_ENQUANTO tem EXP como primeiro nó
           * tal EXP é a condição então deve retornar tipo LOGICO
           */
-         AST::NodeExp* aux;
-         switch (no->tk) {
-            case TipoToken::NT_SE:
-            case TipoToken::NT_SENAO:
-            case TipoToken::NT_ENQUANTO:
-               aux = dynamic_cast<AST::NodeExp*>(no->childs.front().get());
-               aux->dado = avaliaExpressao(aux);
-               if (aux->dado != Tipo::LOGICO) {
-                  throw std::domain_error(
-                      "Condição deve retornar tipo LOGICO.");
-               }
-               break;
-            default:
-               break;
+         if (no->tk != TipoToken::PROGRAMA) {
+            auto const aux =
+                dynamic_cast<AST::NodeExp*>(no->childs.front().get());
+            aux->dado = avaliaExpressao(aux);
+            if (aux->dado != Tipo::LOGICO) {
+               throw std::domain_error("Condição deve retornar tipo LOGICO.");
+            }
          }
          return true;
       } else if (no->tk == TipoToken::DECL) {
@@ -65,10 +58,10 @@ std::size_t Sem::analisaArvore(void) {
           * 1) Identificador
           * 2 ou mais) componentes de uma expressão
           */
-         atribueVariavel(no);
+         atribueVariavel(dynamic_cast<AST::NodeAtrib*>(no));
       }
       /*
-       * Após análise do DECL/ATRIB/EXP seus filhos não são mais necessários
+       * Após análise do DECL/EXP/ATRIB seus filhos não são mais necessários
        */
       no->childs.clear();
       return false;
@@ -78,17 +71,22 @@ bool Sem::declaraVariavel(AST::Node* no) const {
    auto const bloco = mAST.getBlocoAcima(no);
    auto itList = no->childs.cbegin();
    const auto tipo = lexemaTipo(itList->get()->tk.lexema);
-   itList++;
+   ++itList;
    const auto& variavel = itList->get()->tk.lexema;
    bloco->st.insereDado(variavel, tipo);
    return true;
 }
-void Sem::atribueVariavel(AST::Node* no) const {
+void Sem::atribueVariavel(AST::NodeAtrib* no) const {
    auto itList = no->childs.cbegin();
    const auto& variavel = itList->get()->tk.lexema;
-   itList++;
-   Dado* const var = getVariavel(no, variavel);
-   *var = avaliaExpressao(itList, no->childs.cend());
+   ++itList;
+   /*
+    * Se a variavel não existir em nenhum dos contextos acima:
+    * throw out_of_range exception
+    */
+   no->var = getVariavel(no, variavel);
+   no->resultadoExp =
+       std::make_unique<Dado>(avaliaExpressao(itList, no->childs.cend()));
 }
 
 Dado Sem::avaliaExpressao(AST::NodeExp* exp) const {
@@ -149,7 +147,7 @@ Dado Sem::avaliaExpressao(
          default:
             break;
       }
-      atual++;
+      ++atual;
    }
    while (!ops.empty()) {
       resolveOp(nums, ops);

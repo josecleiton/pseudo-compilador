@@ -21,8 +21,6 @@
 #include <exception>
 #include <fstream>
 
-#include "lex.hpp"
-
 class Lex;
 
 /**
@@ -79,14 +77,14 @@ class Erro : public std::exception {
     * Substitui \r ou \n por espaço em branco
     */
    inline std::size_t limpaLexema(std::string& lexema) const {
-      std::size_t counter{};
+      std::size_t count{};
       for (auto& c : lexema) {
-         if (isspace(c) && c != ' ') {
+         if (isspace(c) and c != ' ') {
             c = ' ';
-            counter++;
+            ++count;
          }
       }
-      return counter;
+      return count;
    }
 
    /*
@@ -96,7 +94,7 @@ class Erro : public std::exception {
                               const std::size_t col) const {
       std::string res = s;
       std::size_t t{};
-      for (std::size_t i = 0; i < res.size(); i++) {
+      for (std::size_t i = 0; i < res.size(); ++i) {
          if (!isspace(res[i])) {
             res[i] = ' ';
          } else if (res[i] == '\t') {

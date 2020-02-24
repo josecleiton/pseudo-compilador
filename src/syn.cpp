@@ -24,6 +24,8 @@
 
 #include <stdexcept>
 
+#include "lex.hpp"
+
 namespace AnaliseSintatica {
 enum { NULA = 99 };
 
@@ -94,14 +96,14 @@ Syn::Syn(Lex& l) : mLex(l) {
 AST& Syn::parse(void) {
    Token tk = proximoToken();
    while (mPilha.size()) {
-      auto& topo = mPilha.top();
+      const auto topo = mPilha.top();
       try {
          if (tk != topo) {
             /*
              * Verifica REGRA mLL[topo][tk],
              * caso não exista a regra, o map dispara uma exceção
              */
-            const auto& producao = mLL.at(topo).at(tk);
+            const auto producao = mLL.at(topo).at(tk);
             mPilha.pop();
             switch (producao) {
                case 0:  // S -> programa
@@ -184,7 +186,7 @@ AST& Syn::parse(void) {
                   mPilha.push(TipoToken::EXP);
                   mPilha.push(TipoToken::ATRIB);
                   mPilha.push(TipoToken::ID);
-                  mAST.inserirNode(TipoToken::ATRIB);
+                  mAST.inserirNode(TipoToken::ATRIB, AST::Tipo::ATRIB);
                   break;
                case 15:  // exp -> termo fator
                   mPilha.push(TipoToken::TERMO);

@@ -63,7 +63,7 @@ struct Token {
     * Substitue a virgula por ponto em tokens do tipo VALOR
     */
    static bool substituiDelSeValor(std::string &lexema);
-   Token(const TipoToken &tk = TipoToken::INITIAl, const std::string &s = "");
+   Token(const TipoToken tk = TipoToken::INITIAl, const std::string &s = "");
    /*
     * Todo token é implicitamente um TipoToken
     * apenas um shorthand para evitar tk.tipo == TipoToken::VALOR
