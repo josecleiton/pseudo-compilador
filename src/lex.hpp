@@ -44,7 +44,7 @@ class Lex {
    /*
     * Contador de linha e coluna
     */
-   unsigned mLinha{1}, mCol{};
+   std::size_t mLinha{1}, mCol{};
 
   public:
    /*

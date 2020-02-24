@@ -41,7 +41,7 @@ class Syn {
     * LL(1) parser table
     */
    std::unordered_map<TipoToken, std::unordered_map<TipoToken, int>> mLL;
-   unsigned mTkCounter{};
+   std::size_t mTkCounter{};
    /* referencia do objeto Lex (responsável pela análise léxica) */
    Lex& mLex;
    /*

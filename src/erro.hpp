@@ -92,7 +92,8 @@ class Erro : public std::exception {
    /*
     * Aponta para o caracter onde está o erro
     */
-   inline std::string getSeta(const std::string& s, const unsigned col) const {
+   inline std::string getSeta(const std::string& s,
+                              const std::size_t col) const {
       std::string res = s;
       std::size_t t{};
       for (std::size_t i = 0; i < res.size(); i++) {

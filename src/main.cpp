@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
                 << acNodes << " nós na AST.\n";
 #endif
       std::cout << "[SEMANTICO] - O seu programa foi aceito!\n";
-      std::cout << "[COMPILADOR] O código fonte passou em todas as fases de "
+      std::cout << "[COMPILADOR] - O código fonte passou em todas as fases de "
                    "análise!\n";
       return EXIT_SUCCESS;
    } catch (const std::exception &e) {

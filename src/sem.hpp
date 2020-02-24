@@ -70,7 +70,7 @@ class Sem {
     *     erro
     */
    double getValorVariavel(AST::NodeExp*) const;
-   Dado* getVariavel(AST::Node*, const std::string&) const;
+   Dado* getVariavel(const AST::Node*, const std::string&) const;
    /*
     * Avalia a expressão infixa guardada por uma lista encadeada
     * A AST mantém a expressão infixa até ser avaliada. Exemplo do comando k = x

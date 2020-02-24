@@ -223,7 +223,7 @@ AST& Syn::parse(void) {
                   mAST.inserirNode(TipoToken::EXP, AST::Tipo::EXP);
                   break;
 
-               case NULA: // producao -> ε
+               case NULA:  // producao -> ε
                   break;
 
                default:
@@ -234,6 +234,11 @@ AST& Syn::parse(void) {
             // terminal retornado pelo lexico bate com o token no topo da pilha
             mPilha.pop();
             switch (tk) {
+               /*
+                * Tokens que fazem parte de uma expressão
+                * criar-se nós folha que serão analisados e resolvidos no
+                * semântico
+                */
                case TipoToken::ID:
                case TipoToken::SINAL:
                case TipoToken::NEG:
@@ -241,36 +246,32 @@ AST& Syn::parse(void) {
                case TipoToken::ABREPRNT:
                case TipoToken::FECHAPRNT:
                case TipoToken::VALOR:
-                  /*
-                   * Tokens que fazem parte de uma expressão
-                   * criar-se nós folha que serão analisados e resolvidos no semântico
-                   */
                   mAST.inserirFolha(tk, AST::Tipo::EXP);
                   break;
+               /*
+                * Token que faz parte de um Node DECL
+                */
                case TipoToken::TIPO:
-                  /*
-                   * Token que faz parte de um Node DECL
-                   */
                   mAST.inserirFolha(tk);
                   break;
+               /*
+                * Tokens que representam final do Node
+                * após ele subimos 1 nível na arvore
+                */
                case TipoToken::ACABOU:
                case TipoToken::PNTVIRG:
                case TipoToken::FACA:
-                  /*
-                   * Tokens que representam final do Node
-                   * após ele subimos 1 nível na arvore
-                   */
                   mAST.subirNivel(1);
                   break;
+               /*
+                * Alguns Tokens terminais não devem entrar na AST
+                * Exemplo: ;, FACA, SE, SENAO, etc
+                */
                default:
-                  /*
-                   * Alguns Tokens terminais não devem entrar na AST
-                   * Exemplo: ;, FACA, SE, SENAO, etc
-                   */
                   break;
             }
 #ifdef DEBUG
-            std::clog << "[DEBUG - parser] " << tk << '\n';
+            std::clog << "[DEBUG - parser] " << tk << std::endl;
 #endif
             if (tk != TipoToken::FIMARQ) {
                tk = proximoToken();
@@ -279,7 +280,8 @@ AST& Syn::parse(void) {
       } catch (const std::exception& e) {
 #ifdef DEBUG
          std::clog
-             << "[DEBUG - parser] Transição não encontrada na parse table.\n";
+             << "[DEBUG - parser] Transição não encontrada na parse table."
+             << std::endl;
 #endif
          throw e;
       }

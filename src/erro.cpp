@@ -23,9 +23,9 @@
 
 Erro::Erro(Lex* const lex, std::string& lexema, const char* const esperado)
     : mTipo(Erro::TipoErro::Lexico) {
-   const auto linha = lex->getLinha();
+   const auto& linha = lex->getLinha();
    auto col = lex->getCol();
-   const auto filename = lex->getFilename();
+   const auto& filename = lex->getFilename();
    auto& file = lex->getFile();
    std::string textoLinha{};
    std::stringstream ss;
@@ -43,7 +43,7 @@ Erro::Erro(Lex* const lex, std::string& lexema, const char* const esperado)
    std::string sstr = ss.str();
    const auto seta = getSeta(sstr, col);
 
-   std::clog << filename << ':' << linha << ':' << col
+   std::cerr << filename << ':' << linha << ':' << col
              << ": erro lexico: esperado '" << esperado << "' recebeu '"
              << textoLinha[col] << "'\n"
              << sstr << '\n'
