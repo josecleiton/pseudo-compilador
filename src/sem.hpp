@@ -19,6 +19,10 @@
 
 #pragma once
 
+#include <list>
+#include <stack>
+#include <string>
+
 #include "ast.hpp"
 
 namespace AnaliseSemantica {
@@ -27,7 +31,13 @@ class Sem {
    AST& mAST;
 
   public:
+   /*
+    * Espera a Abstract Syntax Tree gerada pelo Sintatico
+    */
    Sem(AnaliseSintatica::AST&);
+   /*
+    * Caminha na AST verificando a validade semantica dos nos
+    */
    std::size_t analisaArvore(void);
 
   private:
@@ -63,25 +73,26 @@ class Sem {
    Dado* getVariavel(AST::Node*, const std::string&) const;
    /*
     * Avalia a expressão infixa guardada por uma lista encadeada
-    * A AST mantém a expressão infixa até ser avaliada. Exemplo do comando k = x * 4 :
-    *               ATRIB
+    * A AST mantém a expressão infixa até ser avaliada. Exemplo do comando k = x
+    * * 4 : ATRIB
     *              /
     *             ID -> ID -> * -> 4
     *  O primeiro ID é onde a expressão vai ser atribuida (k no nosso exemplo)
     *  Por isso avaliaExpressao necessita de dois iterators, sendo eles:
     *  começo da expressão e final da expressão respectivamente.
-    *  o algoritmo itera na lista (veja o cpp) e aplica o algoritmo feito por Dijkstra:
-    *   https://en.wikipedia.org/wiki/Shunting-yard_algorithm
-    *  um pouco modificado, visto que o Shunting Yard é para converter uma expressão de infix para posfixa e
-    *  é utilizado aqui para resolver toda a expressão, retornando o Dado
+    *  o algoritmo itera na lista (veja o cpp) e aplica o algoritmo feito por
+    * Dijkstra: https://en.wikipedia.org/wiki/Shunting-yard_algorithm um pouco
+    * modificado, visto que o Shunting Yard é para converter uma expressão de
+    * infix para posfixa e é utilizado aqui para resolver toda a expressão,
+    * retornando o Dado
     */
    Dado avaliaExpressao(
        std::list<std::unique_ptr<AST::Node>>::const_iterator,
        std::list<std::unique_ptr<AST::Node>>::const_iterator) const;
    /*
-    * Função auxiliar de avaliaExpressao para escolher o(s) número(s) da pilha de números e
-    * o operador da pilha de operador
-    * após isso escolhe aplicar a função aplicaBinop ou aplicaUnop dependendo da pilha de números
+    * Função auxiliar de avaliaExpressao para escolher o(s) número(s) da pilha
+    * de números e o operador da pilha de operador após isso escolhe aplicar a
+    * função aplicaBinop ou aplicaUnop dependendo da pilha de números
     */
    void resolveOp(std::stack<AST::NodeExp*>& nums,
                   std::stack<AST::NodeExp*>& ops) const;

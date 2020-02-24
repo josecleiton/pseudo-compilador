@@ -51,6 +51,9 @@ class Syn {
    AST mAST;
 
   public:
+   /*
+    * Syn inicializado com o Lexico
+    */
    Syn(Lex&);
    /*
     * Verifica as regras definidas em mLL com os tokens sendo lidos do Lexico

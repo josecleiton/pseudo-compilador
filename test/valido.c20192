@@ -1,0 +1,20 @@
+INTEIRO id;
+LOGICO x;
+QUEBRADO test;
+id = 1 && 0;
+x = 1;
+test = 33,3*3 + 5;
+SE !id && x FACA
+   LOGICO c;
+   QUEBRADO k;
+   SE x FACA
+      k = 32312314,42331 * 321939129301 / (test * ( 54));
+   ACABOU
+   c = 0;
+ACABOU
+INTEIRO trinta;
+trinta = 30;#lol
+ENQUANTO trinta || id FACA
+   trinta = trinta + 1;
+   INTEIRO tres;
+ACABOU

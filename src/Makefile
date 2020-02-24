@@ -21,4 +21,4 @@ $(MAIN): $(OBJS)
 clean:
 			$(RM) *.o *~ $(MAIN)
 
-.PHONY: all clean install uninstall
+.PHONY: all clean

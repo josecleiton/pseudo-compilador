@@ -19,8 +19,11 @@
 #pragma once
 #include <cctype>
 #include <exception>
+#include <fstream>
 
 #include "lex.hpp"
+
+class Lex;
 
 /**
  * Classe para formatar erros do compilador

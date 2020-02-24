@@ -47,6 +47,11 @@ class Lex {
    unsigned mLinha{1}, mCol{};
 
   public:
+   /*
+    * Lex inicializado com:
+    * o caminho do arquivo de entrada (vem do argv)
+    * o caminho do arquivo de saida, que contera todos os lexemas lidos
+    */
    Lex(const std::string& inPath, const std::string& outPath = "lexemas.txt");
    ~Lex();
    /*
