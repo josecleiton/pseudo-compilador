@@ -52,6 +52,7 @@ std::size_t Sem::analisaArvore(void) {
           * 2) Identificador
           */
          declaraVariavel(no);
+         no->childs.clear();
       } else if (no->tk == TipoToken::ATRIB) {
          /*
           * Analisa nó ATRIB que tem pelo menos 2 filhos
@@ -60,10 +61,6 @@ std::size_t Sem::analisaArvore(void) {
           */
          atribueVariavel(dynamic_cast<AST::NodeAtrib*>(no));
       }
-      /*
-       * Após análise do DECL/EXP/ATRIB seus filhos não são mais necessários
-       */
-      no->childs.clear();
       return false;
    });
 }
@@ -76,7 +73,7 @@ bool Sem::declaraVariavel(AST::Node* no) const {
    bloco->st.insereDado(variavel, tipo);
    return true;
 }
-void Sem::atribueVariavel(AST::NodeAtrib* no) const {
+void Sem::atribueVariavel(AST::NodeAtrib* no) {
    auto itList = no->childs.cbegin();
    const auto& variavel = itList->get()->tk.lexema;
    ++itList;
@@ -84,104 +81,71 @@ void Sem::atribueVariavel(AST::NodeAtrib* no) const {
     * Se a variavel não existir em nenhum dos contextos acima:
     * throw out_of_range exception
     */
-   no->var = getVariavel(no, variavel);
-   no->resultadoExp =
-       std::make_unique<Dado>(avaliaExpressao(itList, no->childs.cend()));
+   auto dadoVar = *getVariavel(no, variavel);
+   auto resultadoExp =
+       avaliaExpressao(dynamic_cast<AST::NodeExp*>(itList->get()));
+   /*
+    * checa validade da atribuição entre o tipo retornado pela exp e a variável
+    */
+   dadoVar = resultadoExp;
 }
 
-Dado Sem::avaliaExpressao(AST::NodeExp* exp) const {
-   return avaliaExpressao(exp->childs.cbegin(), exp->childs.cend());
+Dado Sem::avaliaExpressao(AST::NodeExp* exp) {
+   return avaliaExpressao(exp->expRoot);
 }
-constexpr unsigned precedencia(const char op) {
+
+Dado Sem::avaliaExpressao(AST::NodeExpOp* no) {
+   ++mNodeExpCount;
+   if (!no->getEsquerda()) {
+      return getValorVariavel(no);
+   }
+   const Dado esq = avaliaExpressao(no->getEsquerda());
+   if (auto noDir = no->getDireita(); noDir) {
+      const Dado dir = avaliaExpressao(no->getDireita());
+      return aplicaBinop(esq, no->getOp(), dir);
+   }
+   return aplicaUnop(no->getOp(), esq);
+}
+Dado Sem::aplicaUnop(const char op, const Dado& num) {
    switch (op) {
-      case '+':
       case '-':
+         return Dado(-num.valor);
+      case '+':
+         return Dado(num.valor);
       case '!':
-      case '|':
-         return 1;
-      case '*':
-      case '/':
-      case '&':
-         return 2;
+         return Dado(!num.valor);
       default:
-         return 0;
-   }
-}
-char getOp(AST::NodeExp* node) { return node->tk.lexema[0]; }
-/*
- * Weird type i know
- * avaliaExpressao usa o algoritmo feito por Dijkstra, estendido para resolver
- * expressões infixa.
- * A função espera iterators da lista de childs. Apesar de eu tentar simplificar
- * os tipos, iterators são inimigos da simplicidade.
- */
-Dado Sem::avaliaExpressao(
-    std::list<std::unique_ptr<AST::Node>>::const_iterator atual,
-    std::list<std::unique_ptr<AST::Node>>::const_iterator fim) const {
-   std::stack<AST::NodeExp*> nums, ops;
-   while (atual != fim) {
-      auto const no = dynamic_cast<AST::NodeExp*>(atual->get());
-      switch (no->tk) {
-         case TipoToken::ID:
-         case TipoToken::VALOR:
-            nums.push(no);
-            break;
-         case TipoToken::ABREPRNT:
-            ops.push(no);
-            break;
-         case TipoToken::FECHAPRNT:
-            while (ops.size() and ops.top()->tk != TipoToken::ABREPRNT) {
-               resolveOp(nums, ops);
-            }
-            ops.pop();
-            break;
-         case TipoToken::SINAL:
-         case TipoToken::BINOP:
-         case TipoToken::NEG:
-            while (ops.size() and
-                   precedencia(getOp(ops.top())) >= precedencia(getOp(no))) {
-               resolveOp(nums, ops);
-            }
-            ops.push(no);
-            break;
-         default:
-            break;
-      }
-      ++atual;
-   }
-   while (!ops.empty()) {
-      resolveOp(nums, ops);
-   }
-   auto const topo = nums.top();
-   if (topo->dado != Tipo::NULO) {
-      return Dado(topo->dado);
-   }
-   return Dado(getValorVariavel(topo));
-}
-
-void Sem::resolveOp(std::stack<AST::NodeExp*>& nums,
-                    std::stack<AST::NodeExp*>& ops) const {
-   const auto val1 = nums.top();
-   nums.pop();
-   const auto op = ops.top();
-   ops.pop();
-   if (nums.size()) {
-      aplicaBinop(nums.top(), op, val1);
-   } else {
-      aplicaUnop(val1, op);
-      nums.push(val1);
+         return {};
    }
 }
 
-double Sem::getValorVariavel(AST::NodeExp* no) const {
+Dado Sem::aplicaBinop(const Dado& val1, const char op, const Dado& val2) {
+   switch (op) {
+      case '*':
+         return Dado(val1.valor * val2.valor);
+      case '/':
+         return Dado(val1.valor / val2.valor);
+      case '-':
+         return Dado(val1.valor - val2.valor);
+      case '+':
+         return Dado(val1.valor + val2.valor);
+      case '&':
+         return Dado(val1.valor && val2.valor);
+      case '|':
+         return Dado(val1.valor || val2.valor);
+      default:
+         return {};
+   }
+}
+
+Dado Sem::getValorVariavel(AST::NodeExpOp* no) {
    if (no->tk == TipoToken::VALOR) {
-      return no->dado.tipo != Tipo::NULO ? no->dado.valor
-                                         : std::stof(no->tk.lexema);
+      return std::stof(no->tk.lexema);
    }
-   return getVariavel(no, no->tk.lexema)->valor;
+   return *getVariavel(no, no->tk.lexema);
 }
 
-Dado* Sem::getVariavel(const AST::Node* no, const std::string& lexema) const {
+Dado* Sem::getVariavel(const AST::Node* no, const std::string& lexema) {
    AST::NodeBloco *atual{}, *anterior{};
    Dado* result;
    while ((atual = mAST.getBlocoAcima(no))) {
@@ -198,50 +162,6 @@ Dado* Sem::getVariavel(const AST::Node* no, const std::string& lexema) const {
    }
    throw std::out_of_range(
        "Todas as variaveis devem ser declaradas antes do uso.");
-}
-
-void Sem::aplicaUnop(AST::NodeExp* no1, AST::NodeExp* op) const {
-   double val1 = getValorVariavel(no1);
-   switch (getOp(op)) {
-      case '-':
-         no1->dado.setValor(-val1);
-         break;
-      case '+':
-         no1->dado.setValor(val1);
-         break;
-      case '!':
-         no1->dado.setValor(!val1);
-         break;
-      default:
-         break;
-   }
-}
-
-void Sem::aplicaBinop(AST::NodeExp* no1, AST::NodeExp* op,
-                      AST::NodeExp* no2) const {
-   double val1 = getValorVariavel(no1), val2 = getValorVariavel(no2);
-   switch (getOp(op)) {
-      case '*':
-         no1->dado.setValor(val1 * val2);
-         break;
-      case '/':
-         no1->dado.setValor(val1 / val2);
-         break;
-      case '-':
-         no1->dado.setValor(val1 - val2);
-         break;
-      case '+':
-         no1->dado.setValor(val1 + val2);
-         break;
-      case '&':
-         no1->dado.setValor(val1 && val2);
-         break;
-      case '|':
-         no1->dado.setValor(val1 || val2);
-         break;
-      default:
-         break;
-   }
 }
 
 }  // namespace AnaliseSemantica

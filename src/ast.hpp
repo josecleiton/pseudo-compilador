@@ -137,7 +137,7 @@ class AST {
     * ATRIB
     * DECL
     */
-   enum class Tipo { REGULAR, BLOCO, EXP, ATRIB };
+   enum class Tipo { REGULAR, BLOCO, EXP, EXPOP, ATRIB };
 
    /*
     * Um nó regular da AST, exemplo conceitual:
@@ -214,11 +214,34 @@ class AST {
     *   trinta * 32.5 - ( k + 5 ) Por ser uma expressão infixa,
     *   é resolvida utilizando pilhas
     */
+   struct NodeExpOp;
    struct NodeExp : public Node {
+     private:
+      std::stack<NodeExpOp*> mPilha;
+
+     public:
       AnaliseSemantica::Dado dado;
+      NodeExpOp* expRoot{};
 
       NodeExp(const Token&, Node* = nullptr, const Tipo = Tipo::EXP);
+      void insereOp(NodeExpOp* const);
+      void fimExp(void);
       ~NodeExp() {}
+   };
+
+   struct NodeExpOp : public Node {
+      enum Direcao { ESQUERDA = 0, DIREITA } mDirecao{};
+      std::array<NodeExpOp*, 2> childs{};
+
+      NodeExpOp(const Token&, Node* = nullptr, const Tipo = Tipo::EXP);
+      inline auto& getEsquerda(void) { return childs[ESQUERDA]; }
+      inline auto& getDireita(void) { return childs[DIREITA]; }
+      inline auto& getOp(void) const { return tk.lexema.front(); }
+      inline std::size_t size(void) const {
+         return (childs[ESQUERDA] != nullptr) + (childs[DIREITA] != nullptr);
+      }
+      Direcao adicionaChild(NodeExpOp*);
+      ~NodeExpOp() {}
    };
 
    struct NodeAtrib : public Node {
@@ -264,6 +287,14 @@ class AST {
    inline auto subirNivel(const std::size_t n) {
       std::size_t i = 0;
       for (; mPilha.size() and i < n; ++i) {
+         if (auto exp = dynamic_cast<NodeExp*>(mPilha.top()); exp) {
+            exp->fimExp();
+            mPilha.pop();
+            ++i;
+            if (mPilha.top()->tipo == Tipo::BLOCO) {
+               continue;
+            }
+         }
          mPilha.pop();
       }
       return i;

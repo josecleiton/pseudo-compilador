@@ -82,7 +82,10 @@ AST::AST(void)
    mPilha.push(root.get());
 }
 AST::Node* AST::inserirNode(const Token& tk, const Tipo tipo) {
-   mPilha.push(inserirFolha(tk, tipo));
+   auto no = inserirFolha(tk, tipo);
+   if (auto exp = dynamic_cast<AST::NodeExp*>(mPilha.top()); !exp) {
+      mPilha.push(no);
+   }
    return mPilha.top();
 }
 AST::Node* AST::inserirFolha(const Token& tk, const Tipo tipo) {
@@ -94,6 +97,13 @@ AST::Node* AST::inserirFolha(const Token& tk, const Tipo tipo) {
       case Tipo::EXP:
          topo->childs.emplace_back(std::make_unique<NodeExp>(tk, topo));
          break;
+      case Tipo::EXPOP: {
+         auto expOp = std::make_unique<NodeExpOp>(tk, topo);
+         if (auto exp = dynamic_cast<NodeExp*>(topo); exp) {
+            exp->insereOp(expOp.get());
+         }
+         topo->childs.emplace_back(std::move(expOp));
+      } break;
       case Tipo::ATRIB:
          topo->childs.emplace_back(std::make_unique<NodeAtrib>(tk, topo));
          break;
@@ -125,7 +135,92 @@ AST::NodeBloco::NodeBloco(const Token& _tk, Node* _super, const Tipo _t)
     : Node(_tk, _super, _t) {}
 AST::NodeExp::NodeExp(const Token& _tk, Node* _super, const Tipo _t)
     : Node(_tk, _super, _t) {}
+AST::NodeExpOp::NodeExpOp(const Token& _tk, Node* _super, const Tipo _t)
+    : Node(_tk, _super, _t) {}
 AST::NodeAtrib::NodeAtrib(const Token& _tk, Node* _super, const Tipo _t)
     : Node(_tk, _super, _t) {}
+
+typedef AST::NodeExpOp::Direcao Direcao;
+
+Direcao AST::NodeExpOp::adicionaChild(NodeExpOp* no) {
+   childs[mDirecao] = no;
+   if (mDirecao == ESQUERDA) {
+      mDirecao = DIREITA;
+   }
+   return mDirecao;
+}
+
+constexpr unsigned precedencia(const char op) {
+   switch (op) {
+      case '+':
+      case '-':
+      case '!':
+      case '|':
+         return 1;
+      case '*':
+      case '/':
+      case '&':
+         return 2;
+      default:
+         return 0;
+   }
+}
+void AST::NodeExp::insereOp(NodeExpOp* const no) {
+   if (mPilha.empty()) {
+      mPilha.push(no);
+      return;
+   }
+   auto topo = mPilha.top();
+   switch (no->tk) {
+      case TipoToken::FECHAPRNT:
+         while (mPilha.size() and mPilha.top()->tk != TipoToken::ABREPRNT) {
+            mPilha.pop();
+         }
+         if (mPilha.size()) {
+            mPilha.pop();
+         }
+         break;
+      case TipoToken::ABREPRNT:
+         mPilha.push(no);
+      case TipoToken::ID:
+      case TipoToken::VALOR:
+         topo->adicionaChild(no);
+         break;
+      case TipoToken::SINAL:
+      case TipoToken::BINOP:
+      case TipoToken::NEG:
+         if (topo->getOp() != '(') {
+            if (topo->size() == 2) {  // binario
+               if (precedencia(no->getOp()) > precedencia(topo->getOp())) {
+                  no->adicionaChild(topo->getDireita());
+                  /* opPtr->childs.push_back(std::move(atual->childs.back()));
+                   */
+                  /* atual->childs.back() = std::move(op); */
+                  topo->getDireita() = no;
+                  mPilha.push(no);
+                  return;
+               }
+            }
+            mPilha.pop();
+            no->adicionaChild(topo);
+            if (mPilha.size()) {
+               mPilha.top()->getDireita() = no;
+            }
+            /* opPtr->childs.push_back(std::move(expRoot)); */
+            mPilha.push(no);
+         } else {
+            topo->tk.lexema = std::move(no->tk.lexema);
+         }
+         break;
+      default:
+         break;
+   }
+}
+void AST::NodeExp::fimExp(void) {
+   while (mPilha.size() > 1) {
+      mPilha.pop();
+   }
+   expRoot = mPilha.top();
+}
 }  // namespace AnaliseSintatica
 

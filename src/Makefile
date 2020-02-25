@@ -2,7 +2,7 @@
 CXX ?= g++
 CXXO ?= -O2
 CXXFLAGS = -Wall -Wextra -Wcast-align --std=c++17
-SRCS = ast.cpp erro.cpp lex.cpp main.cpp sem.cpp syn.cpp token.cpp
+SRCS = ast.cpp erro.cpp lex.cpp main.cpp syn.cpp token.cpp sem.cpp
 OBJS = $(SRCS:.cpp=.o)
 LIBS = -lm -lstdc++fs
 MAIN = pcc

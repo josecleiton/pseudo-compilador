@@ -191,10 +191,12 @@ AST& Syn::parse(void) {
                case 15:  // exp -> termo fator
                   mPilha.push(TipoToken::TERMO);
                   mPilha.push(TipoToken::FATOR);
+                  mAST.inserirNode(TipoToken::EXP, AST::Tipo::EXP);
                   break;
                case 16:  // exp -> unop exp
                   mPilha.push(TipoToken::EXP);
                   mPilha.push(TipoToken::UNOP);
+                  mAST.inserirNode(TipoToken::EXP, AST::Tipo::EXP);
                   break;
                case 17:  // termo -> op exp
                   mPilha.push(TipoToken::EXP);
@@ -222,7 +224,6 @@ AST& Syn::parse(void) {
                   break;
                case 24:  // cond -> exp
                   mPilha.push(TipoToken::EXP);
-                  mAST.inserirNode(TipoToken::EXP, AST::Tipo::EXP);
                   break;
 
                case NULA:  // producao -> ε
@@ -248,7 +249,7 @@ AST& Syn::parse(void) {
                case TipoToken::ABREPRNT:
                case TipoToken::FECHAPRNT:
                case TipoToken::VALOR:
-                  mAST.inserirFolha(tk, AST::Tipo::EXP);
+                  mAST.inserirFolha(tk, AST::Tipo::EXPOP);
                   break;
                /*
                 * Token que faz parte de um Node DECL

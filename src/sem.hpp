@@ -29,22 +29,20 @@ namespace AnaliseSemantica {
 class Sem {
    typedef AnaliseSintatica::AST AST;
    AST& mAST;
+   std::size_t mNodeExpCount{};
 
   public:
    /*
     * Espera a Abstract Syntax Tree gerada pelo Sintatico
     */
    Sem(AnaliseSintatica::AST&);
+   inline auto& getNodeExpCount(void) const { return mNodeExpCount; }
    /*
     * Caminha na AST verificando a validade semantica dos nos
     */
    std::size_t analisaArvore(void);
 
   private:
-   /*
-    * Resolve a expressão retornando Dado
-    */
-   Dado avaliaExpressao(AST::NodeExp*) const;
    /*
     * Declara variável no escopo acima do Node*
     */
@@ -58,7 +56,7 @@ class Sem {
     * Senao
     *   erro
     */
-   void atribueVariavel(AST::NodeAtrib*) const;
+   void atribueVariavel(AST::NodeAtrib*);
    /*
     * Se for VALOR então
     *   retorna VALOR
@@ -69,8 +67,12 @@ class Sem {
     *   Senao
     *     erro
     */
-   double getValorVariavel(AST::NodeExp*) const;
-   Dado* getVariavel(const AST::Node*, const std::string&) const;
+   Dado getValorVariavel(AST::NodeExpOp*);
+   Dado* getVariavel(const AST::Node*, const std::string&);
+   /*
+    * Resolve a expressão retornando Dado
+    */
+   Dado avaliaExpressao(AST::NodeExp*);
    /*
     * Avalia a expressão infixa guardada por uma lista encadeada
     * A AST mantém a expressão infixa até ser avaliada. Exemplo do comando k = x
@@ -86,25 +88,15 @@ class Sem {
     * infix para posfixa e é utilizado aqui para resolver toda a expressão,
     * retornando o Dado
     */
-   Dado avaliaExpressao(
-       std::list<std::unique_ptr<AST::Node>>::const_iterator,
-       std::list<std::unique_ptr<AST::Node>>::const_iterator) const;
-   /*
-    * Função auxiliar de avaliaExpressao para escolher o(s) número(s) da pilha
-    * de números e o operador da pilha de operador após isso escolhe aplicar a
-    * função aplicaBinop ou aplicaUnop dependendo da pilha de números
-    */
-   void resolveOp(std::stack<AST::NodeExp*>& nums,
-                  std::stack<AST::NodeExp*>& ops) const;
+   Dado avaliaExpressao(AST::NodeExpOp*);
    /*
     * Aplica os operadores *, /, +, -, &&, || no no1 ou no2
     */
-   void aplicaBinop(AST::NodeExp* no1, AST::NodeExp* op,
-                    AST::NodeExp* no2) const;
+   Dado aplicaBinop(const Dado&, const char op, const Dado&);
    /*
     * Aplica os operadores +, !, - no no1
     */
-   void aplicaUnop(AST::NodeExp* no1, AST::NodeExp* op) const;
+   Dado aplicaUnop(const char op, const Dado&);
 };
 }  // namespace AnaliseSemantica
 

@@ -43,7 +43,8 @@ int main(int argc, char *argv[]) {
 #ifdef DEBUG
       std::cout << "[SINTATICO] - O total de nós da AST é: "
                 << syn.getAST().size() << "\n[SEMANTICO] - Foram visitados "
-                << nodeCounter << " nós na AST.\n";
+                << sem.getNodeExpCount() << " nós de Expressão na AST e "
+                << nodeCounter << " outros nós\n";
 #endif
       std::cout << "[SEMANTICO] - O seu programa foi aceito!\n";
       std::cout << "[COMPILADOR] - O código fonte passou em todas as fases de "
