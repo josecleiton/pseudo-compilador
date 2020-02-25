@@ -82,8 +82,7 @@ AST::AST(void)
    mPilha.push(root.get());
 }
 AST::Node* AST::inserirNode(const Token& tk, const Tipo tipo) {
-   auto no = inserirFolha(tk, tipo);
-   if (auto exp = dynamic_cast<AST::NodeExp*>(mPilha.top()); !exp) {
+   if (auto no = inserirFolha(tk, tipo); no) {
       mPilha.push(no);
    }
    return mPilha.top();
@@ -95,11 +94,24 @@ AST::Node* AST::inserirFolha(const Token& tk, const Tipo tipo) {
          topo->childs.emplace_back(std::make_unique<NodeBloco>(tk, topo));
          break;
       case Tipo::EXP:
-         topo->childs.emplace_back(std::make_unique<NodeExp>(tk, topo));
+         /*
+          * Checando se o topo é uma EXP, se for então não precisa adicionar
+          * novamente ao topo Cenários onde isso poderia acontecer:
+          * exp -> sinal exp | ( exp )
+          *
+          * Nesses casos o sintatico manda um NodeExp mesmo já
+          * estando dentro da exp, aqui tratamos isso, mantendo a expressão
+          * linear para ser aplicável o algoritmo Shunting Yard
+          */
+         if (const auto exp = dynamic_cast<NodeExp*>(topo); !exp) {
+            topo->childs.emplace_back(std::make_unique<NodeExp>(tk, topo));
+         } else {
+            return nullptr;
+         }
          break;
       case Tipo::EXPOP: {
          auto expOp = std::make_unique<NodeExpOp>(tk, topo);
-         if (auto exp = dynamic_cast<NodeExp*>(topo); exp) {
+         if (auto const exp = dynamic_cast<NodeExp*>(topo); exp) {
             exp->insereOp(expOp.get());
          }
          topo->childs.emplace_back(std::move(expOp));
