@@ -7,6 +7,8 @@ Trabalho proposto na disciplina de Compiladores 2019.2 na [Universidade do Estad
 
 [![Run on Repl.it](https://repl.it/badge/github/josecleiton/pseudo-compilador)](https://repl.it/github/josecleiton/pseudo-compilador)
 
+## Usando o terminal
+
 Dependências:
 - Compilador C++17
 
@@ -23,3 +25,6 @@ Senão:
 E rodar:
 - `pcc <nome>.c20192`
 
+## Usando o QTCreator
+
+Importe o `.pro` e run
