@@ -36,11 +36,12 @@ class Sem {
     * Espera a Abstract Syntax Tree gerada pelo Sintatico
     */
    Sem(AnaliseSintatica::AST&);
-   inline auto& getNodeExpCount(void) const { return mNodeExpCount; }
    /*
     * Caminha na AST verificando a validade semantica dos nos
     */
    std::size_t analisaArvore(void);
+   inline auto& getNodeExpCount(void) const { return mNodeExpCount; }
+   inline auto& getAST(void) const { return mAST; }
 
   private:
    /*
@@ -48,13 +49,8 @@ class Sem {
     */
    bool declaraVariavel(AST::Node*) const;
    /*
-    * Busca variável nos escopos acima de Node*
-    * Se encontrar então
-    *   atribue
-    *   se os tipos forem diferentes então
-    *     erro
-    * Senao
-    *   erro
+    * Avalia se o tipo da variavael e o tipo do resultado da expressão são
+    * compatíveis
     */
    void atribueVariavel(AST::NodeAtrib*);
    /*
@@ -68,33 +64,34 @@ class Sem {
     *     erro
     */
    Dado getValorVariavel(AST::NodeExpOp*);
+   /*
+    * Busca variável nos escopos acima de Node*
+    * Se encontrar então
+    *   atribue
+    *   se os tipos forem diferentes então
+    *     erro
+    * Senao
+    *   erro
+    */
    Dado* getVariavel(const AST::Node*, const std::string&);
    /*
     * Resolve a expressão retornando Dado
     */
    Dado avaliaExpressao(AST::NodeExp*);
    /*
-    * Avalia a expressão infixa guardada por uma lista encadeada
-    * A AST mantém a expressão infixa até ser avaliada. Exemplo do comando k = x
-    * * 4 : ATRIB
-    *              /
-    *             ID -> ID -> * -> 4
-    *  O primeiro ID é onde a expressão vai ser atribuida (k no nosso exemplo)
-    *  Por isso avaliaExpressao necessita de dois iterators, sendo eles:
-    *  começo da expressão e final da expressão respectivamente.
-    *  o algoritmo itera na lista (veja o cpp) e aplica o algoritmo feito por
-    * Dijkstra: https://en.wikipedia.org/wiki/Shunting-yard_algorithm um pouco
-    * modificado, visto que o Shunting Yard é para converter uma expressão de
-    * infix para posfixa e é utilizado aqui para resolver toda a expressão,
-    * retornando o Dado
+    * Caminho na árvore de expressão em Pos-Ordem
+    *              *
+    *             / \
+    *            3   5
+    *  Resultado -> { tipo: INTEIRO, valor: 15 }
     */
    Dado avaliaExpressao(AST::NodeExpOp*);
    /*
-    * Aplica os operadores *, /, +, -, &&, || no no1 ou no2
+    * Aplica os operadores *, /, +, -, &&, || nos parametros Dado
     */
    Dado aplicaBinop(const Dado&, const char op, const Dado&);
    /*
-    * Aplica os operadores +, !, - no no1
+    * Aplica os operadores +, !, - no parâmetro
     */
    Dado aplicaUnop(const char op, const Dado&);
 };

@@ -30,7 +30,7 @@ std::size_t Sem::analisaArvore(void) {
       if (!no) {
          return false;
       }
-      if (no->tipo == AST::Tipo::BLOCO) {
+      if (*no == AST::Tipo::BLOCO) {
          /*
           * Analisa nó do tipo BLOCO
           * NT_SE/NT_SENAO/NT_ENQUANTO tem EXP como primeiro nó
@@ -45,21 +45,29 @@ std::size_t Sem::analisaArvore(void) {
             }
          }
          return true;
+      } else if (*no == AST::Tipo::ATRIB) {
+         /*
+          * Analisa nó ATRIB que tem pelo menos 2 filhos
+          * 1) Identificador
+          * 2) EXP
+          * A analise parte da "resolução" da expressão
+          * A função abaixo verificará se o tipo resultante da expressao e o
+          * tipo do identificador são compatíveis
+          *
+          * o valor dessa expressão não pode ser usado para otimizações se:
+          *    alguma dos nós folha da expressão for um Identificador
+          */
+         atribueVariavel(dynamic_cast<AST::NodeAtrib*>(no));
       } else if (no->tk == TipoToken::DECL) {
          /*
           * Analisa nó DECL que tem sempre 2 nós filhos
+          * declaraVariavel selecionará o bloco imediatamente acima do 'no'
+          * e inserirá o Identificador na sua Tabela de Símbolos.
           * 1) Tipo
           * 2) Identificador
           */
          declaraVariavel(no);
          no->childs.clear();
-      } else if (no->tk == TipoToken::ATRIB) {
-         /*
-          * Analisa nó ATRIB que tem pelo menos 2 filhos
-          * 1) Identificador
-          * 2 ou mais) componentes de uma expressão
-          */
-         atribueVariavel(dynamic_cast<AST::NodeAtrib*>(no));
       }
       return false;
    });

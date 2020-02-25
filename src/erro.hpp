@@ -40,7 +40,7 @@ class Erro : public std::exception {
    Erro(Lex* const lex, std::string& lexema, const char* const esperado);
    /* Erro(Syn* const syn; const Token& tk); */
 
-   const char* what() const throw() {
+   inline const char* what() const throw() {
       switch (mTipo) {
          case TipoErro::Lexico:
             return "Erro Léxico.";

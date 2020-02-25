@@ -32,8 +32,8 @@ enum { NULA = 99 };
 Syn::Syn(Lex& l) : mLex(l) {
    /*
     * Inicializa a pilha com
-    * S -> START
-    * $ -> EOF
+    * S = START
+    * $ = EOF
     */
    mPilha.push(TipoToken::FIMARQ);
    mPilha.push(TipoToken::S);
@@ -94,6 +94,9 @@ Syn::Syn(Lex& l) : mLex(l) {
 }
 
 AST& Syn::parse(void) {
+   /*
+    * Solicita ao Léxico prox token
+    */
    Token tk = proximoToken();
    while (mPilha.size()) {
       const auto topo = mPilha.top();
@@ -259,7 +262,10 @@ AST& Syn::parse(void) {
                   break;
                /*
                 * Tokens que representam final do Node
-                * após ele subimos 1 nível na arvore
+                * após ele subimos n níveis da árvore
+                * Caso especial:
+                *    Se o nó atual for EXP e o nó pai for ATRIB
+                *       subirNivel subirá +1 nível
                 */
                case TipoToken::ACABOU:
                case TipoToken::PNTVIRG:

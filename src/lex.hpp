@@ -49,10 +49,7 @@ class Lex {
        {"INTEIRO", Token::TipoToken::TIPO},
        {"QUEBRADO", Token::TipoToken::TIPO},
        {"LOGICO", Token::TipoToken::TIPO}};
-   /*
-    * Contador de linha e coluna
-    */
-   std::size_t mLinha{1}, mCol{};
+   std::size_t mLinhaCount{1}, mColCount{};
 
   public:
    /*
@@ -72,8 +69,8 @@ class Lex {
       mOutputFile << tk << '\n';
       return tk;
    }
-   inline const auto& getLinha(void) const { return mLinha; }
-   inline const auto& getCol(void) const { return mCol; }
+   inline const auto& getLinha(void) const { return mLinhaCount; }
+   inline const auto& getCol(void) const { return mColCount; }
    inline const auto& getFilename(void) const { return mFilename; }
    inline auto& getFile(void) { return mInputFile; }
    /*
@@ -106,7 +103,7 @@ class Lex {
     * Função auxiliar para pegar o próx char do buffer
     */
    inline char getChar(std::string& lexema) {
-      ++mCol;
+      ++mColCount;
       lexema.push_back(mInputFile.get());
       return lexema.back();
    }
@@ -114,7 +111,7 @@ class Lex {
     * Função auxiliar para colocar char no buffer
     */
    inline void ungetChar(std::string& lexema) {
-      mCol--;
+      --mColCount;
       mInputFile.unget();
       lexema.pop_back();
    }

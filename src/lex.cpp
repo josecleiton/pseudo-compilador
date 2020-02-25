@@ -121,8 +121,8 @@ Token Lex::proxToken(void) {
                      estado = 3;
                   } else if (isspace(c)) {
                      if (c == '\n') {
-                        mCol = 0;
-                        ++mLinha;
+                        mColCount = 0;
+                        ++mLinhaCount;
                      }
                      lexema.pop_back();
                      break;
@@ -149,6 +149,9 @@ Token Lex::proxToken(void) {
             }
             break;
          case 4:
+            /*
+             * Substitue a ',' por '.' para facilitar o casting para double
+             */
             lexema.back() = '.';
             c = getChar(lexema);
             if (isdigit(c)) {
@@ -202,7 +205,7 @@ Token Lex::proxToken(void) {
             if (isspace(c) && c != ' ') {
 #ifdef DEBUG
                lexema.pop_back();
-               std::clog << "{Comentário: " << lexema << "}\n";
+               std::clog << "{Comentário: " << lexema << "}" << std::endl;
 #endif
                lexema.clear();
                estado = 0;

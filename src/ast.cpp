@@ -144,10 +144,7 @@ typedef AST::NodeExpOp::Direcao Direcao;
 
 Direcao AST::NodeExpOp::adicionaChild(NodeExpOp* no) {
    childs[mDirecao] = no;
-   if (mDirecao == ESQUERDA) {
-      mDirecao = DIREITA;
-   }
-   return mDirecao;
+   return mDirecao = (mDirecao == ESQUERDA) ? DIREITA : mDirecao;
 }
 
 constexpr unsigned precedencia(const char op) {
@@ -193,9 +190,6 @@ void AST::NodeExp::insereOp(NodeExpOp* const no) {
             if (topo->size() == 2) {  // binario
                if (precedencia(no->getOp()) > precedencia(topo->getOp())) {
                   no->adicionaChild(topo->getDireita());
-                  /* opPtr->childs.push_back(std::move(atual->childs.back()));
-                   */
-                  /* atual->childs.back() = std::move(op); */
                   topo->getDireita() = no;
                   mPilha.push(no);
                   return;
@@ -216,11 +210,11 @@ void AST::NodeExp::insereOp(NodeExpOp* const no) {
          break;
    }
 }
-void AST::NodeExp::fimExp(void) {
+AST::NodeExpOp* AST::NodeExp::fimExp(void) {
    while (mPilha.size() > 1) {
       mPilha.pop();
    }
-   expRoot = mPilha.top();
+   return expRoot = mPilha.top();
 }
 }  // namespace AnaliseSintatica
 

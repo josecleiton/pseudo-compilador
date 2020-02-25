@@ -26,7 +26,6 @@
 #include <unordered_map>
 
 #include "ast.hpp"
-
 #include "lex.hpp"
 
 namespace AnaliseSintatica {
@@ -47,7 +46,7 @@ class Syn {
    Lex& mLex;
    /*
     * Abstract Syntax Tree - Vai sendo construída ao decorrer do parsing
-    * Ao final está num estado semi ótimo para o semântico
+    * Ao final está num estado pronto para o Semântico
     */
    AST mAST;
 
@@ -67,6 +66,6 @@ class Syn {
       return mLex.getToken();
    }
    inline auto getTkCounter(void) const { return mTkCount; }
-   inline const auto& getAST(void) const { return mAST; }
+   inline auto& getAST(void) const { return mAST; }
 };
 }  // namespace AnaliseSintatica

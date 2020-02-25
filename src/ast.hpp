@@ -131,11 +131,12 @@ namespace AnaliseSintatica {
 class AST {
   public:
    /*
-    * Os nós podem ser de tipo BLOCO, EXP, REGULAR
+    * Os nós podem ser de tipo BLOCO, EXP, REGULAR, EXPOP, ARTIB
     * BLOCO - Mantém junto a ele uma tabela de símbolos (escopo)
     * EXP - Utilizado para as expressões
-    * ATRIB
-    * DECL
+    * EXPOP - Operadores e operandos de uma expressao
+    * ATRIB - Representa a atribuiçao
+    * REGULAR - Representa um Tipo ou uma DECL
     */
    enum class Tipo { REGULAR, BLOCO, EXP, EXPOP, ATRIB };
 
@@ -150,7 +151,7 @@ class AST {
     *    tk: DECL,
     *    tipo: REGULAR,
     *    childs: [ { tk: TIPO, tipo: REGULAR, childs: [] } ,
-    *              { tk: ID, tipo: REGULAR, childs: [] }
+    *              { tk: ID, tipo: EXPOP, childs: [] }
     *            ]
     *  }
     *  PS: childs é uma lista e se estiver vazia representa uma folha
@@ -162,6 +163,7 @@ class AST {
       Node* super{};
 
       Node(const Token&, Node* = nullptr, const Tipo = Tipo::REGULAR);
+      inline operator Tipo() const { return tipo; }
       virtual ~Node() {}
    };
 
@@ -171,7 +173,7 @@ class AST {
     *      /     \
     *    EXP     ATRIB
     *    /      /     \
-    * VALOR    ID    VALOR
+    * VALOR    ID     EXP
     *
     *  Exemplo mais físico:
     *  {
@@ -180,7 +182,7 @@ class AST {
     *    st: { { ID: Dado } }
     *    childs: [ { tk: EXP, tipo: EXP,
     *                childs: [ { tk: VALOR, tipo: EXP, childs: [] } ] },
-    *              { tk: ATRIB, tipo: REGULAR, childs: [ ID, VALOR ] }
+    *              { tk: ATRIB, tipo: ATRIB, childs: [ ID, EXP ] }
     *            ]
     *  }
     *  PS: childs é uma lista e se estiver vazia representa uma folha
@@ -215,8 +217,49 @@ class AST {
     *   é resolvida utilizando pilhas
     */
    struct NodeExpOp;
+   /*
+    * Usa uma variação do algoritmo criado por Dijkstra conhecido com:
+    *   SHUNTING YARD
+    *
+    * ENQUANTO existem tokens FAÇA:
+    *   leia o token
+    *   SE a pilha está vazia FAÇA:
+    *     coloque token na pilha
+    *     CONTINUE
+    *   ESCOLHA token:
+    *   caso FECHA_PARENTESE:
+    *       ENQUANTO topo da pilha não for ABRE_PARENTESE:
+    *         retire o topo
+    *       retire ABRE_PARENTESE do topo
+    *
+    *     caso ABRE_PARENTESE:
+    *       token se torna filho do topo
+    *       coloque token na pilha
+    *     caso ID: // operadores sempre são folhas
+    *     caso VALOR:
+    *       token se torna filho do topo
+    *     caso SINAL:
+    *     caso OPERADOR_BINARIO:
+    *     caso NEGACAO:
+    *       SE topo != ABRE_PARENTESE FAÇA:
+    *         SE topo tem 2 filhos FAÇA:
+    *           SE precedencia(token) > precedencia(topo) FAÇA:
+    *             o filho da direita do topo vira filho de token
+    *             o filho da direita do topo vira token
+    *             coloque token na pilha
+    *             CONTINUE
+    *         retire o topo
+    *         topo se torna filho de token
+    *         o filho da direita do topo se torna token
+    *         coloque token na pilha
+    *       SENAO:
+    *         topo = token
+    */
    struct NodeExp : public Node {
      private:
+      /*
+       * Pilha auxiliar para o algoritmo de Dijkstra
+       */
       std::stack<NodeExpOp*> mPilha;
 
      public:
@@ -224,23 +267,30 @@ class AST {
       NodeExpOp* expRoot{};
 
       NodeExp(const Token&, Node* = nullptr, const Tipo = Tipo::EXP);
+      /*
+       * Realiza o algoritmo descrito acima
+       */
       void insereOp(NodeExpOp* const);
-      void fimExp(void);
+      /*
+       * Desempilha todos os operadores/operandos analisados
+       * O último da pilha é a raiz da árvore de expressão
+       */
+      NodeExpOp* fimExp(void);
       ~NodeExp() {}
    };
 
    struct NodeExpOp : public Node {
-      enum Direcao { ESQUERDA = 0, DIREITA } mDirecao{};
-      std::array<NodeExpOp*, 2> childs{};
+      enum Direcao { ESQUERDA, DIREITA } mDirecao{};
+      mutable std::array<NodeExpOp*, 2> childs{};
 
       NodeExpOp(const Token&, Node* = nullptr, const Tipo = Tipo::EXP);
-      inline auto& getEsquerda(void) { return childs[ESQUERDA]; }
-      inline auto& getDireita(void) { return childs[DIREITA]; }
+      inline auto& getEsquerda(void) const { return childs[ESQUERDA]; }
+      inline auto& getDireita(void) const { return childs[DIREITA]; }
       inline auto& getOp(void) const { return tk.lexema.front(); }
       inline std::size_t size(void) const {
-         return (childs[ESQUERDA] != nullptr) + (childs[DIREITA] != nullptr);
+         return (getEsquerda() != nullptr) + (getDireita() != nullptr);
       }
-      Direcao adicionaChild(NodeExpOp*);
+      Direcao adicionaChild(NodeExpOp* const);
       ~NodeExpOp() {}
    };
 
@@ -273,12 +323,14 @@ class AST {
    /*
     * DFS faz um busca em profundidade na AST.
     *
-    * A função func é utilizada para o algoritmo saber se desce ou não mais um
-    * nível. Por exemplo, se estivermos analisando um Nó do tipo Bloco então
-    * func -> true.
+    * A função func é utilizada para auxiliar na descida.
+    * Por exemplo, se estivermos analisando um Nó BLOCO então
+    * func -> true. (ou seja, desceremos mais um nível)
+    *
     * Já se tivermos analisando um Nó ATRIB não precisamos descer
     * mais um nível, visto que conseguimos todos os parâmetros de um ATRIB no
-    * seu próprio nível, apenas acessando a lista childs
+    * seu próprio nível, apenas acessando a lista de filhos,
+    * sendo assim func -> false
     */
    std::size_t DFS(const std::function<bool(Node*)>& func);
    /*
@@ -287,11 +339,15 @@ class AST {
    inline auto subirNivel(const std::size_t n) {
       std::size_t i = 0;
       for (; mPilha.size() and i < n; ++i) {
+         /*
+          * Se o no atual for uma EXP, devemos finaliza-la, ou seja,
+          * retornar todos os niveis da AST de Expressao ate a raiz.
+          */
          if (auto exp = dynamic_cast<NodeExp*>(mPilha.top()); exp) {
             exp->fimExp();
             mPilha.pop();
             ++i;
-            if (mPilha.top()->tipo == Tipo::BLOCO) {
+            if (*mPilha.top() == Tipo::BLOCO) {
                continue;
             }
          }
@@ -313,7 +369,10 @@ class AST {
    inline auto size(void) const { return mNodeCount; }
 
   private:
-   std::size_t DFS(Node* atual, const std::function<bool(Node*)>& func);
+   /*
+    * DFS recursivo
+    */
+   std::size_t DFS(Node* const atual, const std::function<bool(Node*)>& func);
 };
 
 }  // namespace AnaliseSintatica
