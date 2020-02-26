@@ -379,7 +379,7 @@ class AST {
           * retornar todos os niveis da AST de Expressao ate a raiz.
           */
          if (mPilha.top()->tk == Token::TipoToken::EXP) {
-            dynamic_cast<NodeExp*>(mPilha.top())->fimExp();
+            static_cast<NodeExp*>(mPilha.top())->fimExp();
             mPilha.pop();
             ++i;
             if (*mPilha.top() == Tipo::BLOCO) {
@@ -393,13 +393,6 @@ class AST {
    /*
     * getBlocoAcima busca o próximo nó do tipo Bloco a partir de Node* atual
     */
-   inline NodeBloco* getBlocoAcima(const Node* const atual) const {
-      Node* result = atual->super;
-      while (result and result->tipo != Tipo::BLOCO) {
-         result = result->super;
-      }
-      return result ? dynamic_cast<NodeBloco*>(result) : nullptr;
-   }
    inline Node* atual(void) { return mPilha.top(); }
    inline auto size(void) const { return mNodeCount; }
 
