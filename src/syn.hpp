@@ -18,10 +18,6 @@
 
 #pragma once
 
-#ifndef DEBUG
-#define DEBUG 1
-#endif
-
 #include <stack>
 #include <unordered_map>
 

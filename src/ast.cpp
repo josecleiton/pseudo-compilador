@@ -195,9 +195,10 @@ typedef AnaliseSemantica::Dado Dado;
 
 void AST::NodeBloco::avaliar(void) {
    auto const aux = childs.front().get();
-   aux->avaliar(); /* avalia nó expressão */
    const auto exp = static_cast<AST::NodeExp *>(aux);
-   if (!Dado::ehCompativelCom(exp->dado, AnaliseSemantica::Tipo::LOGICO)) {
+   exp->avaliar();
+   if (!Dado::ehCompativelCom(exp->resultadoExp,
+                              AnaliseSemantica::Tipo::LOGICO)) {
       throw TIPOS_INCOMPATIVEIS;
    }
 }
@@ -215,16 +216,16 @@ void AST::NodeAtrib::avaliar(void) {
    auto itList = childs.cbegin();
    const auto &nomeVar = (*itList)->getLexema();
    ++itList;
-   auto dadoVar = getDadoVar(nomeVar);
-   auto const exp = static_cast<AST::NodeExp*>(itList->get());
+   var = getDadoVar(nomeVar);
+   auto const exp = static_cast<AST::NodeExp *>(itList->get());
    exp->avaliar();
-   if (!Dado::ehCompativelCom(exp->dado, *dadoVar)) {
+   if (!Dado::ehCompativelCom(*var, exp->resultadoExp)) {
       throw TIPOS_INCOMPATIVEIS;
    }
 }
 
 void AST::NodeExp::avaliar(void) {
-   dado = expRoot->avaliarExp(mNodeCount);
+   resultadoExp = raizExp->avaliarExp(mNodeCount);
 }
 void AST::NodeExpOp::avaliar(void) {
    std::size_t count{};
@@ -232,7 +233,14 @@ void AST::NodeExpOp::avaliar(void) {
 }
 
 Dado AST::NodeExpOp::avaliarExp(std::size_t &count) const {
+#ifdef DEBUG
+   auto result = avaliarExp(this, count);
+   std::clog << "[DEBUG] AST - Avaliados " << count << " nós de expressões."
+             << std::endl;
+   return result;
+#else
    return avaliarExp(this, count);
+#endif
 }
 
 Dado AST::NodeExpOp::avaliarExp(const AST::NodeExpOp *const atual,
@@ -362,6 +370,6 @@ AST::NodeExpOp *AST::NodeExp::fimExp(void) {
    while (mPilha.size() > 1) {
       mPilha.pop();
    }
-   return expRoot = mPilha.top();
+   return raizExp = mPilha.top();
 }
 }  // namespace AnaliseSintatica

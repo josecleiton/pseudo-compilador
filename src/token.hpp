@@ -20,6 +20,11 @@
 #include <ostream>
 #include <string>
 
+#ifndef DEBUG
+#define DEBUG 1
+#include <iostream>
+#endif
+
 struct Token {
    enum class TipoToken {
       INITIAl,

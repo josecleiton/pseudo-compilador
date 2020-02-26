@@ -166,6 +166,15 @@ class AST {
 
       Node(const Token&, Node* = nullptr, const Tipo = Tipo::REGULAR);
       NodeBloco* getBlocoAcima(void) const;
+      /*
+       * Busca variável nos escopos acima de Node*
+       * Se encontrar então
+       *   atribue
+       *   se os tipos forem diferentes então
+       *     erro
+       * Senao
+       *   erro
+       */
       AnaliseSemantica::Dado* getDadoVar(const std::string& lexema) const;
       inline auto& getLexema(void) const { return tk.lexema; }
 
@@ -179,8 +188,37 @@ class AST {
 
    struct NodeDecl : public Node {
       NodeDecl(const Token&, Node* = nullptr, const Tipo = Tipo::REGULAR);
+
+      /*
+       * avaliar nó DECL que tem sempre 2 nós filhos
+       * selecionará o bloco imediatamente acima do 'no'
+       * e inserirá o Identificador na sua Tabela de Símbolos.
+       * 1) Tipo
+       * 2) Identificador
+       */
       void avaliar(void) override;
       ~NodeDecl() {}
+   };
+
+   struct NodeAtrib : public Node {
+      AnaliseSemantica::Dado* var{};
+      std::unique_ptr<AnaliseSemantica::Dado> resultadoExp;
+
+      NodeAtrib(const Token&, Node* = nullptr, const Tipo = Tipo::ATRIB);
+      /*
+       * avaliar nó ATRIB que tem pelo menos 2 filhos
+       * 1) Identificador
+       * 2) EXP
+       *
+       * A analise parte da "resolução" da expressão
+       * A função abaixo verificará se o tipo resultante da expressao e o
+       * tipo do identificador são compatíveis
+       *
+       * o valor dessa expressão não pode ser usado para otimizações se:
+       *    algum dos nós folha da expressão for um Identificador
+       */
+      void avaliar(void) override;
+      ~NodeAtrib() {}
    };
 
    /*
@@ -207,35 +245,42 @@ class AST {
       AnaliseSemantica::SymbolTable st;
 
       NodeBloco(const Token&, Node* = nullptr, const Tipo = Tipo::BLOCO);
+      /*
+       * avaliar nó do tipo BLOCO
+       * NT_SE/NT_SENAO/NT_ENQUANTO tem EXP como primeiro nó
+       * tal EXP é a condição então deve retornar tipo LOGICO
+       */
       void avaliar(void) override;
       ~NodeBloco() {}
    };
 
    /*
-    *  Um nós que representa parte de uma expressão
+    *  Um nó que representa parte de uma expressão
     *  Exemplo mais físico:
     *  {
     *   tk: EXP,
     *   tipo: EXP,
     *   dado: { valor: 0, tipo: NULO },
-    *   childs: [ { tk: { lexema: "trinta" }, tipo: EXP },
-    *             { tk: { lexema: "*" }, tipo: EXP },
-    *             { tk: { lexema: "32.5" }, tipo: EXP } },
-    *             { tk: { lexema: "-" }, tipo: EXP },
-    *             { tk: { lexema: "(" }, tipo: EXP },
-    *             { tk: { lexema: "k" }, tipo: EXP },
-    *             { tk: { lexema: "+" }, tipo: EXP },
-    *             { tk: { lexema: "5" }, tipo: EXP },
-    *             { tk: { lexema: ")" }, tipo: EXP }
+    *   childs: [ { tk: { lexema: "trinta" }, tipo: EXPOP },
+    *             { tk: { lexema: "*" }, tipo: EXPOP },
+    *             { tk: { lexema: "32.5" }, tipo: EXPOP } },
+    *             { tk: { lexema: "-" }, tipo: EXPOP },
+    *             { tk: { lexema: "(" }, tipo: EXPOP },
+    *             { tk: { lexema: "k" }, tipo: EXPOP },
+    *             { tk: { lexema: "+" }, tipo: EXPOP },
+    *             { tk: { lexema: "5" }, tipo: EXPOP },
+    *             { tk: { lexema: ")" }, tipo: EXPOP }
     *          ]
     *   }
     *   Acima está o nó EXP gerado para a seguinte expressão:
-    *   trinta * 32.5 - ( k + 5 ) Por ser uma expressão infixa,
-    *   é resolvida utilizando pilhas
+    *   trinta * 32.5 - ( k + 5 )
+    *
+    *   Por ser uma expressão infixa,  é resolvida utilizando pilha
+    *   para ver o algoritmo, veja a classe NodeExpOp
     */
    class NodeExpOp;
    /*
-    * Usa uma variação do algoritmo criado por Dijkstra conhecido com:
+    * Usa uma variação do algoritmo criado por Dijkstra conhecido como:
     *   SHUNTING YARD
     *
     * ENQUANTO existem tokens FAÇA:
@@ -258,7 +303,9 @@ class AST {
     *     caso SINAL:
     *     caso OPERADOR_BINARIO:
     *     caso NEGACAO:
-    *       SE topo != ABRE_PARENTESE FAÇA:
+    *       SE topo == ABRE_PARENTESE FAÇA:
+    *         topo = token
+    *       SENAO:
     *         SE topo tem 2 filhos FAÇA:
     *           SE precedencia(token) > precedencia(topo) FAÇA:
     *             o filho da direita do topo vira filho de token
@@ -269,8 +316,6 @@ class AST {
     *         topo se torna filho de token
     *         o filho da direita do topo se torna token
     *         coloque token na pilha
-    *       SENAO:
-    *         topo = token
     */
    struct NodeExp : public Node {
      private:
@@ -281,8 +326,8 @@ class AST {
       std::size_t mNodeCount{};
 
      public:
-      AnaliseSemantica::Dado dado;
-      NodeExpOp* expRoot{};
+      AnaliseSemantica::Dado resultadoExp;
+      NodeExpOp* raizExp{};
 
       NodeExp(const Token&, Node* = nullptr, const Tipo = Tipo::EXP);
       inline auto& size(void) const { return mNodeCount; }
@@ -314,25 +359,43 @@ class AST {
          return (getEsquerda() != nullptr) + (getDireita() != nullptr);
       }
       void avaliar(void) override;
+      /*
+       * Caminho na árvore de expressão em Pos-Ordem
+       *              *
+       *             / \
+       *            3   5
+       *  Resultado -> { tipo: INTEIRO, valor: 15 }
+       */
       AnaliseSemantica::Dado avaliarExp(std::size_t&) const;
       Direcao adicionaChild(NodeExpOp* const);
       ~NodeExpOp() {}
 
      private:
+      /*
+       * Função auxiliar para permitir a recursão
+       */
       AnaliseSemantica::Dado avaliarExp(const NodeExpOp* const,
                                         std::size_t&) const;
+      /*
+       * Aplica os operadores *, /, +, -, &&, || em Dados
+       */
       AnaliseSemantica::Dado aplicaBinop(const AnaliseSemantica::Dado&,
                                          const AnaliseSemantica::Dado&) const;
+      /*
+       * Aplica os operadores +, !, - no Dado
+       */
       AnaliseSemantica::Dado aplicaUnop(const AnaliseSemantica::Dado&) const;
+      /*
+       * Se for VALOR então
+       *   retorna VALOR
+       * Senão // é um identificador (variavel)
+       *   Busca variável nos escopos acima de Node*
+       *   Se encontrar então
+       *    retorna valor da variável
+       *   Senao
+       *     erro
+       */
       AnaliseSemantica::Dado getValorVariavel(void) const;
-   };
-
-   struct NodeAtrib : public Node {
-      AnaliseSemantica::Dado* var{};
-      std::unique_ptr<AnaliseSemantica::Dado> resultadoExp;
-      NodeAtrib(const Token&, Node* = nullptr, const Tipo = Tipo::ATRIB);
-      void avaliar(void) override;
-      ~NodeAtrib() {}
    };
 
   private:
@@ -393,7 +456,7 @@ class AST {
     * getBlocoAcima busca o próximo nó do tipo Bloco a partir de Node* atual
     */
    inline Node* atual(void) { return mPilha.top(); }
-   inline auto size(void) const { return mNodeCount; }
+   inline auto& size(void) const { return mNodeCount; }
 
   private:
    /*

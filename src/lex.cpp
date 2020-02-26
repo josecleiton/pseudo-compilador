@@ -62,7 +62,7 @@ Lex::Lex(const fs::path& in, const fs::path& out)
 
 Lex::~Lex() {
 #ifdef DEBUG
-   std::clog << "[DEBUG] Lex - Linhas lidas: " << mLinha << std::endl;
+   std::clog << "[DEBUG] Lex - Linhas lidas: " << mLinhaCount << std::endl;
 #endif
 }
 
