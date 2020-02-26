@@ -1,3 +1,3 @@
 language = "cpp"
-  run = "cd src && make && ./pcc ../test/valido.c20192"
+  run = "cd src && make clean && make && ./pcc ../test/valido.c20192"
 
