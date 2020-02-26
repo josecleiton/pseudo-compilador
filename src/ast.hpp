@@ -180,8 +180,8 @@ class AST {
 
    struct NodeDecl : public Node {
       NodeDecl(const Token&, Node* = nullptr, const Tipo = Tipo::REGULAR);
-      virtual void avaliar(AnaliseSemantica::Tipo);
-      virtual ~NodeDecl() {}
+      void avaliar(AnaliseSemantica::Tipo) override;
+      ~NodeDecl() {}
    };
 
    /*
@@ -208,7 +208,7 @@ class AST {
       AnaliseSemantica::SymbolTable st;
 
       NodeBloco(const Token&, Node* = nullptr, const Tipo = Tipo::BLOCO);
-      virtual void avaliar(AnaliseSemantica::Tipo);
+      void avaliar(AnaliseSemantica::Tipo) override;
       ~NodeBloco() {}
    };
 
@@ -297,7 +297,7 @@ class AST {
        */
       NodeExpOp* fimExp(void);
 
-      virtual void avaliar(AnaliseSemantica::Tipo);
+      void avaliar(AnaliseSemantica::Tipo) override;
       ~NodeExp() {}
    };
 
@@ -314,7 +314,7 @@ class AST {
       inline auto size(void) const {
          return (getEsquerda() != nullptr) + (getDireita() != nullptr);
       }
-      void avaliar(AnaliseSemantica::Tipo);
+      void avaliar(AnaliseSemantica::Tipo) override;
       AnaliseSemantica::Dado avaliarExp(std::size_t&) const;
       Direcao adicionaChild(NodeExpOp* const);
       ~NodeExpOp() {}
@@ -378,8 +378,8 @@ class AST {
           * Se o no atual for uma EXP, devemos finaliza-la, ou seja,
           * retornar todos os niveis da AST de Expressao ate a raiz.
           */
-         if (auto exp = dynamic_cast<NodeExp*>(mPilha.top()); exp) {
-            exp->fimExp();
+         if (mPilha.top()->tk == Token::TipoToken::EXP) {
+            dynamic_cast<NodeExp*>(mPilha.top())->fimExp();
             mPilha.pop();
             ++i;
             if (*mPilha.top() == Tipo::BLOCO) {
