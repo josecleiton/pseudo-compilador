@@ -205,7 +205,7 @@ Token Lex::proxToken(void) {
             if (isspace(c) && c != ' ') {
 #ifdef DEBUG
                lexema.pop_back();
-               std::clog << "[DEBUG - Lex] - Comentário: " << lexema << std::endl;
+               std::clog << "[DEBUG - Lex] {Comentário: " << lexema << '}' << std::endl;
 #endif
                lexema.clear();
                estado = 0;

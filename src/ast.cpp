@@ -235,7 +235,7 @@ void AST::NodeExpOp::avaliar(void) {
 Dado AST::NodeExpOp::avaliarExp(std::size_t &count) const {
 #ifdef DEBUG
    auto result = avaliarExp(this, count);
-   std::clog << "[DEBUG - AST] - Foram avaliados " << count
+   std::clog << "[DEBUG - AST] Foram avaliados " << count
              << " nós na árvore de expressão." << std::endl;
    return result;
 #else
