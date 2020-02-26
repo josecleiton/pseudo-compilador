@@ -26,8 +26,8 @@
 #include <stdexcept>
 
 #include "enum/tipoast.hpp"
-#include "token.hpp"
 #include "stable.hpp"
+#include "token.hpp"
 
 namespace AnaliseSintatica {
 
@@ -76,8 +76,8 @@ class AST {
       inline auto& getLexema(void) const { return tk.lexema; }
 
       inline operator TipoAST() const { return tipo; }
-      virtual void avaliar(void) { throw std::domain_error("Apenas base."); }
-      virtual ~Node() {}
+      virtual void avaliar(void) {}
+      virtual ~Node() = default;
 
      private:
       NodeBloco* getBlocoAcima(const Node* const) const;
@@ -94,7 +94,7 @@ class AST {
        * 2) Identificador
        */
       void avaliar(void) override;
-      ~NodeDecl() {}
+      ~NodeDecl() = default;
    };
 
    struct NodeAtrib : public Node {
@@ -115,7 +115,7 @@ class AST {
        *    algum dos nós folha da expressão for um Identificador
        */
       void avaliar(void) override;
-      ~NodeAtrib() {}
+      ~NodeAtrib() = default;
    };
 
    /*
@@ -148,7 +148,7 @@ class AST {
        * tal EXP é a condição então deve retornar tipo LOGICO
        */
       void avaliar(void) override;
-      ~NodeBloco() {}
+      ~NodeBloco() = default;
    };
 
    /*
@@ -239,7 +239,7 @@ class AST {
       NodeExpOp* fimExp(void);
 
       void avaliar(void) override;
-      ~NodeExp() {}
+      ~NodeExp() = default;
    };
 
    class NodeExpOp : public Node {
@@ -265,7 +265,7 @@ class AST {
        */
       AnaliseSemantica::Dado avaliarExp(std::size_t&) const;
       Direcao adicionaChild(NodeExpOp* const);
-      ~NodeExpOp() {}
+      ~NodeExpOp() = default;
 
      private:
       /*
