@@ -325,11 +325,11 @@ void AST::NodeExp::insereOp(NodeExpOp *const no) {
    auto topo = mPilha.top();
    switch (no->tk) {
       case TipoToken::FECHAPRNT:
-         while (mPilha.size() and mPilha.top()->tk != TipoToken::ABREPRNT) {
+         while (mPilha.top()->tk != TipoToken::ABREPRNT) {
             mPilha.pop();
          }
-         if (mPilha.size()) {
-            mPilha.pop();
+         if (mPilha.size() > 1) { // evitando retirar a raiz se a expressão 
+            mPilha.pop();        // começar com abre parenteses
          }
          break;
       case TipoToken::ABREPRNT:
