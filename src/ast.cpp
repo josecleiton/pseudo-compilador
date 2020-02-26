@@ -235,8 +235,8 @@ void AST::NodeExpOp::avaliar(void) {
 Dado AST::NodeExpOp::avaliarExp(std::size_t &count) const {
 #ifdef DEBUG
    auto result = avaliarExp(this, count);
-   std::clog << "[DEBUG] AST - Avaliados " << count << " nós de expressões."
-             << std::endl;
+   std::clog << "[DEBUG] AST - Avaliados " << count
+             << " nós na árvore de expressão." << std::endl;
    return result;
 #else
    return avaliarExp(this, count);
@@ -334,6 +334,7 @@ void AST::NodeExp::insereOp(NodeExpOp *const no) {
          break;
       case TipoToken::ABREPRNT:
          mPilha.push(no);
+         [[fallthrough]];
       case TipoToken::ID:
       case TipoToken::VALOR:
          topo->adicionaChild(no);

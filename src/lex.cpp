@@ -26,7 +26,7 @@
 
 typedef Token::TipoToken TipoToken;
 
-void falhaAoAbrirArquivo(const std::string& path) {
+[[noreturn]] void falhaAoAbrirArquivo(const std::string& path) {
    std::cerr << "Falha na abertura do arquivo: '" << path
              << "'. Verique se o caminho está "
                 "correto.\n";
