@@ -170,8 +170,7 @@ class AST {
       inline auto& getLexema(void) const { return tk.lexema; }
 
       inline operator Tipo() const { return tipo; }
-      virtual void avaliar(
-          AnaliseSemantica::Tipo = AnaliseSemantica::Tipo::LOGICO){};
+      virtual void avaliar(void) { throw std::domain_error("Apenas base."); }
       virtual ~Node() {}
 
      private:
@@ -180,7 +179,7 @@ class AST {
 
    struct NodeDecl : public Node {
       NodeDecl(const Token&, Node* = nullptr, const Tipo = Tipo::REGULAR);
-      void avaliar(AnaliseSemantica::Tipo) override;
+      void avaliar(void) override;
       ~NodeDecl() {}
    };
 
@@ -208,7 +207,7 @@ class AST {
       AnaliseSemantica::SymbolTable st;
 
       NodeBloco(const Token&, Node* = nullptr, const Tipo = Tipo::BLOCO);
-      void avaliar(AnaliseSemantica::Tipo) override;
+      void avaliar(void) override;
       ~NodeBloco() {}
    };
 
@@ -297,7 +296,7 @@ class AST {
        */
       NodeExpOp* fimExp(void);
 
-      void avaliar(AnaliseSemantica::Tipo) override;
+      void avaliar(void) override;
       ~NodeExp() {}
    };
 
@@ -314,7 +313,7 @@ class AST {
       inline auto size(void) const {
          return (getEsquerda() != nullptr) + (getDireita() != nullptr);
       }
-      void avaliar(AnaliseSemantica::Tipo) override;
+      void avaliar(void) override;
       AnaliseSemantica::Dado avaliarExp(std::size_t&) const;
       Direcao adicionaChild(NodeExpOp* const);
       ~NodeExpOp() {}
@@ -332,7 +331,7 @@ class AST {
       AnaliseSemantica::Dado* var{};
       std::unique_ptr<AnaliseSemantica::Dado> resultadoExp;
       NodeAtrib(const Token&, Node* = nullptr, const Tipo = Tipo::ATRIB);
-      virtual void avaliar(AnaliseSemantica::Tipo);
+      void avaliar(void) override;
       ~NodeAtrib() {}
    };
 

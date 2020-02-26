@@ -21,6 +21,8 @@
 #include <cmath>
 #include <stdexcept>
 
+#define TIPOS_INCOMPATIVEIS std::domain_error("Tipos incompatíveis.")
+
 typedef Token::TipoToken TipoToken;
 
 namespace AnaliseSemantica {
@@ -189,12 +191,18 @@ AnaliseSemantica::Dado *AST::Node::getDadoVar(const std::string &lexema) const {
        "Todas as variaveis devem ser declaradas antes do uso.");
 }
 
-void AST::NodeBloco::avaliar(AnaliseSemantica::Tipo) {
+typedef AnaliseSemantica::Dado Dado;
+
+void AST::NodeBloco::avaliar(void) {
    auto const aux = childs.front().get();
-   aux->avaliar(AnaliseSemantica::Tipo::LOGICO); /* avalia nó expressão */
+   aux->avaliar(); /* avalia nó expressão */
+   const auto exp = static_cast<AST::NodeExp *>(aux);
+   if (!Dado::ehCompativelCom(exp->dado, AnaliseSemantica::Tipo::LOGICO)) {
+      throw TIPOS_INCOMPATIVEIS;
+   }
 }
 
-void AST::NodeDecl::avaliar(AnaliseSemantica::Tipo) {
+void AST::NodeDecl::avaliar(void) {
    auto const bloco = getBlocoAcima();
    auto itList = childs.cbegin();
    const auto tipo = AnaliseSemantica::lexemaTipo((*itList)->getLexema());
@@ -203,24 +211,22 @@ void AST::NodeDecl::avaliar(AnaliseSemantica::Tipo) {
    bloco->st.inserirVariavel(varNome, tipo);
 }
 
-void AST::NodeAtrib::avaliar(AnaliseSemantica::Tipo) {
+void AST::NodeAtrib::avaliar(void) {
    auto itList = childs.cbegin();
    const auto &nomeVar = (*itList)->getLexema();
    ++itList;
    auto dadoVar = getDadoVar(nomeVar);
-   auto const exp = itList->get();
-   exp->avaliar(*dadoVar);
-}
-
-typedef AnaliseSemantica::Dado Dado;
-
-void AST::NodeExp::avaliar(AnaliseSemantica::Tipo toBe) {
-   dado = expRoot->avaliarExp(mNodeCount);
-   if (!Dado::ehCompativelCom(toBe, dado)) { /* testa validade da atribuicao */
-      throw std::domain_error("Tipos incompatíveis");
+   auto const exp = static_cast<AST::NodeExp*>(itList->get());
+   exp->avaliar();
+   if (!Dado::ehCompativelCom(exp->dado, *dadoVar)) {
+      throw TIPOS_INCOMPATIVEIS;
    }
 }
-void AST::NodeExpOp::avaliar(AnaliseSemantica::Tipo) {
+
+void AST::NodeExp::avaliar(void) {
+   dado = expRoot->avaliarExp(mNodeCount);
+}
+void AST::NodeExpOp::avaliar(void) {
    std::size_t count{};
    avaliarExp(this, count);
 }
