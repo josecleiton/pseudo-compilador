@@ -20,7 +20,6 @@
 
 namespace AnaliseSemantica {
 using namespace AnaliseSintatica;
-typedef Token::TipoToken TipoToken;
 Sem::Sem(AST &ast) : mAST(ast) {}
 
 std::size_t Sem::analisaArvore(void) {
@@ -29,7 +28,7 @@ std::size_t Sem::analisaArvore(void) {
          return false;
       }
       bool descer{};
-      if (*no == AST::Tipo::BLOCO) {
+      if (*no == TipoAST::BLOCO) {
          if (no->tk != TipoToken::PROGRAMA) {
             no->avaliar();
          }

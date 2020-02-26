@@ -22,8 +22,6 @@
 #include <stdexcept>
 #include <unordered_map>
 
-#include "token.hpp"
-
 #if __GNUC__ > 7
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -31,6 +29,9 @@ namespace fs = std::filesystem;
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 #endif
+
+struct Token;
+enum class TipoToken;
 
 class Lex {
   private:
@@ -40,15 +41,7 @@ class Lex {
    /*
     * Palavras reservadas
     */
-   const std::unordered_map<std::string, Token::TipoToken> mPalavrasReservadas{
-       {"SE", Token::TipoToken::SE},
-       {"FACA", Token::TipoToken::FACA},
-       {"ACABOU", Token::TipoToken::ACABOU},
-       {"SENAO", Token::TipoToken::SENAO},
-       {"ENQUANTO", Token::TipoToken::ENQUANTO},
-       {"INTEIRO", Token::TipoToken::TIPO},
-       {"QUEBRADO", Token::TipoToken::TIPO},
-       {"LOGICO", Token::TipoToken::TIPO}};
+   const std::unordered_map<std::string, TipoToken> mPalavrasReservadas;
    std::size_t mLinhaCount{1}, mColCount{};
 
   public:
@@ -64,11 +57,7 @@ class Lex {
     * Grava no arquivo "lexemas.txt"
     * Retorna o token
     */
-   inline Token getToken(void) {
-      auto tk = proxToken();
-      mOutputFile << tk << '\n';
-      return tk;
-   }
+   Token getToken(void);
    inline const auto& getLinha(void) const { return mLinhaCount; }
    inline const auto& getCol(void) const { return mColCount; }
    inline const auto& getFilename(void) const { return mFilename; }
@@ -76,12 +65,7 @@ class Lex {
    /*
     * Função para testes, lê todos os tokens e printa na tela
     */
-   inline void analiseAteEOF(void) {
-      Token tk;
-      while ((tk = getToken()) != Token::TipoToken::FIMARQ) {
-         std::cout << tk << '\n';
-      }
-   }
+   void analiseAteEOF(void);
 
   private:
    /*
@@ -92,13 +76,7 @@ class Lex {
     * Se o lexema for uma palavra reservada, retorne o seu respectivo token,
     * senão retorne token id
     */
-   inline Token::TipoToken reservadaOuID(const std::string& lexema) const {
-      try {
-         return mPalavrasReservadas.at(lexema);
-      } catch (const std::out_of_range& e) {
-         return Token::TipoToken::ID;
-      }
-   }
+   TipoToken reservadaOuID(const std::string& lexema) const;
    /*
     * Função auxiliar para pegar o próx char do buffer
     */

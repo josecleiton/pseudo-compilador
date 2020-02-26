@@ -18,7 +18,7 @@
 
 #include "token.hpp"
 
-Token::Token(const Token::TipoToken _tipo, const std::string& _lexema)
+Token::Token(const TipoToken _tipo, const std::string& _lexema)
     : tipo(_tipo), lexema(_lexema) {}
 
 bool Token::substituiDelSeValor(std::string& lexema) {
@@ -33,16 +33,11 @@ bool Token::substituiDelSeValor(std::string& lexema) {
    return false;
 }
 
-std::ostream& printToken(std::ostream& out, const Token& tk) {
-   out << "{" << static_cast<int>(tk.tipo) << ", " << tk.lexema << "}";
-   return out;
-}
-
 std::ostream& operator<<(std::ostream& out, const Token& tk) {
-   if (tk == Token::TipoToken::VALOR) {
+   if (tk == TipoToken::VALOR) {
       Token novoTk = tk;
       Token::substituiDelSeValor(novoTk.lexema);
-      return printToken(out, novoTk);
+      return novoTk.print(out);
    }
-   return printToken(out, tk);
+   return tk.print(out);
 }

@@ -17,10 +17,12 @@
  */
 
 #include "erro.hpp"
-#include "lex.hpp"
 
 #include <iostream>
 #include <sstream>
+
+#include "lex.hpp"
+#include "token.hpp"
 
 Erro::Erro(Lex* const lex, std::string& lexema, const char* const esperado)
     : mTipo(Erro::TipoErro::Lexico) {

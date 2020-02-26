@@ -26,8 +26,6 @@
 
 namespace AnaliseSintatica {
 
-typedef Token::TipoToken TipoToken;
-
 class Syn {
    /*
     * Pilha auxiliar para o controle das transições entre produções

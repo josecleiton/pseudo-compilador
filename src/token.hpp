@@ -25,43 +25,9 @@
 #include <iostream>
 #endif
 
+#include "enum/tipotoken.hpp"
+
 struct Token {
-   enum class TipoToken {
-      INITIAl,
-      ID,         // 1
-      TIPO,       // 2
-      VALOR,      // 3
-      SINAL,      // 4
-      NEG,        // 5
-      SE,         // 6
-      SENAO,      // 7
-      ENQUANTO,   // 8
-      FACA,       // 9
-      ACABOU,     // 10
-      ATRIB,      // 11
-      PNTVIRG,    // 12
-      ABREPRNT,   // 13
-      FECHAPRNT,  // 14
-      FIMARQ,     // 15
-      BINOP,      // 16
-      // não terminais
-      S,
-      PROGRAMA,
-      BLOCO,
-      COMANDO,
-      STAT,
-      NT_ENQUANTO,
-      SEBLOCO,
-      NT_SE,
-      NT_SENAO,
-      DECL,
-      COND,
-      EXP,
-      TERMO,
-      FATOR,
-      OP,
-      UNOP,
-   };
    TipoToken tipo;
    std::string lexema;
    /*
@@ -69,6 +35,10 @@ struct Token {
     */
    static bool substituiDelSeValor(std::string &lexema);
    Token(const TipoToken tk = TipoToken::INITIAl, const std::string & = "");
+   inline std::ostream &print(std::ostream &out) const {
+      out << "{" << static_cast<int>(tipo) << ", " << lexema << "}";
+      return out;
+   }
    /*
     * Todo token é implicitamente um TipoToken
     * apenas um shorthand para evitar tk.tipo == TipoToken::VALOR

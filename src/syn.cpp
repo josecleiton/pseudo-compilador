@@ -154,7 +154,7 @@ AST& Syn::parse(void) {
                   /*
                    * Ao ler SE cria-se um novo escopo na AST
                    */
-                  mAST.inserirNode(TipoToken::NT_SE, AST::Tipo::BLOCO);
+                  mAST.inserirNode(TipoToken::NT_SE, TipoAST::BLOCO);
                   break;
                case 10:  // senao -> ACABOU
                   mPilha.push(TipoToken::ACABOU);
@@ -166,7 +166,7 @@ AST& Syn::parse(void) {
                   /*
                    * Ao ler SENAO cria-se um novo escopo na AST
                    */
-                  mAST.inserirNode(TipoToken::NT_SENAO, AST::Tipo::BLOCO);
+                  mAST.inserirNode(TipoToken::NT_SENAO, TipoAST::BLOCO);
                   // cria node senao
                   break;
                case 12:  // enquanto -> ENQUANTO exp FACA bloco ACABOU
@@ -178,28 +178,28 @@ AST& Syn::parse(void) {
                   /*
                    * Ao ler ENQUANTO cria-se um novo escopo na AST
                    */
-                  mAST.inserirNode(TipoToken::NT_ENQUANTO, AST::Tipo::BLOCO);
+                  mAST.inserirNode(TipoToken::NT_ENQUANTO, TipoAST::BLOCO);
                   break;
                case 13:  // decl -> tipo id
                   mPilha.push(TipoToken::ID);
                   mPilha.push(TipoToken::TIPO);
-                  mAST.inserirNode(TipoToken::DECL, AST::Tipo::DECL);
+                  mAST.inserirNode(TipoToken::DECL, TipoAST::DECL);
                   break;
                case 14:  // atrib -> id = exp
                   mPilha.push(TipoToken::EXP);
                   mPilha.push(TipoToken::ATRIB);
                   mPilha.push(TipoToken::ID);
-                  mAST.inserirNode(TipoToken::ATRIB, AST::Tipo::ATRIB);
+                  mAST.inserirNode(TipoToken::ATRIB, TipoAST::ATRIB);
                   break;
                case 15:  // exp -> termo fator
                   mPilha.push(TipoToken::TERMO);
                   mPilha.push(TipoToken::FATOR);
-                  mAST.inserirNode(TipoToken::EXP, AST::Tipo::EXP);
+                  mAST.inserirNode(TipoToken::EXP, TipoAST::EXP);
                   break;
                case 16:  // exp -> unop exp
                   mPilha.push(TipoToken::EXP);
                   mPilha.push(TipoToken::UNOP);
-                  mAST.inserirNode(TipoToken::EXP, AST::Tipo::EXP);
+                  mAST.inserirNode(TipoToken::EXP, TipoAST::EXP);
                   break;
                case 17:  // termo -> op exp
                   mPilha.push(TipoToken::EXP);
@@ -252,7 +252,7 @@ AST& Syn::parse(void) {
                case TipoToken::ABREPRNT:
                case TipoToken::FECHAPRNT:
                case TipoToken::VALOR:
-                  mAST.inserirFolha(tk, AST::Tipo::EXPOP);
+                  mAST.inserirFolha(tk, TipoAST::EXPOP);
                   break;
                /*
                 * Token que faz parte de um Node DECL

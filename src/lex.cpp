@@ -23,8 +23,7 @@
 #include <stdexcept>
 
 #include "erro.hpp"
-
-typedef Token::TipoToken TipoToken;
+#include "token.hpp"
 
 [[noreturn]] void falhaAoAbrirArquivo(const std::string& path) {
    std::cerr << "Falha na abertura do arquivo: '" << path
@@ -34,7 +33,17 @@ typedef Token::TipoToken TipoToken;
 }
 
 Lex::Lex(const fs::path& in, const fs::path& out)
-    : mFilename(in.filename()), mInputFile(in), mOutputFile(out) {
+    : mFilename(in.filename()),
+      mInputFile(in),
+      mOutputFile(out),
+      mPalavrasReservadas{{"SE", TipoToken::SE},
+                          {"FACA", TipoToken::FACA},
+                          {"ACABOU", TipoToken::ACABOU},
+                          {"SENAO", TipoToken::SENAO},
+                          {"ENQUANTO", TipoToken::ENQUANTO},
+                          {"INTEIRO", TipoToken::TIPO},
+                          {"QUEBRADO", TipoToken::TIPO},
+                          {"LOGICO", TipoToken::TIPO}} {
    /*
     * Verifica se o arquivo de entrada tem o sufixo .c20192
     */
@@ -64,6 +73,19 @@ Lex::~Lex() {
 #ifdef DEBUG
    std::clog << "[DEBUG] Lex - Linhas lidas: " << mLinhaCount << std::endl;
 #endif
+}
+
+Token Lex::getToken(void) {
+   auto tk = proxToken();
+   mOutputFile << tk << '\n';
+   return tk;
+}
+
+void Lex::analiseAteEOF(void) {
+   Token tk;
+   while ((tk = getToken()) != TipoToken::FIMARQ) {
+      std::cout << tk << '\n';
+   }
 }
 
 Token Lex::proxToken(void) {
@@ -205,7 +227,8 @@ Token Lex::proxToken(void) {
             if (isspace(c) && c != ' ') {
 #ifdef DEBUG
                lexema.pop_back();
-               std::clog << "[DEBUG - Lex] {Comentário: " << lexema << '}' << std::endl;
+               std::clog << "[DEBUG - Lex] {Comentário: " << lexema << '}'
+                         << std::endl;
 #endif
                lexema.clear();
                estado = 0;
@@ -216,4 +239,12 @@ Token Lex::proxToken(void) {
       }
    }
    return Token(TipoToken::FIMARQ, "\"EOF\"");
+}
+
+TipoToken Lex::reservadaOuID(const std::string& lexema) const {
+   try {
+      return mPalavrasReservadas.at(lexema);
+   } catch (const std::out_of_range& e) {
+      return TipoToken::ID;
+   }
 }

@@ -24,103 +24,10 @@
 #include <memory>
 #include <stack>
 #include <stdexcept>
-#include <unordered_map>
 
+#include "enum/tipoast.hpp"
 #include "token.hpp"
-
-namespace AnaliseSemantica {
-/*
- * Tipos que as variáveis podem assumir
- */
-enum class Tipo {
-   NULO,
-   INTEIRO,
-   QUEBRADO,
-   LOGICO,
-};
-
-/*
- * Função auxiliar que converte o lexema para o Tipo
- * Exemplo: "INTEIRO" -> Tipo::INTEIRO
- */
-Tipo lexemaTipo(const std::string&);
-
-/*
- * Informações sobre as variáveis cmo:
- * Tipo e Valor
- */
-class Dado {
-  public:
-   Tipo tipo{};
-   double valor{};
-   Dado() = default;
-   /*
-    * Um monte de construtores simplesmente
-    * para shorthand
-    */
-   Dado(const Tipo, const double = 0.0f);
-   Dado(const Dado&);
-   Dado(const double);
-   static constexpr bool ehCompativelCom(const Tipo, const Tipo);
-   /*
-    * Função auxiliar que seta valor e o tipo
-    */
-   inline void setValor(const double v) {
-      valor = v;
-      preencheTipo();
-   }
-   /*
-    * Copy assignment
-    * Ele checa a compatibilidade entres os tipos do 'this' e 'other'
-    * Se não forem compatíveis -> throw exception
-    */
-   Dado& operator=(const Dado& other);
-   Dado& operator=(Dado&&) = default;
-   /*
-    * Conversão implícita evitando coisas como:
-    * d.tipo == Tipo::INTEIRO; -> d == Tipo::INTEIRO;
-    */
-   inline operator Tipo() const { return tipo; }
-
-  private:
-   /*
-    * A partir do valor atribui tipo
-    */
-   void preencheTipo(void);
-};
-
-class SymbolTable {
-   /*
-    * Hash table [lexema] -> Dado
-    */
-   std::unordered_map<std::string, Dado> mTable;
-
-  public:
-   /*
-    * Busca na hash table por dado lexema
-    */
-   inline Dado* getDado(const std::string& lexema) {
-      try {
-         return &mTable.at(lexema);
-      } catch (const std::out_of_range& e) {
-         return nullptr;
-      }
-   }
-   /*
-    * Insere nova variável na hash table
-    * Se o lexema já estiver na hash table -> throw exception
-    */
-   inline void inserirVariavel(const std::string& lexema, const Tipo t,
-                               const double v = {}) {
-      if (getDado(lexema)) {
-         throw std::domain_error(
-             "Sobescrever uma entrada na tabela de simbolos não é permitido");
-      }
-      mTable[lexema] = {t, v};
-   }
-};
-
-}  // namespace AnaliseSemantica
+#include "stable.hpp"
 
 namespace AnaliseSintatica {
 
@@ -131,16 +38,6 @@ namespace AnaliseSintatica {
  */
 class AST {
   public:
-   /*
-    * Os nós podem ser de tipo BLOCO, EXP, REGULAR, EXPOP, ARTIB
-    * BLOCO - Mantém junto a ele uma tabela de símbolos (escopo)
-    * EXP - Utilizado para as expressões
-    * EXPOP - Operadores e operandos de uma expressao
-    * ATRIB - Representa a atribuiçao
-    * REGULAR - Representa um Tipo ou uma DECL
-    */
-   enum class Tipo { REGULAR, BLOCO, EXP, EXPOP, ATRIB, DECL };
-
    /*
     * Um nó regular da AST, exemplo conceitual:
     *       DECL
@@ -160,11 +57,11 @@ class AST {
    struct NodeBloco;
    struct Node {
       Token tk;
-      Tipo tipo;
+      TipoAST tipo;
       std::list<std::unique_ptr<Node>> childs;
       Node* super{};
 
-      Node(const Token&, Node* = nullptr, const Tipo = Tipo::REGULAR);
+      Node(const Token&, Node* = nullptr, const TipoAST = TipoAST::REGULAR);
       NodeBloco* getBlocoAcima(void) const;
       /*
        * Busca variável nos escopos acima de Node*
@@ -178,7 +75,7 @@ class AST {
       AnaliseSemantica::Dado* getDadoVar(const std::string& lexema) const;
       inline auto& getLexema(void) const { return tk.lexema; }
 
-      inline operator Tipo() const { return tipo; }
+      inline operator TipoAST() const { return tipo; }
       virtual void avaliar(void) { throw std::domain_error("Apenas base."); }
       virtual ~Node() {}
 
@@ -187,7 +84,7 @@ class AST {
    };
 
    struct NodeDecl : public Node {
-      NodeDecl(const Token&, Node* = nullptr, const Tipo = Tipo::REGULAR);
+      NodeDecl(const Token&, Node* = nullptr, const TipoAST = TipoAST::REGULAR);
 
       /*
        * avaliar nó DECL que tem sempre 2 nós filhos
@@ -204,7 +101,7 @@ class AST {
       AnaliseSemantica::Dado* var{};
       std::unique_ptr<AnaliseSemantica::Dado> resultadoExp;
 
-      NodeAtrib(const Token&, Node* = nullptr, const Tipo = Tipo::ATRIB);
+      NodeAtrib(const Token&, Node* = nullptr, const TipoAST = TipoAST::ATRIB);
       /*
        * avaliar nó ATRIB que tem pelo menos 2 filhos
        * 1) Identificador
@@ -244,7 +141,7 @@ class AST {
    struct NodeBloco : public Node {
       AnaliseSemantica::SymbolTable st;
 
-      NodeBloco(const Token&, Node* = nullptr, const Tipo = Tipo::BLOCO);
+      NodeBloco(const Token&, Node* = nullptr, const TipoAST = TipoAST::BLOCO);
       /*
        * avaliar nó do tipo BLOCO
        * NT_SE/NT_SENAO/NT_ENQUANTO tem EXP como primeiro nó
@@ -329,7 +226,7 @@ class AST {
       AnaliseSemantica::Dado resultadoExp;
       NodeExpOp* raizExp{};
 
-      NodeExp(const Token&, Node* = nullptr, const Tipo = Tipo::EXP);
+      NodeExp(const Token&, Node* = nullptr, const TipoAST = TipoAST::EXP);
       inline auto& size(void) const { return mNodeCount; }
       /*
        * Realiza o algoritmo descrito acima
@@ -351,7 +248,7 @@ class AST {
      public:
       enum Direcao { ESQUERDA, DIREITA } mDirecao{};
 
-      NodeExpOp(const Token&, Node* = nullptr, const Tipo = Tipo::EXP);
+      NodeExpOp(const Token&, Node* = nullptr, const TipoAST = TipoAST::EXP);
       inline auto& getEsquerda(void) const { return childs[ESQUERDA]; }
       inline auto& getDireita(void) const { return childs[DIREITA]; }
       inline auto& getOp(void) const { return tk.lexema.front(); }
@@ -412,11 +309,11 @@ class AST {
     * inserirNode Insere um child no Nó que está no topo da mPilha
     * o novo child se torna o novo topo da mPilha
     */
-   Node* inserirNode(const Token&, const Tipo = Tipo::REGULAR);
+   Node* inserirNode(const Token&, const TipoAST = TipoAST::REGULAR);
    /*
     * Insere um child no Nó que está no topo da mPilha
     */
-   Node* inserirFolha(const Token&, const Tipo = Tipo::REGULAR);
+   Node* inserirFolha(const Token&, const TipoAST = TipoAST::REGULAR);
    /*
     * DFS faz um busca em profundidade na AST.
     *
@@ -440,11 +337,11 @@ class AST {
           * Se o no atual for uma EXP, devemos finaliza-la, ou seja,
           * retornar todos os niveis da AST de Expressao ate a raiz.
           */
-         if (mPilha.top()->tk == Token::TipoToken::EXP) {
+         if (mPilha.top()->tk == TipoToken::EXP) {
             static_cast<NodeExp*>(mPilha.top())->fimExp();
             mPilha.pop();
             ++i;
-            if (*mPilha.top() == Tipo::BLOCO) {
+            if (*mPilha.top() == TipoAST::BLOCO) {
                continue;
             }
          }
