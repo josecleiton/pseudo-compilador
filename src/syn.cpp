@@ -183,7 +183,7 @@ AST& Syn::parse(void) {
                case 13:  // decl -> tipo id
                   mPilha.push(TipoToken::ID);
                   mPilha.push(TipoToken::TIPO);
-                  mAST.inserirNode(TipoToken::DECL);
+                  mAST.inserirNode(TipoToken::DECL, AST::Tipo::DECL);
                   break;
                case 14:  // atrib -> id = exp
                   mPilha.push(TipoToken::EXP);

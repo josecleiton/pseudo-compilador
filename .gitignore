@@ -34,3 +34,5 @@
 lexemas.txt
 *.pl
 pcc
+
+*.pro.user

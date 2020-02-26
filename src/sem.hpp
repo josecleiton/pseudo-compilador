@@ -29,7 +29,7 @@ namespace AnaliseSemantica {
 class Sem {
    typedef AnaliseSintatica::AST AST;
    AST& mAST;
-   std::size_t mNodeExpCount{};
+   // std::size_t mNodeExpCount{};
 
   public:
    /*
@@ -38,21 +38,23 @@ class Sem {
    Sem(AnaliseSintatica::AST&);
    /*
     * Caminha na AST verificando a validade semantica dos nos
+    * Faz uso do polimorfismo dos nós, então essa função controlar a qual 
+    * profundidade deve-se ir
     */
    std::size_t analisaArvore(void);
-   inline auto& getNodeExpCount(void) const { return mNodeExpCount; }
+   // inline auto& getNodeExpCount(void) const { return mNodeExpCount; }
    inline auto& getAST(void) const { return mAST; }
 
-  private:
+//   private:
    /*
     * Declara variável no escopo acima do Node*
     */
-   bool declaraVariavel(AST::Node*) const;
+   // bool declaraVariavel(AST::Node*) const;
    /*
     * Avalia se o tipo da variavael e o tipo do resultado da expressão são
     * compatíveis
     */
-   void atribueVariavel(AST::NodeAtrib*);
+   // void atribueVariavel(AST::NodeAtrib*);
    /*
     * Se for VALOR então
     *   retorna VALOR
@@ -63,7 +65,7 @@ class Sem {
     *   Senao
     *     erro
     */
-   Dado getValorVariavel(AST::NodeExpOp*);
+   // Dado getValorVariavel(AST::NodeExpOp*);
    /*
     * Busca variável nos escopos acima de Node*
     * Se encontrar então
@@ -73,11 +75,11 @@ class Sem {
     * Senao
     *   erro
     */
-   Dado* getVariavel(const AST::Node*, const std::string&);
+   // Dado* getVariavel(const AST::Node*, const std::string&);
    /*
     * Resolve a expressão retornando Dado
     */
-   Dado avaliaExpressao(AST::NodeExp*);
+   // Dado avaliaExpressao(AST::NodeExp*);
    /*
     * Caminho na árvore de expressão em Pos-Ordem
     *              *
@@ -85,15 +87,15 @@ class Sem {
     *            3   5
     *  Resultado -> { tipo: INTEIRO, valor: 15 }
     */
-   Dado avaliaExpressao(AST::NodeExpOp*);
+   // Dado avaliaExpressao(AST::NodeExpOp*);
    /*
     * Aplica os operadores *, /, +, -, &&, || nos parametros Dado
     */
-   Dado aplicaBinop(const Dado&, const char op, const Dado&);
+   // Dado aplicaBinop(const Dado&, const char op, const Dado&);
    /*
     * Aplica os operadores +, !, - no parâmetro
     */
-   Dado aplicaUnop(const char op, const Dado&);
+   // Dado aplicaUnop(const char op, const Dado&);
 };
 }  // namespace AnaliseSemantica
 

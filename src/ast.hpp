@@ -61,6 +61,7 @@ class Dado {
    Dado(const Tipo, const double = 0.0f);
    Dado(const Dado&);
    Dado(const double);
+   static constexpr bool ehCompativelCom(const Tipo, const Tipo);
    /*
     * Função auxiliar que seta valor e o tipo
     */
@@ -109,8 +110,8 @@ class SymbolTable {
     * Insere nova variável na hash table
     * Se o lexema já estiver na hash table -> throw exception
     */
-   inline void insereDado(const std::string& lexema, const Tipo t,
-                          const double v = {}) {
+   inline void inserirVariavel(const std::string& lexema, const Tipo t,
+                               const double v = {}) {
       if (getDado(lexema)) {
          throw std::domain_error(
              "Sobescrever uma entrada na tabela de simbolos não é permitido");
@@ -138,7 +139,7 @@ class AST {
     * ATRIB - Representa a atribuiçao
     * REGULAR - Representa um Tipo ou uma DECL
     */
-   enum class Tipo { REGULAR, BLOCO, EXP, EXPOP, ATRIB };
+   enum class Tipo { REGULAR, BLOCO, EXP, EXPOP, ATRIB, DECL };
 
    /*
     * Um nó regular da AST, exemplo conceitual:
@@ -156,6 +157,7 @@ class AST {
     *  }
     *  PS: childs é uma lista e se estiver vazia representa uma folha
     */
+   struct NodeBloco;
    struct Node {
       Token tk;
       Tipo tipo;
@@ -163,8 +165,23 @@ class AST {
       Node* super{};
 
       Node(const Token&, Node* = nullptr, const Tipo = Tipo::REGULAR);
+      NodeBloco* getBlocoAcima(void) const;
+      AnaliseSemantica::Dado* getDadoVar(const std::string& lexema) const;
+      inline auto& getLexema(void) const { return tk.lexema; }
+
       inline operator Tipo() const { return tipo; }
+      virtual void avaliar(
+          AnaliseSemantica::Tipo = AnaliseSemantica::Tipo::LOGICO){};
       virtual ~Node() {}
+
+     private:
+      NodeBloco* getBlocoAcima(const Node* const) const;
+   };
+
+   struct NodeDecl : public Node {
+      NodeDecl(const Token&, Node* = nullptr, const Tipo = Tipo::REGULAR);
+      virtual void avaliar(AnaliseSemantica::Tipo);
+      virtual ~NodeDecl() {}
    };
 
    /*
@@ -191,6 +208,7 @@ class AST {
       AnaliseSemantica::SymbolTable st;
 
       NodeBloco(const Token&, Node* = nullptr, const Tipo = Tipo::BLOCO);
+      virtual void avaliar(AnaliseSemantica::Tipo);
       ~NodeBloco() {}
    };
 
@@ -216,7 +234,7 @@ class AST {
     *   trinta * 32.5 - ( k + 5 ) Por ser uma expressão infixa,
     *   é resolvida utilizando pilhas
     */
-   struct NodeExpOp;
+   class NodeExpOp;
    /*
     * Usa uma variação do algoritmo criado por Dijkstra conhecido com:
     *   SHUNTING YARD
@@ -261,12 +279,14 @@ class AST {
        * Pilha auxiliar para o algoritmo de Dijkstra
        */
       std::stack<NodeExpOp*> mPilha;
+      std::size_t mNodeCount{};
 
      public:
       AnaliseSemantica::Dado dado;
       NodeExpOp* expRoot{};
 
       NodeExp(const Token&, Node* = nullptr, const Tipo = Tipo::EXP);
+      inline auto& size(void) const { return mNodeCount; }
       /*
        * Realiza o algoritmo descrito acima
        */
@@ -276,28 +296,44 @@ class AST {
        * O último da pilha é a raiz da árvore de expressão
        */
       NodeExpOp* fimExp(void);
+
+      virtual void avaliar(
+          AnaliseSemantica::Tipo = AnaliseSemantica::Tipo::LOGICO);
       ~NodeExp() {}
    };
 
-   struct NodeExpOp : public Node {
-      enum Direcao { ESQUERDA, DIREITA } mDirecao{};
+   class NodeExpOp : public Node {
       mutable std::array<NodeExpOp*, 2> childs{};
+
+     public:
+      enum Direcao { ESQUERDA, DIREITA } mDirecao{};
 
       NodeExpOp(const Token&, Node* = nullptr, const Tipo = Tipo::EXP);
       inline auto& getEsquerda(void) const { return childs[ESQUERDA]; }
       inline auto& getDireita(void) const { return childs[DIREITA]; }
       inline auto& getOp(void) const { return tk.lexema.front(); }
-      inline std::size_t size(void) const {
+      inline auto size(void) const {
          return (getEsquerda() != nullptr) + (getDireita() != nullptr);
       }
+      void avaliar(AnaliseSemantica::Tipo);
+      AnaliseSemantica::Dado avaliarExp(std::size_t&) const;
       Direcao adicionaChild(NodeExpOp* const);
       ~NodeExpOp() {}
+
+     private:
+      AnaliseSemantica::Dado avaliarExp(const NodeExpOp* const,
+                                        std::size_t&) const;
+      AnaliseSemantica::Dado aplicaBinop(const AnaliseSemantica::Dado&,
+                                         const AnaliseSemantica::Dado&) const;
+      AnaliseSemantica::Dado aplicaUnop(const AnaliseSemantica::Dado&) const;
+      AnaliseSemantica::Dado getValorVariavel(void) const;
    };
 
    struct NodeAtrib : public Node {
       AnaliseSemantica::Dado* var{};
       std::unique_ptr<AnaliseSemantica::Dado> resultadoExp;
       NodeAtrib(const Token&, Node* = nullptr, const Tipo = Tipo::ATRIB);
+      virtual void avaliar(AnaliseSemantica::Tipo);
       ~NodeAtrib() {}
    };
 
