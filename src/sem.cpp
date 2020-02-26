@@ -45,7 +45,7 @@ std::size_t Sem::analisaArvore(void) {
             /*    throw std::domain_error("Condição deve retornar tipo
              * LOGICO."); */
             /* } */
-            no->avaliar(Tipo::LOGICO);
+            no->avaliar();
          }
          descer = true;
       } else {

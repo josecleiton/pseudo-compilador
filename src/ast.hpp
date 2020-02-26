@@ -297,8 +297,7 @@ class AST {
        */
       NodeExpOp* fimExp(void);
 
-      virtual void avaliar(
-          AnaliseSemantica::Tipo = AnaliseSemantica::Tipo::LOGICO);
+      virtual void avaliar(AnaliseSemantica::Tipo);
       ~NodeExp() {}
    };
 
