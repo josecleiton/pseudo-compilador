@@ -18,8 +18,8 @@
 
 #pragma once
 #include <unordered_map>
-#include "enum/tipodado.hpp"
 
+#include "enum/tipodado.hpp"
 
 namespace AnaliseSemantica {
 /*
@@ -39,7 +39,6 @@ constexpr bool tipoSaoCompativeis(const TipoDado t1, const TipoDado t2) {
    }
    return true;
 }
-
 
 /*
  * Informações sobre as variáveis cmo:
@@ -105,13 +104,13 @@ class SymbolTable {
     * Insere nova variável na hash table
     * Se o lexema já estiver na hash table -> throw exception
     */
-   inline void inserirVariavel(const std::string& lexema, const TipoDado t,
-                               const double v = {}) {
+   inline Dado* inserirVariavel(const std::string& lexema,
+                                const TipoDado t = {}, const double v = {}) {
       if (getDado(lexema)) {
          throw std::domain_error(
              "Sobescrever uma entrada na tabela de simbolos não é permitido");
       }
-      mTable[lexema] = {t, v};
+      return &(mTable[lexema] = {t, v});
    }
 };
 

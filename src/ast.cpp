@@ -18,6 +18,7 @@
 
 #include "ast.hpp"
 
+#include <memory>
 #include <stdexcept>
 
 #define TIPOS_INCOMPATIVEIS std::domain_error("Tipos incompatíveis.")
@@ -57,11 +58,18 @@ AST::Node *AST::inserirFolha(const Token &tk, const TipoAST tipo) {
          }
          break;
       case TipoAST::EXPOP: {
-         auto expOp = std::make_unique<NodeExpOp>(tk, topo);
-         if (*topo == TipoAST::EXP) {
-            static_cast<NodeExp *>(topo)->insereOp(expOp.get());
+         std::unique_ptr<NodeExpOp> op;
+         if (tk == TipoToken::ID) {
+            op = std::make_unique<NodeExpID>(tk, topo);
+         } else if (tk == TipoToken::VALOR) {
+            op = std::make_unique<NodeExpValor>(tk, topo);
+         } else {
+            op = std::make_unique<NodeExpOp>(tk, topo);
          }
-         topo->childs.emplace_back(std::move(expOp));
+         if (*topo == TipoAST::EXP) {
+            static_cast<NodeExp *>(topo)->insereOp(op.get());
+         }
+         topo->childs.emplace_back(std::move(op));
       } break;
       case TipoAST::ATRIB:
          topo->childs.emplace_back(std::make_unique<NodeAtrib>(tk, topo));
@@ -104,43 +112,12 @@ AST::NodeAtrib::NodeAtrib(const Token &_tk, Node *_super, const TipoAST _t)
 AST::NodeDecl::NodeDecl(const Token &_tk, Node *_super, const TipoAST _t)
     : Node(_tk, _super, _t) {}
 
-AST::NodeBloco *AST::Node::getBlocoAcima(void) const {
-   return getBlocoAcima(this);
-}
-AST::NodeBloco *AST::Node::getBlocoAcima(const AST::Node *const atual) const {
-   AST::Node *result = atual->super;
-   while (result and *result != TipoAST::BLOCO) {
-      result = result->super;
-   }
-   return result and *result == TipoAST::BLOCO
-              ? static_cast<AST::NodeBloco *>(result)
-              : nullptr;
-}
-
 namespace Semantic = AnaliseSemantica;
 typedef Semantic::Dado Dado;
 
-Dado *AST::Node::getDadoVar(const std::string &lexema) const {
-   const AST::Node *no = this;
-   AST::NodeBloco *atual{}, *anterior{};
-   Dado *result{};
-   while ((atual = getBlocoAcima(no))) {
-      no = anterior = atual;
-      if ((result = anterior->st.getDado(lexema))) {
-         return result;
-      }
-   }
-   if (anterior and (result = anterior->st.getDado(lexema))) {
-      return result;
-   }
-   throw std::out_of_range(
-       "Todas as variaveis devem ser declaradas antes do uso.");
-}
-
-
 void AST::NodeBloco::avaliar(void) {
    auto const aux = childs.front().get();
-   const auto exp = static_cast<AST::NodeExp *>(aux);
+   const auto exp = static_cast<NodeExp *>(aux);
    exp->avaliar();
    if (!Semantic::tipoSaoCompativeis(exp->resultadoExp, TipoDado::LOGICO)) {
       throw TIPOS_INCOMPATIVEIS;
@@ -148,63 +125,36 @@ void AST::NodeBloco::avaliar(void) {
 }
 
 void AST::NodeDecl::avaliar(void) {
-   auto const bloco = getBlocoAcima();
    auto itList = childs.cbegin();
    const auto tipo = Semantic::lexemaTipo((*itList)->getLexema());
    ++itList;
-   const auto &varNome = (*itList)->getLexema();
-   bloco->st.inserirVariavel(varNome, tipo);
+   auto const id = static_cast<NodeExpID *>(itList->get());
+   id->setTipo(tipo);
 }
 
 void AST::NodeAtrib::avaliar(void) {
    auto itList = childs.cbegin();
-   const auto &nomeVar = (*itList)->getLexema();
+   const auto var = static_cast<NodeExpID *>(itList->get())->avaliarExp();
    ++itList;
-   var = getDadoVar(nomeVar);
-   auto const exp = static_cast<AST::NodeExp *>(itList->get());
+   auto const exp = static_cast<NodeExp *>(itList->get());
    exp->avaliar();
-   if (!Semantic::tipoSaoCompativeis(exp->resultadoExp, TipoDado::LOGICO)) {
+   if (!Semantic::tipoSaoCompativeis(var, exp->resultadoExp)) {
       throw TIPOS_INCOMPATIVEIS;
    }
 }
 
-void AST::NodeExp::avaliar(void) {
-   resultadoExp = raizExp->avaliarExp(mNodeCount);
-}
-void AST::NodeExpOp::avaliar(void) {
-   std::size_t count{};
-   avaliarExp(this, count);
-}
+void AST::NodeExp::avaliar(void) { resultadoExp = raizExp->avaliarExp(); }
+void AST::NodeExpOp::avaliar(void) { avaliarExp(); }
 
-Dado AST::NodeExpOp::avaliarExp(std::size_t &count) const {
-#ifdef DEBUG
-   auto result = avaliarExp(this, count);
-   std::clog << "[DEBUG - AST] Foram avaliados " << count
-             << " nós na árvore de expressão." << std::endl;
-   return result;
-#else
-   return avaliarExp(this, count);
-#endif
-}
-
-Dado AST::NodeExpOp::avaliarExp(const AST::NodeExpOp *const atual,
-                                std::size_t &count) const {
-   ++count;
-   if (auto noEsq = atual->getEsquerda(); noEsq) {
-      const auto esq = avaliarExp(noEsq, count);
-      if (auto noDir = atual->getDireita(); noDir) {
-         return atual->aplicaBinop(esq, avaliarExp(noDir, count));
+Dado AST::NodeExpOp::avaliarExp(void) const {
+   if (auto noEsq = getEsquerda(); noEsq) {
+      const auto esq = noEsq->avaliarExp();
+      if (auto noDir = getDireita(); noDir) {
+         return aplicaBinop(esq, noDir->avaliarExp());
       }
-      return atual->aplicaUnop(esq);
+      return aplicaUnop(esq);
    }
-   return atual->getValorVariavel();
-}
-
-Dado AST::NodeExpOp::getValorVariavel() const {
-   if (tk == TipoToken::VALOR) {
-      return std::stof(getLexema());
-   }
-   return *getDadoVar(getLexema());
+   return avaliarExp();
 }
 
 Dado AST::NodeExpOp::aplicaBinop(const Dado &num1, const Dado &num2) const {
@@ -287,7 +237,7 @@ void AST::NodeExp::insereOp(NodeExpOp *const no) {
       case TipoToken::BINOP:
       case TipoToken::NEG:
          if (topo->getOp() != '(') {
-            if (topo->size() == 2) {  // binario
+            if (topo->size() == 2) {  // tem os dois operadores
                if (precedencia(no->getOp()) > precedencia(topo->getOp())) {
                   no->adicionaChild(topo->getDireita());
                   topo->getDireita() = no;
@@ -300,7 +250,6 @@ void AST::NodeExp::insereOp(NodeExpOp *const no) {
             if (mPilha.size()) {
                mPilha.top()->getDireita() = no;
             }
-            /* opPtr->childs.push_back(std::move(expRoot)); */
             mPilha.push(no);
          } else {
             topo->tk.lexema = std::move(no->tk.lexema);
@@ -317,4 +266,45 @@ AST::NodeExpOp *AST::NodeExp::fimExp(void) {
    }
    return raizExp = mPilha.top();
 }
+AST::NodeExpID::NodeExpID(const Token &_tk, Node *_super, const TipoAST _t)
+    : NodeExpOp(_tk, _super, _t) {
+   if (super->tk == TipoToken::DECL) {
+      declaraVar();
+   } else {
+      getDadoVar();
+   }
+}
+void AST::NodeExpID::declaraVar(void) {
+   auto const bloco = getBlocoAcima(this);
+   mSTDado = bloco->st.inserirVariavel(getLexema());
+}
+AST::NodeBloco *AST::NodeExpID::getBlocoAcima(
+    const AST::Node *const atual) const {
+   AST::Node *result = atual->super;
+   while (result and *result != TipoAST::BLOCO) {
+      result = result->super;
+   }
+   return result ? static_cast<AST::NodeBloco *>(result) : nullptr;
+}
+void AST::NodeExpID::getDadoVar(void) {
+   const AST::Node *no = this;
+   AST::NodeBloco *atual{}, *anterior{};
+   Dado *result{};
+   while ((atual = getBlocoAcima(no))) {
+      no = anterior = atual;
+      if ((result = anterior->st.getDado(getLexema()))) {
+         mSTDado = result;
+         return;
+      }
+   }
+   if (anterior and (result = anterior->st.getDado(getLexema()))) {
+      mSTDado = result;
+      return;
+   }
+   throw std::out_of_range(
+       "Todas as variaveis devem ser declaradas antes do uso.");
+}
+AST::NodeExpValor::NodeExpValor(const Token &_tk, Node *_super,
+                                const TipoAST _t)
+    : NodeExpOp(_tk, _super, _t), val(std::stof(getLexema())) {}
 }  // namespace AnaliseSintatica

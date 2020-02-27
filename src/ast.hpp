@@ -62,25 +62,10 @@ class AST {
       Node* super{};
 
       Node(const Token&, Node* = nullptr, const TipoAST = TipoAST::REGULAR);
-      NodeBloco* getBlocoAcima(void) const;
-      /*
-       * Busca variável nos escopos acima de Node*
-       * Se encontrar então
-       *   atribue
-       *   se os tipos forem diferentes então
-       *     erro
-       * Senao
-       *   erro
-       */
-      AnaliseSemantica::Dado* getDadoVar(const std::string& lexema) const;
       inline auto& getLexema(void) const { return tk.lexema; }
 
       inline operator TipoAST() const { return tipo; }
       virtual void avaliar(void) {}
-      virtual ~Node() = default;
-
-     private:
-      NodeBloco* getBlocoAcima(const Node* const) const;
    };
 
    struct NodeDecl : public Node {
@@ -88,13 +73,13 @@ class AST {
 
       /*
        * avaliar nó DECL que tem sempre 2 nós filhos
-       * selecionará o bloco imediatamente acima do 'no'
-       * e inserirá o Identificador na sua Tabela de Símbolos.
        * 1) Tipo
        * 2) Identificador
+       *
+       * selecionará o bloco imediatamente acima do 'no'
+       * e inserirá o Identificador na sua Tabela de Símbolos.
        */
       void avaliar(void) override;
-      ~NodeDecl() = default;
    };
 
    struct NodeAtrib : public Node {
@@ -103,7 +88,7 @@ class AST {
 
       NodeAtrib(const Token&, Node* = nullptr, const TipoAST = TipoAST::ATRIB);
       /*
-       * avaliar nó ATRIB que tem pelo menos 2 filhos
+       * avaliar nó ATRIB que tem sempre 2 filhos
        * 1) Identificador
        * 2) EXP
        *
@@ -115,7 +100,6 @@ class AST {
        *    algum dos nós folha da expressão for um Identificador
        */
       void avaliar(void) override;
-      ~NodeAtrib() = default;
    };
 
    /*
@@ -148,7 +132,6 @@ class AST {
        * tal EXP é a condição então deve retornar tipo LOGICO
        */
       void avaliar(void) override;
-      ~NodeBloco() = default;
    };
 
    /*
@@ -239,7 +222,6 @@ class AST {
       NodeExpOp* fimExp(void);
 
       void avaliar(void) override;
-      ~NodeExp() = default;
    };
 
    class NodeExpOp : public Node {
@@ -263,16 +245,10 @@ class AST {
        *            3   5
        *  Resultado -> { tipo: INTEIRO, valor: 15 }
        */
-      AnaliseSemantica::Dado avaliarExp(std::size_t&) const;
+      virtual AnaliseSemantica::Dado avaliarExp(void) const;
       Direcao adicionaChild(NodeExpOp* const);
-      ~NodeExpOp() = default;
 
      private:
-      /*
-       * Função auxiliar para permitir a recursão
-       */
-      AnaliseSemantica::Dado avaliarExp(const NodeExpOp* const,
-                                        std::size_t&) const;
       /*
        * Aplica os operadores *, /, +, -, &&, || em Dados
        */
@@ -282,17 +258,44 @@ class AST {
        * Aplica os operadores +, !, - no Dado
        */
       AnaliseSemantica::Dado aplicaUnop(const AnaliseSemantica::Dado&) const;
+   };
+
+   class NodeExpID : public NodeExpOp {
+     private:
+      AnaliseSemantica::Dado* mSTDado{};
+
+     public:
+      NodeExpID(const Token&, Node* = nullptr, const TipoAST = TipoAST::EXP);
+      inline AnaliseSemantica::Dado avaliarExp(void) const override {
+         return *mSTDado;
+      }
+      inline void setTipo(const TipoDado tipo) { mSTDado->tipo = tipo; }
+
+     private:
       /*
-       * Se for VALOR então
-       *   retorna VALOR
-       * Senão // é um identificador (variavel)
-       *   Busca variável nos escopos acima de Node*
-       *   Se encontrar então
-       *    retorna valor da variável
-       *   Senao
-       *     erro
+       * getBlocoAcima busca o próximo nó do tipo Bloco a partir de Node* atual
        */
-      AnaliseSemantica::Dado getValorVariavel(void) const;
+      NodeBloco* getBlocoAcima(const Node* const) const;
+      /*
+       * Busca variável nos escopos acima de Node*
+       * Se encontrar então
+       *   atribue
+       *   se os tipos forem diferentes então
+       *     erro
+       * Senao
+       *   erro
+       */
+      void getDadoVar(void);
+      void declaraVar(void);
+   };
+
+   class NodeExpValor : public NodeExpOp {
+     public:
+      AnaliseSemantica::Dado val;
+      NodeExpValor(const Token&, Node* = nullptr, const TipoAST = TipoAST::EXP);
+      inline AnaliseSemantica::Dado avaliarExp(void) const override {
+         return val;
+      }
    };
 
   private:
@@ -349,9 +352,6 @@ class AST {
       }
       return i;
    }
-   /*
-    * getBlocoAcima busca o próximo nó do tipo Bloco a partir de Node* atual
-    */
    inline Node* atual(void) { return mPilha.top(); }
    inline auto& size(void) const { return mNodeCount; }
 
