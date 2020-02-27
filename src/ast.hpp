@@ -24,8 +24,9 @@
 #include <memory>
 #include <stack>
 #include <stdexcept>
+#include <unordered_map>
 
-#include "enum/tipoast.hpp"
+#include "enum/tipo_ast.hpp"
 #include "stable.hpp"
 #include "token.hpp"
 
@@ -65,7 +66,11 @@ class AST {
       inline auto& getLexema(void) const { return tk.lexema; }
 
       inline operator TipoAST() const { return tipo; }
+      /*
+       * função abstrata que tem que ser sobreescrita por todos os filhos
+       */
       virtual void avaliar(void) {}
+      virtual ~Node() = default;
    };
 
    struct NodeDecl : public Node {
@@ -80,6 +85,7 @@ class AST {
        * e inserirá o Identificador na sua Tabela de Símbolos.
        */
       void avaliar(void) override;
+      ~NodeDecl() override = default;
    };
 
    struct NodeAtrib : public Node {
@@ -100,6 +106,7 @@ class AST {
        *    algum dos nós folha da expressão for um Identificador
        */
       void avaliar(void) override;
+      ~NodeAtrib() override = default;
    };
 
    /*
@@ -132,6 +139,7 @@ class AST {
        * tal EXP é a condição então deve retornar tipo LOGICO
        */
       void avaliar(void) override;
+      ~NodeBloco() override = default;
    };
 
    /*
@@ -222,6 +230,8 @@ class AST {
       NodeExpOp* fimExp(void);
 
       void avaliar(void) override;
+      ~NodeExp() override = default;
+
    };
 
    class NodeExpOp : public Node {
@@ -247,6 +257,7 @@ class AST {
        */
       virtual AnaliseSemantica::Dado avaliarExp(void) const;
       Direcao adicionaChild(NodeExpOp* const);
+      virtual ~NodeExpOp() = default;
 
      private:
       /*
@@ -262,14 +273,15 @@ class AST {
 
    class NodeExpID : public NodeExpOp {
      private:
-      AnaliseSemantica::Dado* mSTDado{};
+      std::unordered_map<std::string, AnaliseSemantica::Dado>::iterator mSTDado;
 
      public:
       NodeExpID(const Token&, Node* = nullptr, const TipoAST = TipoAST::EXP);
       inline AnaliseSemantica::Dado avaliarExp(void) const override {
-         return *mSTDado;
+         return mSTDado->second;
       }
-      inline void setTipo(const TipoDado tipo) { mSTDado->tipo = tipo; }
+      inline void setTipo(const TipoDado tipo) { mSTDado->second.tipo = tipo; }
+      ~NodeExpID() override = default;
 
      private:
       /*
@@ -296,6 +308,7 @@ class AST {
       inline AnaliseSemantica::Dado avaliarExp(void) const override {
          return val;
       }
+      ~NodeExpValor() override = default;
    };
 
   private:

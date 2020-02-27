@@ -18,9 +18,6 @@
 
 #include "ast.hpp"
 
-#include <memory>
-#include <stdexcept>
-
 #define TIPOS_INCOMPATIVEIS std::domain_error("Tipos incompatíveis.")
 
 namespace AnaliseSintatica {
@@ -44,7 +41,8 @@ AST::Node *AST::inserirFolha(const Token &tk, const TipoAST tipo) {
       case TipoAST::EXP:
          /*
           * Checando se o topo é uma EXP, se for então não precisa adicionar
-          * novamente ao topo Cenários onde isso poderia acontecer:
+          * novamente ao topo
+          * Cenários onde isso poderia acontecer:
           * exp -> sinal exp | ( exp )
           *
           * Nesses casos o sintatico manda um NodeExp mesmo já
@@ -67,6 +65,9 @@ AST::Node *AST::inserirFolha(const Token &tk, const TipoAST tipo) {
             op = std::make_unique<NodeExpOp>(tk, topo);
          }
          if (*topo == TipoAST::EXP) {
+            /*
+             * Coloca op (num ou operador) na árvore de expressão pos-fixa
+             */
             static_cast<NodeExp *>(topo)->insereOp(op.get());
          }
          topo->childs.emplace_back(std::move(op));
@@ -84,11 +85,11 @@ AST::Node *AST::inserirFolha(const Token &tk, const TipoAST tipo) {
    return topo->childs.back().get();
 }
 
-std::size_t AST::DFS(const std::function<bool(AST::Node *)> &func) {
+std::size_t AST::DFS(const std::function<bool(Node *)> &func) {
    return DFS(root.get(), func);
 }
 std::size_t AST::DFS(AST::Node *atual,
-                     const std::function<bool(AST::Node *)> &func) {
+                     const std::function<bool(Node *)> &func) {
    const bool descer = func(atual);
    std::size_t count{1};
    if (descer) {
@@ -289,16 +290,16 @@ AST::NodeBloco *AST::NodeExpID::getBlocoAcima(
 void AST::NodeExpID::getDadoVar(void) {
    const AST::Node *no = this;
    AST::NodeBloco *atual{}, *anterior{};
-   Dado *result{};
+   std::pair<std::unordered_map<std::string, Dado>::iterator, bool> result;
    while ((atual = getBlocoAcima(no))) {
       no = anterior = atual;
-      if ((result = anterior->st.getDado(getLexema()))) {
-         mSTDado = result;
+      if ((result = anterior->st.getDado(getLexema())).second) {
+         mSTDado = result.first;
          return;
       }
    }
-   if (anterior and (result = anterior->st.getDado(getLexema()))) {
-      mSTDado = result;
+   if (anterior and (result = anterior->st.getDado(getLexema())).second) {
+      mSTDado = result.first;
       return;
    }
    throw std::out_of_range(

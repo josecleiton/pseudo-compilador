@@ -19,7 +19,7 @@
 #pragma once
 #include <unordered_map>
 
-#include "enum/tipodado.hpp"
+#include "enum/tipo_dado.hpp"
 
 namespace AnaliseSemantica {
 /*
@@ -33,11 +33,9 @@ constexpr bool tipoSaoCompativeis(const TipoDado t1, const TipoDado t2) {
          return t2 != TipoDado::QUEBRADO;
       case TipoDado::LOGICO:
          return t2 == TipoDado::LOGICO;
-         break;
       default:
-         break;
+         return true;
    }
-   return true;
 }
 
 /*
@@ -92,25 +90,25 @@ class SymbolTable {
   public:
    /*
     * Busca na hash table por dado lexema
+    * retorna um pair { iterator, bool }
+    * verdadeiro se encontrado, senão falso
     */
-   inline Dado* getDado(const std::string& lexema) {
-      try {
-         return &mTable.at(lexema);
-      } catch (const std::out_of_range& e) {
-         return nullptr;
-      }
+   inline auto getDado(const std::string& lexema) {
+      auto it = mTable.find(lexema);
+      return std::make_pair(it, it != mTable.end());
    }
    /*
     * Insere nova variável na hash table
     * Se o lexema já estiver na hash table -> throw exception
     */
-   inline Dado* inserirVariavel(const std::string& lexema,
-                                const TipoDado t = {}, const double v = {}) {
-      if (getDado(lexema)) {
+   inline auto inserirVariavel(const std::string& lexema, const TipoDado t = {},
+                               const double v = {}) {
+      if (getDado(lexema).second) {
          throw std::domain_error(
              "Sobescrever uma entrada na tabela de simbolos não é permitido");
       }
-      return &(mTable[lexema] = {t, v});
+      /* emplace retorna um par: { map iterator, bool } */
+      return mTable.emplace(lexema, Dado(t, v)).first;
    }
 };
 

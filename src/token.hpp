@@ -25,7 +25,7 @@
 #include <iostream>
 #endif
 
-#include "enum/tipotoken.hpp"
+#include "enum/tipo_token.hpp"
 
 struct Token {
    TipoToken tipo;
