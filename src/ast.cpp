@@ -18,7 +18,8 @@
 
 #include "ast.hpp"
 
-#define TIPOS_INCOMPATIVEIS std::domain_error("Tipos incompatíveis.")
+#define TIPOS_INCOMPATIVEIS \
+   AnaliseSemantica::ErroSemantico("Tipos incompatíveis.")
 
 namespace AnaliseSintatica {
 AST::AST(void)

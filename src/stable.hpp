@@ -20,6 +20,7 @@
 #include <unordered_map>
 
 #include "enum/tipo_dado.hpp"
+#include "erro.hpp"
 
 namespace AnaliseSemantica {
 /*
@@ -104,8 +105,7 @@ class SymbolTable {
    inline auto inserirVariavel(const std::string& lexema, const TipoDado t = {},
                                const double v = {}) {
       if (getDado(lexema).second) {
-         throw std::domain_error(
-             "Sobescrever uma entrada na tabela de simbolos não é permitido");
+         throw ErroSemantico("Sobescrever uma entrada na tabela de simbolos não é permitido");
       }
       /* emplace retorna um par: { map iterator, bool } */
       return mTable.emplace(lexema, Dado(t, v)).first;

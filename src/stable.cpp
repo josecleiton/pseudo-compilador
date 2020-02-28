@@ -17,6 +17,7 @@
  */
 
 #include "stable.hpp"
+
 #include <cmath>
 
 namespace AnaliseSemantica {
@@ -51,7 +52,7 @@ void Dado::preencheTipo(void) {
 Dado &Dado::operator=(const Dado &other) {
    if (this != &other) {
       if (bool valido = tipoSaoCompativeis(tipo, other); !valido) {
-         throw std::domain_error("Tipos incompatíveis.");
+         throw ErroSemantico("tipos incompatíveis.");
       }
       tipo = other.tipo;
       valor = other.valor;

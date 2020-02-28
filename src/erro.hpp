@@ -26,7 +26,7 @@ class Lex;
 /**
  * Classe para formatar erros do compilador
  */
-class Erro : public std::exception {
+struct Erro : public std::exception {
   public:
    enum class TipoErro { Lexico, Sintatico, Semantico };
 
@@ -40,7 +40,7 @@ class Erro : public std::exception {
    Erro(Lex* const lex, std::string& lexema, const char* const esperado);
    /* Erro(Syn* const syn; const Token& tk); */
 
-   inline const char* what() const throw() {
+   virtual inline const char* what() const throw() {
       switch (mTipo) {
          case TipoErro::Lexico:
             return "Erro Léxico.";
@@ -105,3 +105,14 @@ class Erro : public std::exception {
       return res;
    }
 };
+
+namespace AnaliseSemantica {
+struct ErroSemantico : public std::exception {
+   mutable std::string msg;
+   ErroSemantico(const std::string&);
+   const char* what() const throw() override {
+      msg = "erro semantico: " + msg;
+      return msg.c_str();
+   }
+};
+}  // namespace AnaliseSemantica

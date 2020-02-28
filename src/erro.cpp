@@ -67,3 +67,6 @@ std::size_t Erro::primeiroCaracterNaLinha(std::ifstream& file) const {
    }
    return count;
 }
+namespace AnaliseSemantica {
+ErroSemantico::ErroSemantico(const std::string& _m) : msg(_m) {}
+}  // namespace AnaliseSemantica

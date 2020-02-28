@@ -231,7 +231,6 @@ class AST {
 
       void avaliar(void) override;
       ~NodeExp() override = default;
-
    };
 
    class NodeExpOp : public Node {

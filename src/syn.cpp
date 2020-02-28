@@ -24,6 +24,7 @@
 
 #include <stdexcept>
 
+#include "erro.hpp"
 #include "lex.hpp"
 
 namespace AnaliseSintatica {
