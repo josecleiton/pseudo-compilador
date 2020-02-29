@@ -18,6 +18,8 @@
 
 #include "ast.hpp"
 
+#include "enum/prec.hpp"
+
 #define TIPOS_INCOMPATIVEIS \
    AnaliseSemantica::ErroSemantico("Tipos incompatíveis.")
 
@@ -198,19 +200,19 @@ Direcao AST::NodeExpOp::adicionaChild(NodeExpOp *no) {
    return mDirecao = (mDirecao == ESQUERDA) ? DIREITA : mDirecao;
 }
 
-constexpr unsigned precedencia(const char op) {
+constexpr Prec precedencia(const char op) {
    switch (op) {
       case '+':
       case '-':
       case '!':
       case '|':
-         return 1;
+         return Prec::TERMO_OP;
       case '*':
       case '/':
       case '&':
-         return 2;
+         return Prec::FATOR_OP;
       default:
-         return 0;
+         return Prec::NULO;
    }
 }
 void AST::NodeExp::insereOp(NodeExpOp *const no) {
