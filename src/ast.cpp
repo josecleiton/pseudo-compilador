@@ -288,7 +288,7 @@ AST::NodeBloco *AST::NodeExpID::getBlocoAcima(
    while (result and *result != TipoAST::BLOCO) {
       result = result->super;
    }
-   return result ? static_cast<AST::NodeBloco *>(result) : nullptr;
+   return static_cast<AST::NodeBloco *>(result);
 }
 void AST::NodeExpID::getDadoVar(void) {
    const AST::Node *no = this;
