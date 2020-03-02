@@ -85,7 +85,7 @@ class AST {
        * e inserirá o Identificador na sua Tabela de Símbolos.
        */
       void avaliar(void) override;
-      ~NodeDecl() override = default;
+      virtual ~NodeDecl() override = default;
    };
 
    struct NodeAtrib : public Node {
@@ -106,7 +106,7 @@ class AST {
        *    algum dos nós folha da expressão for um Identificador
        */
       void avaliar(void) override;
-      ~NodeAtrib() override = default;
+      virtual ~NodeAtrib() override = default;
    };
 
    /*
@@ -139,7 +139,7 @@ class AST {
        * tal EXP é a condição então deve retornar tipo LOGICO
        */
       void avaliar(void) override;
-      ~NodeBloco() override = default;
+      virtual ~NodeBloco() override = default;
    };
 
    /*
@@ -230,15 +230,19 @@ class AST {
       NodeExpOp* fimExp(void);
 
       void avaliar(void) override;
-      ~NodeExp() override = default;
+      virtual ~NodeExp() override = default;
    };
 
    class NodeExpOp : public Node {
-      mutable std::array<NodeExpOp*, 2> childs{};
+     public:
+      enum Direcao { ESQUERDA, DIREITA };
+      bool abreParentese;
+
+     private:
+      std::array<NodeExpOp*, 2> childs{};
+      Direcao mDirecao{};
 
      public:
-      enum Direcao { ESQUERDA, DIREITA } mDirecao{};
-
       NodeExpOp(const Token&, Node* = nullptr, const TipoAST = TipoAST::EXP);
       inline auto& getEsquerda(void) const { return childs[ESQUERDA]; }
       inline auto& getDireita(void) const { return childs[DIREITA]; }
@@ -246,6 +250,8 @@ class AST {
       inline auto size(void) const {
          return (getEsquerda() != nullptr) + (getDireita() != nullptr);
       }
+      inline auto& getEsquerda(void) { return childs[ESQUERDA]; }
+      inline auto& getDireita(void) { return childs[DIREITA]; }
       void avaliar(void) override;
       /*
        * Caminho na árvore de expressão em Pos-Ordem
@@ -307,7 +313,7 @@ class AST {
       inline AnaliseSemantica::Dado avaliarExp(void) const override {
          return val;
       }
-      ~NodeExpValor() override = default;
+      virtual ~NodeExpValor() override = default;
    };
 
   private:

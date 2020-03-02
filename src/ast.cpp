@@ -110,7 +110,7 @@ AST::NodeBloco::NodeBloco(const Token &_tk, Node *_super, const TipoAST _t)
 AST::NodeExp::NodeExp(const Token &_tk, Node *_super, const TipoAST _t)
     : Node(_tk, _super, _t) {}
 AST::NodeExpOp::NodeExpOp(const Token &_tk, Node *_super, const TipoAST _t)
-    : Node(_tk, _super, _t) {}
+    : Node(_tk, _super, _t), abreParentese(getOp() == '(') {}
 AST::NodeAtrib::NodeAtrib(const Token &_tk, Node *_super, const TipoAST _t)
     : Node(_tk, _super, _t) {}
 AST::NodeDecl::NodeDecl(const Token &_tk, Node *_super, const TipoAST _t)
@@ -223,7 +223,7 @@ void AST::NodeExp::insereOp(NodeExpOp *const no) {
    auto topo = mPilha.top();
    switch (no->tk) {
       case TipoToken::FECHAPRNT:
-         while (mPilha.top()->tk != TipoToken::ABREPRNT) {
+         while (!mPilha.top()->abreParentese) {
             mPilha.pop();
          }
          if (mPilha.size() > 1) {  // evitando retirar a raiz se a expressão
@@ -240,7 +240,7 @@ void AST::NodeExp::insereOp(NodeExpOp *const no) {
       case TipoToken::SINAL:
       case TipoToken::BINOP:
       case TipoToken::NEG:
-         if (topo->getOp() != '(') {
+         if (!topo->abreParentese) {
             if (topo->size() == 2) {  // tem os dois operadores
                if (precedencia(no->getOp()) > precedencia(topo->getOp())) {
                   no->adicionaChild(topo->getDireita());
@@ -256,7 +256,7 @@ void AST::NodeExp::insereOp(NodeExpOp *const no) {
             }
             mPilha.push(no);
          } else {
-            topo->tk.lexema = std::move(no->tk.lexema);
+            topo->tk = no->tk;
          }
          break;
       default:
