@@ -236,11 +236,11 @@ class AST {
    class NodeExpOp : public Node {
      public:
       enum Direcao { ESQUERDA, DIREITA };
-      bool abreParentese;
 
      private:
       std::array<NodeExpOp*, 2> childs{};
       Direcao mDirecao{};
+      bool mAbreParentese;
 
      public:
       NodeExpOp(const Token&, Node* = nullptr, const TipoAST = TipoAST::EXP);
@@ -252,6 +252,7 @@ class AST {
       }
       inline auto& getEsquerda(void) { return childs[ESQUERDA]; }
       inline auto& getDireita(void) { return childs[DIREITA]; }
+      inline auto abreParentese(void) { return mAbreParentese; }
       void avaliar(void) override;
       /*
        * Caminho na árvore de expressão em Pos-Ordem

@@ -89,10 +89,10 @@ void Lex::analiseAteEOF(void) {
 }
 
 Token Lex::proxToken(void) {
-   int estado = 0;
-   std::string lexema;
+   int estado = 0;  // representa o q0 (estado inicial do afd)
+   char c;          // representa a cabeça da fita
+   std::string lexema; // string lida
    while (estado != EOF) {
-      char c;
       switch (estado) {
          case 0:
             c = getChar(lexema);
@@ -172,7 +172,8 @@ Token Lex::proxToken(void) {
             break;
          case 4:
             /*
-             * Substitue a ',' por '.' para facilitar o casting para double
+             * Substitue a ',' por '.' para facilitar o casting para double no
+             * semântico
              */
             lexema.back() = '.';
             c = getChar(lexema);
@@ -201,18 +202,16 @@ Token Lex::proxToken(void) {
             c = getChar(lexema);
             if (c == '&') {
                return Token(TipoToken::BINOP, lexema);
-            } else {
-               throw Erro(this, lexema, "&");
             }
+            throw Erro(this, lexema, "&");
             // error
             break;
          case 14:
             c = getChar(lexema);
             if (c == '|') {
                return Token(TipoToken::BINOP, lexema);
-            } else {
-               throw Erro(this, lexema, "|");
             }
+            throw Erro(this, lexema, "|");
             break;
          case 16:
             return Token(TipoToken::NEG, lexema);
