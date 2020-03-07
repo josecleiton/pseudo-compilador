@@ -261,7 +261,7 @@ class AST {
        *            3   5
        *  Resultado -> { tipo: INTEIRO, valor: 15 }
        */
-      virtual AnaliseSemantica::Dado avaliarExp(void) const;
+      virtual AnaliseSemantica::Dado avaliarExp(void);
       Direcao adicionaChild(NodeExpOp* const);
       virtual ~NodeExpOp() = default;
 
@@ -280,12 +280,11 @@ class AST {
    class NodeExpID : public NodeExpOp {
      private:
       std::unordered_map<std::string, AnaliseSemantica::Dado>::iterator mSTDado;
+      bool mIteratorInicializado{};
 
      public:
       NodeExpID(const Token&, Node* = nullptr, const TipoAST = TipoAST::EXP);
-      inline AnaliseSemantica::Dado avaliarExp(void) const override {
-         return mSTDado->second;
-      }
+      AnaliseSemantica::Dado avaliarExp(void) override;
       inline void setTipo(const TipoDado tipo) { mSTDado->second.tipo = tipo; }
       ~NodeExpID() override = default;
 
@@ -311,7 +310,7 @@ class AST {
      public:
       AnaliseSemantica::Dado val;
       NodeExpValor(const Token&, Node* = nullptr, const TipoAST = TipoAST::EXP);
-      inline AnaliseSemantica::Dado avaliarExp(void) const override {
+      inline AnaliseSemantica::Dado avaliarExp(void) override {
          return val;
       }
       virtual ~NodeExpValor() override = default;
