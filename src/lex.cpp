@@ -17,6 +17,7 @@
  */
 
 #include "lex.hpp"
+#include "global.hpp"
 
 #include <cctype>
 #include <iostream>
@@ -25,7 +26,7 @@
 #include "erro.hpp"
 #include "token.hpp"
 
-[[noreturn]] void falhaAoAbrirArquivo(const std::string& path) {
+[[noreturn]] void falhaAoAbrirArquivo(const fs::path& path) {
    std::cerr << "Falha na abertura do arquivo: '" << path
              << "'. Verique se o caminho está "
                 "correto.\n";
@@ -48,8 +49,8 @@ Lex::Lex(const fs::path& in, const fs::path& out)
     * Verifica se o arquivo de entrada tem o sufixo .c20192
     */
    const std::string sufixo = ".c20192";
-   const int pos = mFilename.size() - sufixo.size() - 1;
-   if (pos <= 0 || mFilename.find(sufixo, pos) == std::string::npos) {
+   const auto pos = mFilename.size() - sufixo.size() - 1;
+   if (pos <= 0 or mFilename.find(sufixo, pos) == std::string::npos) {
       std::cerr << "Arquivos de entrada devem terminar com '" << sufixo
                 << "'\n";
       throw std::invalid_argument("Falta extensão '" + sufixo +
@@ -61,11 +62,14 @@ Lex::Lex(const fs::path& in, const fs::path& out)
    if (!mOutputFile.is_open()) {
       falhaAoAbrirArquivo(out);
    }
+
+   G_filename = mFilename;
+   G_file = &mInputFile;
    /*
     * Cabeçalho de ajuda no arquivo de saída
     */
    mOutputFile << "Lista de pares {COD_TOKEN, LEXEMA}\nO COD_TOKEN pode ser "
-                  "checado no enum 'Token::TipoToken' em 'token.hpp'\nPS: "
+                  "checado no enum 'TipoToken' em 'enum/tipo_token.hpp'\nPS: "
                   "Comentários começam com '#' e vão até o final da linha\n\n";
 }
 
@@ -76,22 +80,21 @@ Lex::~Lex() {
 }
 
 Token Lex::getToken(void) {
-   auto tk = proxToken();
+   const auto tk = proxToken();
    mOutputFile << tk << '\n';
    return tk;
 }
 
 void Lex::analiseAteEOF(void) {
-   Token tk;
-   while ((tk = getToken()) != TipoToken::FIMARQ) {
+   for (auto tk = getToken(); tk != TipoToken::FIMARQ; tk = getToken()) {
       std::cout << tk << '\n';
    }
 }
 
 Token Lex::proxToken(void) {
-   int estado = 0;  // representa o q0 (estado inicial do afd)
-   char c;          // representa a cabeça da fita
-   std::string lexema; // string lida
+   int estado = 0;      // representa o q0 (estado inicial do afd)
+   char c;              // representa a cabeça da fita
+   std::string lexema;  // string lida
    while (estado != EOF) {
       switch (estado) {
          case 0:
@@ -149,22 +152,20 @@ Token Lex::proxToken(void) {
                      lexema.pop_back();
                      break;
                   } else {
-                     throw Erro(this, lexema, "Σ");
+                     throw Erro(*this, lexema, "Σ");
                   }
             }
             break;
          case 1:
-            c = getChar(lexema);
-            if (!isalnum(c)) {
+            if (c = getChar(lexema); !isalnum(c)) {
                estado = 2;
             }
             break;
          case 2:
             ungetChar(lexema);
-            return Token(reservadaOuID(lexema), lexema);
+            return criaToken(reservadaOuID(lexema), lexema);
          case 3:
-            c = getChar(lexema);
-            if (c == ',') {
+            if (c = getChar(lexema); c == ',') {
                estado = 4;
             } else if (!isdigit(c)) {
                estado = 5;
@@ -176,54 +177,50 @@ Token Lex::proxToken(void) {
              * semântico
              */
             lexema.back() = '.';
-            c = getChar(lexema);
-            if (isdigit(c)) {
+            if (c = getChar(lexema); isdigit(c)) {
                estado = 6;
             } else {
-               throw Erro(this, lexema, "[0-9]");
+               throw Erro(*this, lexema, "[0-9]");
             }
             break;
          case 5:
             ungetChar(lexema);
-            return Token(TipoToken::VALOR, lexema);
+            return criaToken(TipoToken::VALOR, lexema);
          case 6:
-            c = getChar(lexema);
-            if (!isdigit(c)) {
+            if (c = getChar(lexema); !isdigit(c)) {
                estado = 5;
             }
             break;
          case 7:
-            return Token(TipoToken::ATRIB, lexema);
+            return criaToken(TipoToken::ATRIB, lexema);
          case 8:
-            return Token(TipoToken::SINAL, lexema);
+            return criaToken(TipoToken::SINAL, lexema);
          case 9:
-            return Token(TipoToken::BINOP, lexema);
+            return criaToken(TipoToken::BINOP, lexema);
          case 12:
-            c = getChar(lexema);
-            if (c == '&') {
-               return Token(TipoToken::BINOP, lexema);
+            if (c = getChar(lexema); c == '&') {
+               return criaToken(TipoToken::BINOP, lexema);
             }
-            throw Erro(this, lexema, "&");
+            throw Erro(*this, lexema, "&");
             // error
             break;
          case 14:
-            c = getChar(lexema);
-            if (c == '|') {
-               return Token(TipoToken::BINOP, lexema);
+            if (c = getChar(lexema); c == '|') {
+               return criaToken(TipoToken::BINOP, lexema);
             }
-            throw Erro(this, lexema, "|");
+            throw Erro(*this, lexema, "|");
             break;
          case 16:
-            return Token(TipoToken::NEG, lexema);
+            return criaToken(TipoToken::NEG, lexema);
          case 18:
-            return Token(TipoToken::PNTVIRG, lexema);
+            return criaToken(TipoToken::PNTVIRG, lexema);
          case 19:
-            return Token(TipoToken::ABREPRNT, lexema);
+            return criaToken(TipoToken::ABREPRNT, lexema);
          case 20:
-            return Token(TipoToken::FECHAPRNT, lexema);
+            return criaToken(TipoToken::FECHAPRNT, lexema);
          case 21:
-            c = getChar(lexema);
-            if (isspace(c) && c != ' ') {
+            /* Estado de Comentário na linguagem */
+            if (c = getChar(lexema); isspace(c) and c != ' ') {
 #ifdef DEBUG
                lexema.pop_back();
                std::clog << "[DEBUG - Lex] {Comentário: " << lexema << '}'
@@ -237,13 +234,17 @@ Token Lex::proxToken(void) {
             break;
       }
    }
-   return Token(TipoToken::FIMARQ, "\"EOF\"");
+   return criaToken(TipoToken::FIMARQ, "\"EOF\"");
 }
 
 TipoToken Lex::reservadaOuID(const std::string& lexema) const {
    try {
       return mPalavrasReservadas.at(lexema);
-   } catch (const std::out_of_range& e) {
+   } catch (const std::out_of_range&) {
       return TipoToken::ID;
    }
+}
+
+Token Lex::criaToken(const TipoToken tipo, const std::string& lexema) const {
+   return Token(tipo, lexema, mLinhaCount, mColCount);
 }

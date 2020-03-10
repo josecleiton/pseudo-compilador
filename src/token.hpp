@@ -27,16 +27,27 @@
 
 #include "enum/tipo_token.hpp"
 
-struct Token {
+struct Pos {
+   long long linha;
+   long long col;
+};
+
+class Token {
+  private:
+   Pos mPos;
+
+  public:
    TipoToken tipo;
    std::string lexema;
    /*
     * Substitue a virgula por ponto em tokens do tipo VALOR
     */
    static bool substituiDelSeValor(std::string &lexema);
-   Token(const TipoToken tk = TipoToken::INITIAl, const std::string & = "");
+   Token(const TipoToken tk = TipoToken::INITIAl, const std::string & = "",
+         const int linha = -1, const int col = -1);
+   inline const auto &getPos(void) const { return mPos; }
    inline std::ostream &print(std::ostream &out) const {
-      out << "{" << static_cast<int>(tipo) << ", " << lexema << "}";
+      out << '{' << static_cast<int>(tipo) << ", " << lexema << '}';
       return out;
    }
    /*

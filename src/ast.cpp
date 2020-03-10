@@ -19,6 +19,7 @@
 #include "ast.hpp"
 
 #include "enum/prec.hpp"
+#include "erro.hpp"
 
 #define TIPOS_INCOMPATIVEIS \
    AnaliseSemantica::ErroSemantico("Tipos incompatíveis.")
@@ -172,11 +173,11 @@ Dado AST::NodeExpOp::aplicaBinop(const Dado &num1, const Dado &num2) const {
       case '+':
          return Dado(num1.valor + num2.valor);
       case '&':
-         return Dado(num1.valor && num2.valor);
+         return Dado(num1.valor and num2.valor);
       case '|':
-         return Dado(num1.valor || num2.valor);
+         return Dado(num1.valor or num2.valor);
       default:
-         return {};
+         throw std::invalid_argument("Operador binário inválido.");
    }
 }
 
@@ -189,7 +190,7 @@ Dado AST::NodeExpOp::aplicaUnop(const Dado &num) const {
       case '!':
          return Dado(!num.valor);
       default:
-         return {};
+         throw std::invalid_argument("Operador unário inválido.");
    }
 }
 
@@ -215,6 +216,7 @@ constexpr Prec precedencia(const char op) {
          return Prec::NULO;
    }
 }
+
 void AST::NodeExp::insereOp(NodeExpOp *const no) {
    if (mPilha.empty()) {
       mPilha.push(no);
@@ -305,8 +307,8 @@ void AST::NodeExpID::getDadoVar(void) {
       mSTDado = result.first;
       return;
    }
-   throw std::out_of_range(
-       "Todas as variaveis devem ser declaradas antes do uso.");
+   throw Erro(tk, "semantico",
+              "Todas as variaveis devem ser declaradas antes do uso.");
 }
 AST::NodeExpValor::NodeExpValor(const Token &_tk, Node *_super,
                                 const TipoAST _t)

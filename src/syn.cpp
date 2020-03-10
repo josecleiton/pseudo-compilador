@@ -230,7 +230,7 @@ AST& Syn::parse(void) {
                   mPilha.push(TipoToken::EXP);
                   break;
 
-               case NULA:  // producao -> ε
+               case NULA:  // var -> ε
                   break;
 
                default:
@@ -263,7 +263,7 @@ AST& Syn::parse(void) {
                   break;
                /*
                 * Tokens que representam final do Node
-                * após ele subimos n níveis da árvore
+                * após ele subimos 1 nível da árvore
                 * Caso especial:
                 *    Se o nó atual for EXP e o nó pai for ATRIB
                 *       subirNivel subirá +1 nível
@@ -274,7 +274,7 @@ AST& Syn::parse(void) {
                   mAST.subirNivel(1);
                   break;
                /*
-                * Alguns Tokens terminais não devem entrar na AST
+                * Alguns Tokens terminais não devem entrar na AST explicitamente
                 * Exemplo: ;, FACA, SE, SENAO, etc
                 */
                default:
@@ -293,7 +293,7 @@ AST& Syn::parse(void) {
              << "[DEBUG - parser] Transição não encontrada na parse table."
              << std::endl;
 #endif
-         throw e;
+         throw Erro(tk, "sintatico", "seguir as regras gramaticais");
       }
    }
    return mAST;

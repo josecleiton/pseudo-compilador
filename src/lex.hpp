@@ -30,7 +30,7 @@ namespace fs = std::filesystem;
 namespace fs = std::experimental::filesystem;
 #endif
 
-struct Token;
+class Token;
 enum class TipoToken;
 
 class Lex {
@@ -93,4 +93,8 @@ class Lex {
       mInputFile.unget();
       lexema.pop_back();
    }
+   /*
+    * Função auxiliar para criar token com atributo linha e coluna
+    */
+   Token criaToken(const TipoToken, const std::string& lexema) const;
 };

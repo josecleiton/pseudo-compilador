@@ -22,42 +22,33 @@
 #include <fstream>
 
 class Lex;
+class Token;
+struct Pos;
 
 /**
  * Classe para formatar erros do compilador
  */
 struct Erro : public std::exception {
-  public:
-   enum class TipoErro { Lexico, Sintatico, Semantico };
-
   private:
-   TipoErro mTipo;
+   std::string msg;
 
   public:
    /*
     * Erro lexico
     */
-   Erro(Lex* const lex, std::string& lexema, const char* const esperado);
+   Erro(Lex& lex, std::string& lexema, const char* const esperado);
+   Erro(Token& tk, const std::string& tipoErro, const char* const esperado);
    /* Erro(Syn* const syn; const Token& tk); */
 
-   virtual inline const char* what() const throw() {
-      switch (mTipo) {
-         case TipoErro::Lexico:
-            return "Erro Léxico.";
-         case TipoErro::Sintatico:
-            return "Erro Sintático.";
-         case TipoErro::Semantico:
-            return "Erro Semântico.";
-         default:
-            return "Erro desconhecido.";
-      }
-   }
+   virtual inline const char* what() const throw() { return msg.c_str(); }
 
   private:
+   const std::string& formataErro(const std::string&, const Pos, std::string&,
+                                  const char* const);
    /*
     * deixa o buffer no inicio da linha/arquivo
     */
-   std::size_t primeiroCaracterNaLinha(std::ifstream& file) const;
+   std::size_t primeiroCaracterNaLinha() const;
    /*
     * volta o buffer n vezes ou até o início
     * (função auxiliar a acima)

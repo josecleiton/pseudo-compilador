@@ -49,6 +49,9 @@ int main(int argc, char *argv[]) {
       std::cout << "[COMPILADOR] - O código fonte passou em todas as fases de "
                    "análise!\n";
       return EXIT_SUCCESS;
+   } catch (const Erro &err) {
+      std::cerr << err.what() << '\n';
+      return EXIT_FAILURE;
    } catch (const std::exception &e) {
 #ifdef DEBUG
       std::cerr << "[DEBUG] Exception - " << e.what() << '\n';
