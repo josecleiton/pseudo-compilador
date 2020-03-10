@@ -134,6 +134,7 @@ void AST::NodeDecl::avaliar(void) {
    const auto tipo = Semantic::lexemaTipo((*itList)->getLexema());
    ++itList;
    auto const id = static_cast<NodeExpID *>(itList->get());
+   id->avaliarExp();
    id->setTipo(tipo);
 }
 
@@ -151,7 +152,7 @@ void AST::NodeAtrib::avaliar(void) {
 void AST::NodeExp::avaliar(void) { resultadoExp = raizExp->avaliarExp(); }
 void AST::NodeExpOp::avaliar(void) { avaliarExp(); }
 
-Dado AST::NodeExpOp::avaliarExp(void) const {
+Dado AST::NodeExpOp::avaliarExp(void) {
    if (auto noEsq = getEsquerda(); noEsq) {
       const auto esq = noEsq->avaliarExp();
       if (auto noDir = getDireita(); noDir) {
@@ -273,12 +274,18 @@ AST::NodeExpOp *AST::NodeExp::fimExp(void) {
    return raizExp = mPilha.top();
 }
 AST::NodeExpID::NodeExpID(const Token &_tk, Node *_super, const TipoAST _t)
-    : NodeExpOp(_tk, _super, _t) {
+    : NodeExpOp(_tk, _super, _t) {}
+AnaliseSemantica::Dado AST::NodeExpID::avaliarExp(void) {
+   if(mIteratorInicializado) {
+      return mSTDado->second;
+   }
    if (super->tk == TipoToken::DECL) {
       declaraVar();
    } else {
       getDadoVar();
    }
+   mIteratorInicializado = true;
+   return avaliarExp();
 }
 void AST::NodeExpID::declaraVar(void) {
    auto const bloco = getBlocoAcima(this);
