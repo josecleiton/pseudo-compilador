@@ -121,7 +121,6 @@ struct ErroSintatico : public Erro {
 }  // namespace AnaliseSintatica
 
 namespace AnaliseSemantica {
-class Dado;
 struct ErroSemantico : public AnaliseSintatica::ErroSintatico {
    ErroSemantico(const Token &tk, const std::string_view esperado);
    ErroSemantico(const Token &tk, const TipoDado, const TipoDado);

@@ -19,9 +19,10 @@
 #pragma once
 #include <unordered_map>
 
-#include "enum/tipo_dado.hpp"
 #include "erro.hpp"
 #include "token.hpp"
+
+#include "enum/tipo_dado.hpp"
 
 namespace AnaliseSemantica {
 /*
