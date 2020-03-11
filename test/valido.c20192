@@ -7,6 +7,11 @@ test = -3*4+2+2+(3+7*8)-320;
 id = 1 && 0;
 x = 1;
 test = 33,3*3 + 5;
+SE !id FACA
+   id = 2;
+SENAO
+   id = 3;
+ACABOU
 SE !id && x FACA
    LOGICO c;
    QUEBRADO k;

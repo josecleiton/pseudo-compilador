@@ -3,7 +3,7 @@
  *
  *       Filename:  syn.cpp
  *
- *    Description:
+ *    Description: implementação do sintatico (ll(1) parser)
  *
  *        Version:  1.0
  *        Created:  02/18/2020 05:29:47 PM
@@ -54,7 +54,8 @@ Syn::Syn(Lex& l) : mLex(l) {
            mLL[TipoToken::BLOCO][TipoToken::SE] =
                mLL[TipoToken::BLOCO][TipoToken::ENQUANTO] = 2;
    mLL[TipoToken::BLOCO][TipoToken::ACABOU] =
-       mLL[TipoToken::BLOCO][TipoToken::FACA] = NULA;
+       mLL[TipoToken::BLOCO][TipoToken::FACA] =
+           mLL[TipoToken::BLOCO][TipoToken::SENAO] = NULA;
    mLL[TipoToken::COMANDO][TipoToken::SE] = 3;
    mLL[TipoToken::COMANDO][TipoToken::ENQUANTO] = 4;
    mLL[TipoToken::COMANDO][TipoToken::TIPO] =
@@ -274,6 +275,7 @@ AST& Syn::parse(void) {
                   mAST.subirNivel(1);
                   break;
                case TipoToken::SE:
+               case TipoToken::SENAO:
                case TipoToken::ENQUANTO:
                   mAST.trocaToken(tk);
                   break;

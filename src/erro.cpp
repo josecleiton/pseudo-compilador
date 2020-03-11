@@ -41,6 +41,10 @@ Erro::Erro(const Pos &_pos, std::string _lexema,
 // }
 
 void Erro::formataErro(void) const {
+   /*
+    * Reabre o arquivo de entrada (fornecido pelo usuario)
+    * para pegar a linha onde ocorreu o erro e mostrar adequadamente no terminal
+    */
    std::ifstream file(G_filepath);
    if (!file.is_open()) {
       throw std::runtime_error("Arquivo para formatação do Erro não abriu.");
@@ -52,16 +56,14 @@ void Erro::formataErro(void) const {
    const auto limpos = limpaLexema();
    mPos.col -= limpos + 1;
    Token::substituiDelSeValor(mLexema);
-   //  std::clog << "texto: " << textoLinha << '\n';
-   /* std::clog << "LINHA:" << textoLinha << ". COL:" << col */
-   /*           << ". PCL:" << posPrimeiroC << " " << textoLinha.size() << "\n";
-    */
    ss1 << '\t' << mPos.linha << " |\t" << textoLinha;
-   /* std::clog << ss.str().length() << " " << ss.tellp() << "\n"; */
    std::string sstr = ss1.str();
    const auto seta = getSeta(sstr);
    ss2 << G_filepath.filename() << ':' << mPos.linha << ':' << mPos.col;
-   // formataStringStream(ss2, sstr, seta);
+   /*
+    * Funçao polimorfica, formata a mensagem de jeitos diferentes, dependendo de
+    * onde ocorreu.
+    */
    formataStringStream(ss2, textoLinha, sstr, seta);
    mMsg = ss2.str();
 }

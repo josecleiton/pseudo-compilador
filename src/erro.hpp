@@ -34,7 +34,7 @@ struct Erro : public std::exception {
   protected:
    mutable Pos mPos;
    mutable std::string mMsg, mLexema;
-   mutable std::string mEsperado;
+   std::string mEsperado;
 
   public:
    /*
@@ -46,7 +46,9 @@ struct Erro : public std::exception {
    /* Erro(Syn* const syn; const Token& tk); */
 
    inline const char *what() const throw() override {
-      formataErro();
+      if (mMsg.empty()) {
+         formataErro();
+      }
       return mMsg.c_str();
    }
    virtual ~Erro() = default;
@@ -57,7 +59,7 @@ struct Erro : public std::exception {
    /*
     * getLinha - pega a linha n  coloca na str
     */
-   std::string_view getLinha(std::ifstream& file, std::string &str) const;
+   std::string_view getLinha(std::ifstream &file, std::string &str) const;
    /*
     * Substitui \r ou \n por espaço em branco
     */

@@ -128,7 +128,8 @@ void AST::NodeBloco::avaliar(void) {
    const auto exp = static_cast<NodeExp *>(aux);
    exp->avaliar();
    if (!Semantic::tipoSaoCompativeis(TipoDado::LOGICO, exp->resultadoExp)) {
-      throw AnaliseSemantica::ErroSemantico(tk, TipoDado::LOGICO, exp->resultadoExp);
+      throw AnaliseSemantica::ErroSemantico(tk, TipoDado::LOGICO,
+                                            exp->resultadoExp);
    }
 }
 

@@ -23,13 +23,16 @@ using namespace AnaliseSintatica;
 Sem::Sem(AST &ast) : mAST(ast) {}
 
 std::size_t Sem::analisaArvore(void) {
-   return mAST.DFS([](AST::Node *no) -> bool {
+   return mAST.DFS([this](AST::Node *no) -> bool {
       if (!no) {
          return false;
       }
       bool descer{};
       if (*no == TipoAST::BLOCO) {
-         if (no->tk != TipoToken::PROGRAMA) {
+         /*
+          * condiçao para nao avaliar blocos sem condicao
+          */
+         if (no->tk != TipoToken::PROGRAMA and no->tk != TipoToken::NT_SENAO) {
             no->avaliar();
          }
          descer = true;
