@@ -191,7 +191,7 @@ Dado AST::NodeExpOp::aplicaUnop(const Dado &num) const {
       case '!':
          return Dado(!num.valor);
       default:
-         throw std::invalid_argument("Operador unário inválido.");
+         return Dado(num.valor);
    }
 }
 

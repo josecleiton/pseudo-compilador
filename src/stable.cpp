@@ -21,7 +21,7 @@
 #include <cmath>
 
 namespace AnaliseSemantica {
-TipoDado lexemaTipo(const std::string &lexema) {
+TipoDado lexemaTipo(const std::string_view lexema) {
    if (lexema == "INTEIRO") {
       return TipoDado::INTEIRO;
    } else if (lexema == "QUEBRADO") {

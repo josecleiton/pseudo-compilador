@@ -17,13 +17,13 @@
  */
 
 #include "lex.hpp"
-#include "global.hpp"
 
 #include <cctype>
 #include <iostream>
 #include <stdexcept>
 
 #include "erro.hpp"
+#include "global.hpp"
 #include "token.hpp"
 
 [[noreturn]] void falhaAoAbrirArquivo(const fs::path& path) {
@@ -63,8 +63,7 @@ Lex::Lex(const fs::path& in, const fs::path& out)
       falhaAoAbrirArquivo(out);
    }
 
-   G_filename = mFilename;
-   G_file = &mInputFile;
+   G_filepath = in;
    /*
     * Cabeçalho de ajuda no arquivo de saída
     */
@@ -146,8 +145,7 @@ Token Lex::proxToken(void) {
                      estado = 3;
                   } else if (isspace(c)) {
                      if (c == '\n') {
-                        mColCount = 0;
-                        ++mLinhaCount;
+                        proximaLinha();
                      }
                      lexema.pop_back();
                      break;
@@ -220,7 +218,7 @@ Token Lex::proxToken(void) {
             return criaToken(TipoToken::FECHAPRNT, lexema);
          case 21:
             /* Estado de Comentário na linguagem */
-            if (c = getChar(lexema); isspace(c) and c != ' ') {
+            if (c = getChar(lexema); isspace(c) and c == '\n') {
 #ifdef DEBUG
                lexema.pop_back();
                std::clog << "[DEBUG - Lex] {Comentário: " << lexema << '}'
@@ -228,6 +226,7 @@ Token Lex::proxToken(void) {
 #endif
                lexema.clear();
                estado = 0;
+               proximaLinha();
             } else if (c == EOF) {
                estado = c;
             }

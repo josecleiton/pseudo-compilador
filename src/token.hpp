@@ -30,6 +30,7 @@
 struct Pos {
    long long linha;
    long long col;
+   Pos(const long long = 0, const long long = 0);
 };
 
 class Token {
@@ -62,3 +63,4 @@ class Token {
  * Função para printar o Token
  */
 std::ostream &operator<<(std::ostream &, const Token &);
+std::ostream &operator<<(std::ostream&, const Pos&);

@@ -287,7 +287,9 @@ AST& Syn::parse(void) {
                tk = proximoToken();
             }
          }
-      } catch (const std::exception& e) {
+      } catch (const Erro& err) {
+         throw err;
+      } catch (const std::exception&) {
 #ifdef DEBUG
          std::clog
              << "[DEBUG - parser] Transição não encontrada na parse table."

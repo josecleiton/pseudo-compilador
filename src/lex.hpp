@@ -97,4 +97,8 @@ class Lex {
     * Função auxiliar para criar token com atributo linha e coluna
     */
    Token criaToken(const TipoToken, const std::string& lexema) const;
+   void proximaLinha(void) {
+      mColCount = 0;
+      ++mLinhaCount;
+   }
 };

@@ -27,7 +27,7 @@ namespace AnaliseSemantica {
  * Função auxiliar que converte o lexema para o Tipo
  * Exemplo: "INTEIRO" -> Tipo::INTEIRO
  */
-TipoDado lexemaTipo(const std::string&);
+TipoDado lexemaTipo(const std::string_view);
 constexpr bool tipoSaoCompativeis(const TipoDado t1, const TipoDado t2) {
    switch (t1) {
       case TipoDado::INTEIRO:

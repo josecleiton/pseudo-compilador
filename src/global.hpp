@@ -17,8 +17,15 @@
  */
 
 #pragma once
-#include <string>
 #include <fstream>
+#include <string>
+#if __GNUC__ > 7
+#include <filesystem>
+namespace fs = std::filesystem;
+#else
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+#endif
 
-extern std::string G_filename;
-extern std::ifstream* G_file;
+/* Variável global que guarda o caminho para o arquivo de entrada */
+extern fs::path G_filepath;

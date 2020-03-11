@@ -22,7 +22,9 @@ SOURCES += \
   src/main.cpp \
   src/sem.cpp \
   src/syn.cpp \
-  src/token.cpp
+  src/stable.cpp \
+  src/token.cpp \
+  src/global.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -35,7 +37,11 @@ HEADERS += \
   src/lex.hpp \
   src/sem.hpp \
   src/syn.hpp \
-  src/token.hpp
+  src/stable.hpp \
+  src/token.hpp \
+  src/global.hpp
 
 DISTFILES += \
-  src/Makefile
+  src/Makefile \
+  test/test.c20192 \
+  test/valido.c20192

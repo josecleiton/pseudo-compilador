@@ -18,6 +18,4 @@
 
 #include "global.hpp"
 
-std::string G_filename{};
-std::ifstream* G_file{};
-
+fs::path G_filepath;

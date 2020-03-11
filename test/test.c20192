@@ -1,19 +1,18 @@
-
-INTEIRO id;
+#INTEIRO id;
 id = 1 && 0;
 SE id FACA
    id = 4;
    LOGICO c;
 ACABOU
 QUEBRADO k;
-INTEIRO test;
+#INTEIRO test;
 INTEIRO trinta;
 INTEIRO oito;
 INTEIRO quatro;
 INTEIRO tres;
 id = 3,1415;
 k = 32312314,42331 * 321939129301 / (test * ( 54));
-trinta = 0;#lol
+trinta = 0;#isso é um comentário
 ENQUANTO trinta FACA
    oito = quatro;
    INTEIRO tres;
