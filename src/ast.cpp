@@ -27,8 +27,8 @@ AST::AST(void)
                                        TipoAST::BLOCO)) {
    mPilha.push(root.get());
 }
-void AST::trocaToken(const Token& tk) {
-   auto& tkTopo = mPilha.top()->tk;
+void AST::trocaToken(const Token &tk) {
+   auto &tkTopo = mPilha.top()->tk;
    const auto tipo = tkTopo.tipo;
    tkTopo = tk;
    tkTopo.tipo = tipo;
@@ -143,7 +143,7 @@ void AST::NodeDecl::avaliar(void) {
 
 void AST::NodeAtrib::avaliar(void) {
    auto itList = childs.cbegin();
-   const auto nodeID = static_cast<NodeExpID*>(itList->get());
+   const auto nodeID = static_cast<NodeExpID *>(itList->get());
    const auto var = nodeID->avaliarExp();
    ++itList;
    auto const exp = static_cast<NodeExp *>(itList->get());
@@ -280,7 +280,7 @@ AST::NodeExpOp *AST::NodeExp::fimExp(void) {
 AST::NodeExpID::NodeExpID(const Token &_tk, Node *_super, const TipoAST _t)
     : NodeExpOp(_tk, _super, _t) {}
 AnaliseSemantica::Dado AST::NodeExpID::avaliarExp(void) {
-   if(mIteratorInicializado) {
+   if (mIteratorInicializado) {
       return mSTDado->second;
    }
    if (super->tk == TipoToken::DECL) {
@@ -318,8 +318,8 @@ void AST::NodeExpID::getDadoVar(void) {
       mSTDado = result.first;
       return;
    }
-   throw AnaliseSemantica::ErroSemantico(tk,
-              "Todas as variaveis devem ser declaradas antes do uso.");
+   throw AnaliseSemantica::ErroSemantico(
+       tk, "Todas as variaveis devem ser declaradas antes do uso.");
 }
 AST::NodeExpValor::NodeExpValor(const Token &_tk, Node *_super,
                                 const TipoAST _t)

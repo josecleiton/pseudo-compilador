@@ -63,4 +63,4 @@ class Token {
  * Função para printar o Token
  */
 std::ostream &operator<<(std::ostream &, const Token &);
-std::ostream &operator<<(std::ostream&, const Pos&);
+std::ostream &operator<<(std::ostream &, const Pos &);

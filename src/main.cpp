@@ -16,47 +16,46 @@
  * =====================================================================================
  */
 
+#include <cstring>
 #include <iostream>
 
 #include "sem.hpp"
 #include "syn.hpp"
 
-#include <cstring>
-
 using namespace AnaliseSintatica;
 using namespace AnaliseSemantica;
 
 [[noreturn]] void usage(void) {
-  std::cerr << "Caminho do arquivo é requerido.\n";
-  throw std::invalid_argument("Falta argv.");
+   std::cerr << "Caminho do arquivo é requerido.\n";
+   throw std::invalid_argument("Falta argv.");
 }
 
 int main(int argc, char *argv[]) {
-  try {
-    if (argc < 2) {
-      usage();
-    }
-    Lex lex(argv[1]);
-    Syn syn(lex);
-    Sem sem(syn.parse());
-    std::cout << "[SINTATICO] - O seu programa foi aceito sintatica e "
-                 "lexicamente!\n";
-    auto nodeCounter = sem.analisaArvore();
+   try {
+      if (argc < 2) {
+         usage();
+      }
+      Lex lex(argv[1]);
+      Syn syn(lex);
+      Sem sem(syn.parse());
+      std::cout << "[SINTATICO] - O seu programa foi aceito sintatica e "
+                   "lexicamente!\n";
+      auto nodeCounter = sem.analisaArvore();
 #ifdef DEBUG
-    std::cout << "[SINTATICO] - O total de nós da AST é: "
-              << syn.getAST().size() << "\n[SEMANTICO] - Foram visitados "
-              << nodeCounter << " nós (excluindo nós de expressão num)\n";
+      std::cout << "[SINTATICO] - O total de nós da AST é: "
+                << syn.getAST().size() << "\n[SEMANTICO] - Foram visitados "
+                << nodeCounter << " nós (excluindo nós de expressão num)\n";
 #endif
-    std::cout << "[SEMANTICO] - O seu programa foi aceito!\n";
-    std::cout << "[COMPILADOR] - O código fonte passou em todas as fases de "
-                 "análise!\n";
-    return EXIT_SUCCESS;
-  } catch (const Erro &err) {
-    std::cerr << err.what() << '\n';
-  } catch (const std::exception &e) {
+      std::cout << "[SEMANTICO] - O seu programa foi aceito!\n";
+      std::cout << "[COMPILADOR] - O código fonte passou em todas as fases de "
+                   "análise!\n";
+      return EXIT_SUCCESS;
+   } catch (const Erro &err) {
+      std::cerr << err.what() << '\n';
+   } catch (const std::exception &e) {
 #ifdef DEBUG
-    std::cerr << "[DEBUG] Exception - " << e.what() << '\n';
+      std::cerr << "[DEBUG] Exception - " << e.what() << '\n';
 #endif
-  }
-  return EXIT_FAILURE;
+   }
+   return EXIT_FAILURE;
 }

@@ -128,7 +128,8 @@ void ErroSemantico::formataStringStream(std::ostringstream &ss,
       << seta;
 }
 std::string formataEsperado(const Dado d1, const Dado d2) {
-   return std::string("Tipo '") + tipoLexema(d1) + std::string("' não é compatível a tipo '") +
-          tipoLexema(d2) + std::string("'.");
+   return std::string("Tipo '") + tipoLexema(d1) +
+          std::string("' não é compatível a tipo '") + tipoLexema(d2) +
+          std::string("'.");
 }
 }  // namespace AnaliseSemantica

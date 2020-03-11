@@ -34,8 +34,7 @@
 }
 
 Lex::Lex(const fs::path& in, const fs::path& out)
-    :
-      mInputFile(in),
+    : mInputFile(in),
       mOutputFile(out),
       mPalavrasReservadas{{"SE", TipoToken::SE},
                           {"FACA", TipoToken::FACA},
