@@ -52,7 +52,7 @@ void Dado::preencheTipo(void) {
 Dado &Dado::operator=(const Dado &other) {
    if (this != &other) {
       if (bool valido = tipoSaoCompativeis(tipo, other); !valido) {
-         throw ErroSemantico("tipos incompatíveis.");
+         throw std::domain_error("Tipos incompatíveis");
       }
       tipo = other.tipo;
       valor = other.valor;

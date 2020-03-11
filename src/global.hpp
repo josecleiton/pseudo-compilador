@@ -17,8 +17,7 @@
  */
 
 #pragma once
-#include <fstream>
-#include <string>
+
 #if __GNUC__ > 7
 #include <filesystem>
 namespace fs = std::filesystem;

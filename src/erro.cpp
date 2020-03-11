@@ -27,52 +27,48 @@
 
 std::ifstream Erro::sFile;
 
-Erro::Erro(Lex &lex, std::string &lexema, const std::string_view esperado) {
+Erro::Erro(const Pos &_pos, std::string _lexema,
+           const std::string_view _esperado)
+    : mPos(_pos), mLexema(_lexema), mEsperado(_esperado) {
    abreArq();
-   const long long linha = lex.getLinha(), col = lex.getCol();
-   formataErro("lexico", {linha, col}, lexema, esperado);
 }
 
-Erro::Erro(Token &tk, const std::string_view tipoErro,
-           const std::string_view esperado) {
-   abreArq();
-   const Pos pos = tk.getPos();
-#ifdef DEBUG
-   std::clog << "[DEBUG - erro] token pos: " << pos << '\n';
-#endif
-   formataErro(tipoErro, pos, tk.lexema, esperado);
-}
+// Erro::Erro(Token &tk, const std::string_view tipoErro,
+//            const std::string_view esperado) {
+//    abreArq();
+//    const Pos pos = tk.getPos();
+// #ifdef DEBUG
+//    std::clog << "[DEBUG - erro] token pos: " << pos << '\n';
+// #endif
+//    formataErro(tipoErro, pos, tk.lexema, esperado);
+// }
 
-void Erro::formataErro(const std::string_view tipoErro, const Pos &pos,
-                       std::string &lexema, const std::string_view esperado) {
+void Erro::formataErro(void) const {
    abreArq();
-   const auto linha = pos.linha;
-   auto col = pos.col;
+   const auto linha = mPos.linha;
    std::string textoLinha;
-   getLinha(textoLinha, pos.linha);
+   getLinha(textoLinha);
    std::ostringstream ss1, ss2;
    // primeiroCaracterNaLinha();
-   const auto limpos = limpaLexema(lexema);
-   col -= limpos + 1;
-   Token::substituiDelSeValor(lexema);
-  //  std::clog << "texto: " << textoLinha << '\n';
+   const auto limpos = limpaLexema();
+   mPos.col -= limpos + 1;
+   Token::substituiDelSeValor(mLexema);
+   //  std::clog << "texto: " << textoLinha << '\n';
    /* std::clog << "LINHA:" << textoLinha << ". COL:" << col */
    /*           << ". PCL:" << posPrimeiroC << " " << textoLinha.size() << "\n";
     */
    ss1 << '\t' << linha << " |\t" << textoLinha;
    /* std::clog << ss.str().length() << " " << ss.tellp() << "\n"; */
    std::string sstr = ss1.str();
-   const auto seta = getSeta(sstr, col);
-   ss2 << G_filepath.filename() << ':' << linha << ':' << col << ": erro " << tipoErro
-       << ": esperado '" << esperado << "' recebeu '" << textoLinha[col]
-       << "'\n"
-       << sstr << '\n'
-       << seta << '\n';
-   msg = ss2.str();
+   const auto seta = getSeta(sstr);
+   ss2 << G_filepath.filename() << ':' << linha << ':' << mPos.col;
+   // formataStringStream(ss2, sstr, seta);
+   formataStringStream(ss2, textoLinha, sstr, seta);
+   mMsg = ss2.str();
 }
 
-std::string_view Erro::getLinha(std::string &str, unsigned long long linha) {
-   while (linha--) {
+std::string_view Erro::getLinha(std::string &str) const {
+   for (auto linha = mPos.linha; linha; linha--) {
       std::getline(sFile, str);
    }
    return str;
@@ -88,6 +84,44 @@ void Erro::abreArq(void) {
    }
 }
 
+ErroLexico::ErroLexico(Lex &lex, std::string &lexema,
+                       const std::string_view esperado)
+    : Erro(Pos(lex.getLinha(), lex.getCol()), lexema, esperado) {}
+
+void ErroLexico::formataStringStream(std::ostringstream &ss,
+                                     const std::string_view linhaErro,
+                                     const std::string_view linhaFormatada,
+                                     const std::string_view seta) const {
+   ss << ". lexico: esperado '" << mEsperado << "' recebeu '"
+      << linhaErro[mPos.col] << "'\n"
+      << linhaFormatada << '\n'
+      << seta;
+}
+
+namespace AnaliseSintatica {
+ErroSintatico::ErroSintatico(const Token &tk, const std::string_view esperado)
+    : Erro(tk.getPos(), tk.lexema, esperado) {}
+void ErroSintatico::formataStringStream(std::ostringstream &ss,
+                                        const std::string_view,
+                                        const std::string_view linhaFormatada,
+                                        const std::string_view seta) const {
+   ss << ". sintatico: " << mEsperado
+      << "\nRevise as regras gramaticais da linguagem.\n"
+      << linhaFormatada << '\n'
+      << seta;
+}
+}  // namespace AnaliseSintatica
+
 namespace AnaliseSemantica {
-ErroSemantico::ErroSemantico(const std::string &_m) : msg(_m) {}
+ErroSemantico::ErroSemantico(const Token &tk, const std::string_view esperado)
+    : ErroSintatico(tk, esperado) {}
+void ErroSemantico::formataStringStream(std::ostringstream &ss,
+                                        const std::string_view,
+                                        const std::string_view linhaFormatada,
+                                        const std::string_view seta) const {
+   ss << ". semantico: " << mEsperado
+      << "\nRevise as regras semanticas da linguagem.\n"
+      << linhaFormatada << '\n'
+      << seta;
+}
 }  // namespace AnaliseSemantica

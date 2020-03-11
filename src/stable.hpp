@@ -19,6 +19,7 @@
 #pragma once
 #include <unordered_map>
 
+#include "token.hpp"
 #include "enum/tipo_dado.hpp"
 #include "erro.hpp"
 
@@ -94,21 +95,21 @@ class SymbolTable {
     * retorna um pair { iterator, bool }
     * verdadeiro se encontrado, senão falso
     */
-   inline auto getDado(const std::string& lexema) {
-      auto it = mTable.find(lexema);
+   inline auto getDado(const Token& tk) {
+      auto it = mTable.find(tk.lexema);
       return std::make_pair(it, it != mTable.end());
    }
    /*
     * Insere nova variável na hash table
     * Se o lexema já estiver na hash table -> throw exception
     */
-   inline auto inserirVariavel(const std::string& lexema, const TipoDado t = {},
+   inline auto inserirVariavel(const Token& tk, const TipoDado t = {},
                                const double v = {}) {
-      if (getDado(lexema).second) {
-         throw ErroSemantico("Sobescrever uma entrada na tabela de simbolos não é permitido");
+      if (getDado(tk).second) {
+         throw ErroSemantico(tk, "Sobescrever uma entrada na tabela de simbolos não é permitido");
       }
       /* emplace retorna um par: { map iterator, bool } */
-      return mTable.emplace(lexema, Dado(t, v)).first;
+      return mTable.emplace(tk.lexema, Dado(t, v)).first;
    }
 };
 

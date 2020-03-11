@@ -295,7 +295,7 @@ AST& Syn::parse(void) {
              << "[DEBUG - parser] Transição não encontrada na parse table."
              << std::endl;
 #endif
-         throw Erro(tk, "sintatico", "seguir as regras gramaticais");
+         throw ErroSintatico(tk, "seguir as regras gramaticais");
       }
    }
    return mAST;

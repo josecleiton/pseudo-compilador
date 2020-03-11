@@ -35,7 +35,6 @@ enum class TipoToken;
 
 class Lex {
   private:
-   std::string mFilename;
    std::ifstream mInputFile;
    std::ofstream mOutputFile;
    /*
@@ -60,7 +59,6 @@ class Lex {
    Token getToken(void);
    inline const auto& getLinha(void) const { return mLinhaCount; }
    inline const auto& getCol(void) const { return mColCount; }
-   inline const auto& getFilename(void) const { return mFilename; }
    inline auto& getFile(void) { return mInputFile; }
    /*
     * Função para testes, lê todos os tokens e printa na tela

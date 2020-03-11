@@ -21,9 +21,6 @@
 #include "enum/prec.hpp"
 #include "erro.hpp"
 
-#define TIPOS_INCOMPATIVEIS \
-   AnaliseSemantica::ErroSemantico("Tipos incompatíveis.")
-
 namespace AnaliseSintatica {
 AST::AST(void)
     : root(std::make_unique<NodeBloco>(TipoToken::PROGRAMA, nullptr,
@@ -125,7 +122,7 @@ void AST::NodeBloco::avaliar(void) {
    const auto exp = static_cast<NodeExp *>(aux);
    exp->avaliar();
    if (!Semantic::tipoSaoCompativeis(exp->resultadoExp, TipoDado::LOGICO)) {
-      throw TIPOS_INCOMPATIVEIS;
+      throw AnaliseSemantica::ErroSemantico(exp->tk, "Tipo lógico.");
    }
 }
 
@@ -145,7 +142,7 @@ void AST::NodeAtrib::avaliar(void) {
    auto const exp = static_cast<NodeExp *>(itList->get());
    exp->avaliar();
    if (!Semantic::tipoSaoCompativeis(var, exp->resultadoExp)) {
-      throw TIPOS_INCOMPATIVEIS;
+      throw AnaliseSemantica::ErroSemantico(exp->tk, "Tipo var.");
    }
 }
 
@@ -289,7 +286,7 @@ AnaliseSemantica::Dado AST::NodeExpID::avaliarExp(void) {
 }
 void AST::NodeExpID::declaraVar(void) {
    auto const bloco = getBlocoAcima(this);
-   mSTDado = bloco->st.inserirVariavel(getLexema());
+   mSTDado = bloco->st.inserirVariavel(tk);
 }
 AST::NodeBloco *AST::NodeExpID::getBlocoAcima(
     const AST::Node *const atual) const {
@@ -305,16 +302,16 @@ void AST::NodeExpID::getDadoVar(void) {
    std::pair<std::unordered_map<std::string, Dado>::iterator, bool> result;
    while ((atual = getBlocoAcima(no))) {
       no = anterior = atual;
-      if ((result = anterior->st.getDado(getLexema())).second) {
+      if ((result = anterior->st.getDado(tk)).second) {
          mSTDado = result.first;
          return;
       }
    }
-   if (anterior and (result = anterior->st.getDado(getLexema())).second) {
+   if (anterior and (result = anterior->st.getDado(tk)).second) {
       mSTDado = result.first;
       return;
    }
-   throw Erro(tk, "semantico",
+   throw AnaliseSemantica::ErroSemantico(tk,
               "Todas as variaveis devem ser declaradas antes do uso.");
 }
 AST::NodeExpValor::NodeExpValor(const Token &_tk, Node *_super,

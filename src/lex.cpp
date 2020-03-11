@@ -34,7 +34,7 @@
 }
 
 Lex::Lex(const fs::path& in, const fs::path& out)
-    : mFilename(in.filename()),
+    :
       mInputFile(in),
       mOutputFile(out),
       mPalavrasReservadas{{"SE", TipoToken::SE},
@@ -48,9 +48,10 @@ Lex::Lex(const fs::path& in, const fs::path& out)
    /*
     * Verifica se o arquivo de entrada tem o sufixo .c20192
     */
+   const std::string filename = in.filename();
    const std::string sufixo = ".c20192";
-   const auto pos = mFilename.size() - sufixo.size() - 1;
-   if (pos <= 0 or mFilename.find(sufixo, pos) == std::string::npos) {
+   const auto pos = filename.size() - sufixo.size() - 1;
+   if (pos <= 0 or filename.find(sufixo, pos) == std::string::npos) {
       std::cerr << "Arquivos de entrada devem terminar com '" << sufixo
                 << "'\n";
       throw std::invalid_argument("Falta extensão '" + sufixo +
@@ -150,7 +151,7 @@ Token Lex::proxToken(void) {
                      lexema.pop_back();
                      break;
                   } else {
-                     throw Erro(*this, lexema, "Σ");
+                     throw ErroLexico(*this, lexema, "Σ");
                   }
             }
             break;
@@ -178,7 +179,7 @@ Token Lex::proxToken(void) {
             if (c = getChar(lexema); isdigit(c)) {
                estado = 6;
             } else {
-               throw Erro(*this, lexema, "[0-9]");
+               throw ErroLexico(*this, lexema, "[0-9]");
             }
             break;
          case 5:
@@ -199,14 +200,14 @@ Token Lex::proxToken(void) {
             if (c = getChar(lexema); c == '&') {
                return criaToken(TipoToken::BINOP, lexema);
             }
-            throw Erro(*this, lexema, "&");
+            throw ErroLexico(*this, lexema, "&");
             // error
             break;
          case 14:
             if (c = getChar(lexema); c == '|') {
                return criaToken(TipoToken::BINOP, lexema);
             }
-            throw Erro(*this, lexema, "|");
+            throw ErroLexico(*this, lexema, "|");
             break;
          case 16:
             return criaToken(TipoToken::NEG, lexema);
