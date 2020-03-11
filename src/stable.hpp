@@ -19,9 +19,10 @@
 #pragma once
 #include <unordered_map>
 
-#include "enum/tipo_dado.hpp"
 #include "erro.hpp"
 #include "token.hpp"
+
+#include "enum/tipo_dado.hpp"
 
 namespace AnaliseSemantica {
 /*
@@ -57,6 +58,7 @@ class Dado {
    Dado(const TipoDado, const double = 0.0f);
    Dado(const Dado&);
    Dado(const double);
+   Dado(const Dado&, const Dado&);
    /*
     * Função auxiliar que seta valor e o tipo
     */

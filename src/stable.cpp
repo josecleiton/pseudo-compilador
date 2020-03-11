@@ -51,6 +51,19 @@ Dado::Dado(const Dado &d) : tipo(d.tipo), valor(d.valor) {
    }
 }
 Dado::Dado(const double v) : valor(v) { preencheTipo(); }
+Dado::Dado(const Dado& d1, const Dado& d2) {
+   if(d1 == TipoDado::QUEBRADO) {
+      tipo = d1;
+   } else if(d1 ==TipoDado::INTEIRO) {
+      if(d2 == TipoDado::QUEBRADO) {
+         tipo = d2;
+      } else {
+         tipo = d1;
+      }
+   } else {
+      tipo = d2;
+   }
+}
 
 void Dado::preencheTipo(void) {
    if (valor == 1 or valor == 0.0f) {

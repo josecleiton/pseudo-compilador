@@ -127,8 +127,8 @@ void AST::NodeBloco::avaliar(void) {
    auto const aux = childs.front().get();
    const auto exp = static_cast<NodeExp *>(aux);
    exp->avaliar();
-   if (!Semantic::tipoSaoCompativeis(exp->resultadoExp, TipoDado::LOGICO)) {
-      throw AnaliseSemantica::ErroSemantico(exp->tk, "Tipo lógico.");
+   if (!Semantic::tipoSaoCompativeis(TipoDado::LOGICO, exp->resultadoExp)) {
+      throw AnaliseSemantica::ErroSemantico(tk, TipoDado::LOGICO, exp->resultadoExp);
    }
 }
 
@@ -168,35 +168,36 @@ Dado AST::NodeExpOp::avaliarExp(void) {
 }
 
 Dado AST::NodeExpOp::aplicaBinop(const Dado &num1, const Dado &num2) const {
+   Dado result(num1, num2);
    switch (getOp()) {
       case '*':
-         return Dado(num1.valor * num2.valor);
       case '/':
-         return Dado(num1.valor / num2.valor);
       case '-':
-         return Dado(num1.valor - num2.valor);
       case '+':
-         return Dado(num1.valor + num2.valor);
+         break;
       case '&':
-         return Dado(num1.valor and num2.valor);
       case '|':
-         return Dado(num1.valor or num2.valor);
+         result.tipo = TipoDado::LOGICO;
+         break;
       default:
          throw std::invalid_argument("Operador binário inválido.");
    }
+   return result;
 }
 
 Dado AST::NodeExpOp::aplicaUnop(const Dado &num) const {
+   Dado result = num;
    switch (getOp()) {
       case '-':
-         return Dado(-num.valor);
       case '+':
-         return Dado(num.valor);
+         break;
       case '!':
-         return Dado(!num.valor);
+         result.tipo = TipoDado::LOGICO;
+         break;
       default:
-         return Dado(num.valor);
+         break;
    }
+   return result;
 }
 
 typedef AST::NodeExpOp::Direcao Direcao;

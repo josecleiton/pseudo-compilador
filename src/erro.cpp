@@ -26,12 +26,9 @@
 #include "stable.hpp"
 #include "token.hpp"
 
-std::ifstream Erro::sFile;
-
 Erro::Erro(const Pos &_pos, std::string _lexema,
            const std::string_view _esperado)
     : mPos(_pos), mLexema(_lexema), mEsperado(_esperado) {
-   abreArq();
 }
 
 // Erro::Erro(Token &tk, const std::string_view tipoErro,
@@ -45,9 +42,12 @@ Erro::Erro(const Pos &_pos, std::string _lexema,
 // }
 
 void Erro::formataErro(void) const {
-   abreArq();
+   std::ifstream file(G_filepath);
+   if(!file.is_open()) {
+      throw std::runtime_error("Arquivo para formatação do Erro não abriu.");
+   }
    std::string textoLinha;
-   getLinha(textoLinha);
+   getLinha(file, textoLinha);
    std::ostringstream ss1, ss2;
    // primeiroCaracterNaLinha();
    const auto limpos = limpaLexema();
@@ -67,22 +67,13 @@ void Erro::formataErro(void) const {
    mMsg = ss2.str();
 }
 
-std::string_view Erro::getLinha(std::string &str) const {
+std::string_view Erro::getLinha(std::ifstream& file, std::string &str) const {
    for (auto linha = mPos.linha; linha; linha--) {
-      std::getline(sFile, str);
+      std::getline(file, str);
    }
    return str;
 }
 
-void Erro::abreArq(void) {
-   if (!sFile.is_open()) {
-      sFile.open(G_filepath);
-      if (!sFile.is_open()) {
-         throw std::runtime_error(
-             "Arquivo não foi aberto para a formatação do Erro.");
-      }
-   }
-}
 
 ErroLexico::ErroLexico(Lex &lex, std::string &lexema,
                        const std::string_view esperado)
@@ -116,8 +107,8 @@ namespace AnaliseSemantica {
 
 ErroSemantico::ErroSemantico(const Token &tk, const std::string_view esperado)
     : ErroSintatico(tk, esperado) {}
-ErroSemantico::ErroSemantico(const Token &tk, const Dado d1, const Dado d2)
-    : ErroSintatico(tk, formataEsperado(d1, d2)) {}
+ErroSemantico::ErroSemantico(const Token &tk, const TipoDado t1, const TipoDado t2)
+    : ErroSintatico(tk, formataEsperado(t1, t2)) {}
 void ErroSemantico::formataStringStream(std::ostringstream &ss,
                                         const std::string_view,
                                         const std::string_view linhaFormatada,
@@ -127,9 +118,8 @@ void ErroSemantico::formataStringStream(std::ostringstream &ss,
       << linhaFormatada << '\n'
       << seta;
 }
-std::string formataEsperado(const Dado d1, const Dado d2) {
-   return std::string("Tipo '") + tipoLexema(d1) +
-          std::string("' não é compatível a tipo '") + tipoLexema(d2) +
-          std::string("'.");
+std::string formataEsperado(const TipoDado t1, const TipoDado t2) {
+   return std::string("Tipo '") + tipoLexema(t1) + std::string("' não é compatível a tipo '") +
+          tipoLexema(t2) + std::string("'.");
 }
 }  // namespace AnaliseSemantica
