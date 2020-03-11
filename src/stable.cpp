@@ -31,6 +31,19 @@ TipoDado lexemaTipo(const std::string_view lexema) {
    }
 }
 
+std::string tipoLexema(const TipoDado t) {
+   switch (t) {
+      case TipoDado::INTEIRO:
+         return "INTEIRO";
+      case TipoDado::LOGICO:
+         return "LOGICO";
+      case TipoDado::QUEBRADO:
+         return "QUEBRADO";
+      default:
+         return "NULO";
+   }
+}
+
 Dado::Dado(const TipoDado t, const double v) : tipo(t), valor(v) {}
 Dado::Dado(const Dado &d) : tipo(d.tipo), valor(d.valor) {
    if (tipo == TipoDado::NULO) {

@@ -35,7 +35,7 @@ struct Erro : public std::exception {
 
    mutable Pos mPos;
    mutable std::string mMsg, mLexema;
-   mutable std::string_view mEsperado;
+   mutable std::string mEsperado;
 
   public:
    /*
@@ -126,15 +126,18 @@ struct ErroSintatico : public Erro {
 }  // namespace AnaliseSintatica
 
 namespace AnaliseSemantica {
+class Dado;
 struct ErroSemantico : public AnaliseSintatica::ErroSintatico {
    ErroSemantico(const Token &tk, const std::string_view esperado);
+   ErroSemantico(const Token &tk, const Dado, const Dado);
    ~ErroSemantico() = default;
 
   protected:
-   virtual void formataStringStream(std::ostringstream &,
-                                    const std::string_view linhaErro,
-                                    const std::string_view linhaFormatada,
-                                    const std::string_view seta) const override;
+   void formataStringStream(std::ostringstream &,
+                            const std::string_view linhaErro,
+                            const std::string_view linhaFormatada,
+                            const std::string_view seta) const override;
 };
 
+std::string formataEsperado(const Dado d1, const Dado d2);
 }  // namespace AnaliseSemantica

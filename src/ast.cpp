@@ -27,6 +27,12 @@ AST::AST(void)
                                        TipoAST::BLOCO)) {
    mPilha.push(root.get());
 }
+void AST::trocaToken(const Token& tk) {
+   auto& tkTopo = mPilha.top()->tk;
+   const auto tipo = tkTopo.tipo;
+   tkTopo = tk;
+   tkTopo.tipo = tipo;
+}
 AST::Node *AST::inserirNode(const Token &tk, const TipoAST tipo) {
    if (auto no = inserirFolha(tk, tipo); no) {
       mPilha.push(no);
@@ -137,12 +143,13 @@ void AST::NodeDecl::avaliar(void) {
 
 void AST::NodeAtrib::avaliar(void) {
    auto itList = childs.cbegin();
-   const auto var = static_cast<NodeExpID *>(itList->get())->avaliarExp();
+   const auto nodeID = static_cast<NodeExpID*>(itList->get());
+   const auto var = nodeID->avaliarExp();
    ++itList;
    auto const exp = static_cast<NodeExp *>(itList->get());
    exp->avaliar();
    if (!Semantic::tipoSaoCompativeis(var, exp->resultadoExp)) {
-      throw AnaliseSemantica::ErroSemantico(exp->tk, "Tipo var.");
+      throw AnaliseSemantica::ErroSemantico(nodeID->tk, var, exp->resultadoExp);
    }
 }
 

@@ -19,9 +19,9 @@
 #pragma once
 #include <unordered_map>
 
-#include "token.hpp"
 #include "enum/tipo_dado.hpp"
 #include "erro.hpp"
+#include "token.hpp"
 
 namespace AnaliseSemantica {
 /*
@@ -29,6 +29,7 @@ namespace AnaliseSemantica {
  * Exemplo: "INTEIRO" -> Tipo::INTEIRO
  */
 TipoDado lexemaTipo(const std::string_view);
+std::string tipoLexema(const TipoDado);
 constexpr bool tipoSaoCompativeis(const TipoDado t1, const TipoDado t2) {
    switch (t1) {
       case TipoDado::INTEIRO:
@@ -106,7 +107,9 @@ class SymbolTable {
    inline auto inserirVariavel(const Token& tk, const TipoDado t = {},
                                const double v = {}) {
       if (getDado(tk).second) {
-         throw ErroSemantico(tk, "Sobescrever uma entrada na tabela de simbolos não é permitido");
+         throw ErroSemantico(
+             tk,
+             "Sobescrever uma entrada na tabela de simbolos não é permitido");
       }
       /* emplace retorna um par: { map iterator, bool } */
       return mTable.emplace(tk.lexema, Dado(t, v)).first;

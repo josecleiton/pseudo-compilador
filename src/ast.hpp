@@ -372,6 +372,7 @@ class AST {
    }
    inline Node* atual(void) { return mPilha.top(); }
    inline auto& size(void) const { return mNodeCount; }
+   void trocaToken(const Token& tk);
 
   private:
    /*

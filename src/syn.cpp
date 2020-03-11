@@ -273,6 +273,10 @@ AST& Syn::parse(void) {
                case TipoToken::FACA:
                   mAST.subirNivel(1);
                   break;
+               case TipoToken::SE:
+               case TipoToken::ENQUANTO:
+                  mAST.trocaToken(tk);
+                  break;
                /*
                 * Alguns Tokens terminais não devem entrar na AST explicitamente
                 * Exemplo: ;, FACA, SE, SENAO, etc

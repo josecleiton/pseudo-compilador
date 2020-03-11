@@ -23,6 +23,7 @@
 
 #include "global.hpp"
 #include "lex.hpp"
+#include "stable.hpp"
 #include "token.hpp"
 
 std::ifstream Erro::sFile;
@@ -45,7 +46,6 @@ Erro::Erro(const Pos &_pos, std::string _lexema,
 
 void Erro::formataErro(void) const {
    abreArq();
-   const auto linha = mPos.linha;
    std::string textoLinha;
    getLinha(textoLinha);
    std::ostringstream ss1, ss2;
@@ -57,11 +57,11 @@ void Erro::formataErro(void) const {
    /* std::clog << "LINHA:" << textoLinha << ". COL:" << col */
    /*           << ". PCL:" << posPrimeiroC << " " << textoLinha.size() << "\n";
     */
-   ss1 << '\t' << linha << " |\t" << textoLinha;
+   ss1 << '\t' << mPos.linha << " |\t" << textoLinha;
    /* std::clog << ss.str().length() << " " << ss.tellp() << "\n"; */
    std::string sstr = ss1.str();
    const auto seta = getSeta(sstr);
-   ss2 << G_filepath.filename() << ':' << linha << ':' << mPos.col;
+   ss2 << G_filepath.filename() << ':' << mPos.linha << ':' << mPos.col;
    // formataStringStream(ss2, sstr, seta);
    formataStringStream(ss2, textoLinha, sstr, seta);
    mMsg = ss2.str();
@@ -113,8 +113,11 @@ void ErroSintatico::formataStringStream(std::ostringstream &ss,
 }  // namespace AnaliseSintatica
 
 namespace AnaliseSemantica {
+
 ErroSemantico::ErroSemantico(const Token &tk, const std::string_view esperado)
     : ErroSintatico(tk, esperado) {}
+ErroSemantico::ErroSemantico(const Token &tk, const Dado d1, const Dado d2)
+    : ErroSintatico(tk, formataEsperado(d1, d2)) {}
 void ErroSemantico::formataStringStream(std::ostringstream &ss,
                                         const std::string_view,
                                         const std::string_view linhaFormatada,
@@ -123,5 +126,9 @@ void ErroSemantico::formataStringStream(std::ostringstream &ss,
       << "\nRevise as regras semanticas da linguagem.\n"
       << linhaFormatada << '\n'
       << seta;
+}
+std::string formataEsperado(const Dado d1, const Dado d2) {
+   return std::string("Tipo '") + tipoLexema(d1) + std::string("' não é compatível a tipo '") +
+          tipoLexema(d2) + std::string("'.");
 }
 }  // namespace AnaliseSemantica
