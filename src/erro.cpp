@@ -28,8 +28,7 @@
 
 Erro::Erro(const Pos &_pos, std::string _lexema,
            const std::string_view _esperado)
-    : mPos(_pos), mLexema(_lexema), mEsperado(_esperado) {
-}
+    : mPos(_pos), mLexema(_lexema), mEsperado(_esperado) {}
 
 // Erro::Erro(Token &tk, const std::string_view tipoErro,
 //            const std::string_view esperado) {
@@ -43,7 +42,7 @@ Erro::Erro(const Pos &_pos, std::string _lexema,
 
 void Erro::formataErro(void) const {
    std::ifstream file(G_filepath);
-   if(!file.is_open()) {
+   if (!file.is_open()) {
       throw std::runtime_error("Arquivo para formatação do Erro não abriu.");
    }
    std::string textoLinha;
@@ -67,13 +66,12 @@ void Erro::formataErro(void) const {
    mMsg = ss2.str();
 }
 
-std::string_view Erro::getLinha(std::ifstream& file, std::string &str) const {
+std::string_view Erro::getLinha(std::ifstream &file, std::string &str) const {
    for (auto linha = mPos.linha; linha; linha--) {
       std::getline(file, str);
    }
    return str;
 }
-
 
 ErroLexico::ErroLexico(Lex &lex, std::string &lexema,
                        const std::string_view esperado)
@@ -107,7 +105,8 @@ namespace AnaliseSemantica {
 
 ErroSemantico::ErroSemantico(const Token &tk, const std::string_view esperado)
     : ErroSintatico(tk, esperado) {}
-ErroSemantico::ErroSemantico(const Token &tk, const TipoDado t1, const TipoDado t2)
+ErroSemantico::ErroSemantico(const Token &tk, const TipoDado t1,
+                             const TipoDado t2)
     : ErroSintatico(tk, formataEsperado(t1, t2)) {}
 void ErroSemantico::formataStringStream(std::ostringstream &ss,
                                         const std::string_view,
@@ -119,7 +118,8 @@ void ErroSemantico::formataStringStream(std::ostringstream &ss,
       << seta;
 }
 std::string formataEsperado(const TipoDado t1, const TipoDado t2) {
-   return std::string("Tipo '") + tipoLexema(t1) + std::string("' não é compatível a tipo '") +
-          tipoLexema(t2) + std::string("'.");
+   return std::string("Tipo '") + tipoLexema(t1) +
+          std::string("' não é compatível a tipo '") + tipoLexema(t2) +
+          std::string("'.");
 }
 }  // namespace AnaliseSemantica
