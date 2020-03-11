@@ -23,6 +23,7 @@
 #include <sstream>
 
 #include "token.hpp"
+enum class TipoDado;
 
 class Lex;
 
@@ -31,8 +32,6 @@ class Lex;
  */
 struct Erro : public std::exception {
   protected:
-   static std::ifstream sFile;
-
    mutable Pos mPos;
    mutable std::string mMsg, mLexema;
    mutable std::string mEsperado;
@@ -58,7 +57,7 @@ struct Erro : public std::exception {
    /*
     * getLinha - pega a linha n  coloca na str
     */
-   std::string_view getLinha(std::string &str) const;
+   std::string_view getLinha(std::ifstream& file, std::string &str) const;
    /*
     * Substitui \r ou \n por espaço em branco
     */
@@ -89,10 +88,6 @@ struct Erro : public std::exception {
       res[t + mPos.col + 1] = '^';
       return res;
    }
-   /*
-    * abreArq - garante que o arquivo de entrada foi aberto
-    */
-   static void abreArq(void);
 
   protected:
    virtual void formataStringStream(std::ostringstream &,
@@ -129,7 +124,7 @@ namespace AnaliseSemantica {
 class Dado;
 struct ErroSemantico : public AnaliseSintatica::ErroSintatico {
    ErroSemantico(const Token &tk, const std::string_view esperado);
-   ErroSemantico(const Token &tk, const Dado, const Dado);
+   ErroSemantico(const Token &tk, const TipoDado, const TipoDado);
    ~ErroSemantico() = default;
 
   protected:
@@ -139,5 +134,5 @@ struct ErroSemantico : public AnaliseSintatica::ErroSintatico {
                             const std::string_view seta) const override;
 };
 
-std::string formataEsperado(const Dado d1, const Dado d2);
+std::string formataEsperado(const TipoDado, const TipoDado);
 }  // namespace AnaliseSemantica

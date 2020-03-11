@@ -57,6 +57,7 @@ class Dado {
    Dado(const TipoDado, const double = 0.0f);
    Dado(const Dado&);
    Dado(const double);
+   Dado(const Dado&, const Dado&);
    /*
     * Função auxiliar que seta valor e o tipo
     */
