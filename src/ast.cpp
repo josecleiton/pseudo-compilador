@@ -3,7 +3,7 @@
  *
  *       Filename:  ast.cpp
  *
- *    Description:
+ *    Description: implementação da AST
  *
  *        Version:  1.0
  *        Created:  02/21/2020 11:26:51 PM

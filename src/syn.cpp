@@ -33,17 +33,14 @@ enum { NULA = 99 };
 Syn::Syn(Lex& l) : mLex(l) {
    /*
     * Inicializa a pilha com
-    * S = START
-    * $ = EOF
+    * PROGRAMA
+    * FIMARQ ($)
     */
    mPilha.push(TipoToken::FIMARQ);
-   mPilha.push(TipoToken::S);
+   mPilha.push(TipoToken::PROGRAMA);
    /*
-    * Inicializa a parser table com as devidas produções
+    * Inicializa a parser table com as devidas regras
     */
-   mLL[TipoToken::S][TipoToken::TIPO] = mLL[TipoToken::S][TipoToken::ID] =
-       mLL[TipoToken::S][TipoToken::SE] =
-           mLL[TipoToken::S][TipoToken::ENQUANTO] = 1;
    mLL[TipoToken::PROGRAMA][TipoToken::TIPO] =
        mLL[TipoToken::PROGRAMA][TipoToken::ID] =
            mLL[TipoToken::PROGRAMA][TipoToken::SE] =
@@ -111,9 +108,6 @@ AST& Syn::parse(void) {
             const auto producao = mLL.at(topo).at(tk);
             mPilha.pop();
             switch (producao) {
-               case 0:  // S -> programa
-                  mPilha.push(TipoToken::PROGRAMA);
-                  break;
                case 1:  // programa -> comando
                   mPilha.push(TipoToken::PROGRAMA);
                   mPilha.push(TipoToken::COMANDO);
@@ -296,11 +290,6 @@ AST& Syn::parse(void) {
       } catch (const Erro& err) {
          throw err;
       } catch (const std::exception&) {
-#ifdef DEBUG
-         std::clog
-             << "[DEBUG - parser] Transição não encontrada na parse table."
-             << std::endl;
-#endif
          throw ErroSintatico(tk, "seguir as regras gramaticais");
       }
    }

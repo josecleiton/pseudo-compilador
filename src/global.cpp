@@ -3,7 +3,7 @@
  *
  *       Filename:  global.cpp
  *
- *    Description:
+ *    Description: declarações das variáveis globais
  *
  *        Version:  1.0
  *        Created:  03/09/2020 05:19:58 PM

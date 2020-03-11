@@ -61,7 +61,7 @@ struct Erro : public std::exception {
     */
    std::string_view getLinha(std::ifstream &file, std::string &str) const;
    /*
-    * Substitui \r ou \n por espaço em branco
+    * Substitui \r ou \n ou \t por espaço em branco
     */
    inline std::size_t limpaLexema(void) const {
       std::size_t count{};
