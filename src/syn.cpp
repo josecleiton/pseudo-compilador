@@ -84,9 +84,9 @@ Syn::Syn(Lex& l) : mLex(l) {
    mLL[TipoToken::FATOR][TipoToken::VALOR] = 20;
    mLL[TipoToken::OP][TipoToken::SINAL] = 21;
    mLL[TipoToken::OP][TipoToken::BINOP] = 22;
-   mLL[TipoToken::UNOP][TipoToken::ID] =
-       mLL[TipoToken::UNOP][TipoToken::VALOR] =
-           mLL[TipoToken::UNOP][TipoToken::ABREPRNT] = NULA;
+   /* mLL[TipoToken::UNOP][TipoToken::ID] = */
+   /*     mLL[TipoToken::UNOP][TipoToken::VALOR] = */
+   /*         mLL[TipoToken::UNOP][TipoToken::ABREPRNT] = NULA; */
    mLL[TipoToken::UNOP][TipoToken::SINAL] = 21;
    mLL[TipoToken::UNOP][TipoToken::NEG] = 23;
    mLL[TipoToken::COND][TipoToken::ID] =
