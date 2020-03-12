@@ -45,14 +45,17 @@ Syn::Syn(Lex& l) : mLex(l) {
        mLL[TipoToken::PROGRAMA][TipoToken::ID] =
            mLL[TipoToken::PROGRAMA][TipoToken::SE] =
                mLL[TipoToken::PROGRAMA][TipoToken::ENQUANTO] = 1;
-   mLL[TipoToken::PROGRAMA][TipoToken::FIMARQ] = NULA;
+   mLL[TipoToken::PROGRAMAX][TipoToken::TIPO] =
+       mLL[TipoToken::PROGRAMAX][TipoToken::ID] =
+           mLL[TipoToken::PROGRAMAX][TipoToken::SE] =
+               mLL[TipoToken::PROGRAMAX][TipoToken::ENQUANTO] = 1;
+   mLL[TipoToken::PROGRAMAX][TipoToken::FIMARQ] =
+       mLL[TipoToken::PROGRAMAX][TipoToken::ACABOU] =
+           mLL[TipoToken::PROGRAMAX][TipoToken::SENAO] = NULA;
    mLL[TipoToken::BLOCO][TipoToken::TIPO] =
        mLL[TipoToken::BLOCO][TipoToken::ID] =
            mLL[TipoToken::BLOCO][TipoToken::SE] =
                mLL[TipoToken::BLOCO][TipoToken::ENQUANTO] = 2;
-   mLL[TipoToken::BLOCO][TipoToken::ACABOU] =
-       mLL[TipoToken::BLOCO][TipoToken::FACA] =
-           mLL[TipoToken::BLOCO][TipoToken::SENAO] = NULA;
    mLL[TipoToken::COMANDO][TipoToken::SE] = 3;
    mLL[TipoToken::COMANDO][TipoToken::ENQUANTO] = 4;
    mLL[TipoToken::COMANDO][TipoToken::TIPO] =
@@ -81,8 +84,9 @@ Syn::Syn(Lex& l) : mLex(l) {
    mLL[TipoToken::FATOR][TipoToken::VALOR] = 20;
    mLL[TipoToken::OP][TipoToken::SINAL] = 21;
    mLL[TipoToken::OP][TipoToken::BINOP] = 22;
-   mLL[TipoToken::UNOP][TipoToken::TIPO] =
-       mLL[TipoToken::UNOP][TipoToken::ABREPRNT] = NULA;
+   mLL[TipoToken::UNOP][TipoToken::ID] =
+       mLL[TipoToken::UNOP][TipoToken::VALOR] =
+           mLL[TipoToken::UNOP][TipoToken::ABREPRNT] = NULA;
    mLL[TipoToken::UNOP][TipoToken::SINAL] = 21;
    mLL[TipoToken::UNOP][TipoToken::NEG] = 23;
    mLL[TipoToken::COND][TipoToken::ID] =
@@ -96,7 +100,7 @@ AST& Syn::parse(void) {
    /*
     * Solicita ao Léxico prox token
     */
-   Token tk = proximoToken();
+   auto tk = proximoToken();
    while (mPilha.size()) {
       const auto topo = mPilha.top();
       try {
@@ -108,15 +112,13 @@ AST& Syn::parse(void) {
             const auto producao = mLL.at(topo).at(tk);
             mPilha.pop();
             switch (producao) {
-               case 1:  // programa -> comando
-                  mPilha.push(TipoToken::PROGRAMA);
+               case 1:  // programa -> comando programax
+                  mPilha.push(TipoToken::PROGRAMAX);
                   mPilha.push(TipoToken::COMANDO);
                   // mAST.subirNivel(mBloco);
                   break;
-               case 2:  // bloco -> comando
-                  mPilha.push(TipoToken::BLOCO);
-                  mPilha.push(TipoToken::COMANDO);
-                  // mAST.subirNivel(mBloco);
+               case 2:  // bloco -> programa
+                  mPilha.push(TipoToken::PROGRAMA);
                   break;
                case 3:  // comando -> sebloco
                   mPilha.push(TipoToken::SEBLOCO);
@@ -187,7 +189,7 @@ AST& Syn::parse(void) {
                   mPilha.push(TipoToken::ID);
                   mAST.inserirNode(TipoToken::ATRIB, TipoAST::ATRIB);
                   break;
-               case 15:  // exp -> termo fator
+               case 15:  // exp -> fator termo
                   mPilha.push(TipoToken::TERMO);
                   mPilha.push(TipoToken::FATOR);
                   mAST.inserirNode(TipoToken::EXP, TipoAST::EXP);

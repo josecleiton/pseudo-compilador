@@ -37,8 +37,8 @@ enum class TipoToken {
    FIMARQ,     // 15
    BINOP,      // 16
    // não terminais
-   S,
    PROGRAMA,
+   PROGRAMAX,
    BLOCO,
    COMANDO,
    STAT,
