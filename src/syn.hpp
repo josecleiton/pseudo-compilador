@@ -22,7 +22,9 @@
 #include <unordered_map>
 
 #include "ast.hpp"
-#include "lex.hpp"
+
+class Lex;
+class Token;
 
 namespace AnaliseSintatica {
 
@@ -55,10 +57,7 @@ class Syn {
     * lexicamente correto. A partir dai é retornada a AST resultante.
     */
    AST& parse(void);
-   auto proximoToken(void) {
-      ++mTkCount;
-      return mLex.getToken();
-   }
+   Token proximoToken(void);
    auto getTkCounter(void) const { return mTkCount; }
    auto& getAST(void) const { return mAST; }
 };

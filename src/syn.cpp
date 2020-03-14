@@ -297,5 +297,11 @@ AST& Syn::parse(void) {
    }
    return mAST;
 }
+
+Token Syn::proximoToken(void) {
+   ++mTkCount;
+   return mLex.getToken();
+}
+
 }  // namespace AnaliseSintatica
 

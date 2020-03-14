@@ -30,7 +30,7 @@ class Lex;
 /**
  * Classe para formatar erros do compilador
  */
-struct Erro : public std::exception {
+class Erro : public std::exception {
   protected:
    mutable Pos mPos;
    mutable std::string mMsg, mLexema;
@@ -86,7 +86,8 @@ struct Erro : public std::exception {
                                     const std::string_view) const {}
 };
 
-struct ErroLexico : public Erro {
+class ErroLexico : public Erro {
+  public:
    ErroLexico(Lex &lex, std::string &lexema, const std::string_view esperado);
    ~ErroLexico() = default;
 
@@ -98,7 +99,8 @@ struct ErroLexico : public Erro {
 };
 
 namespace AnaliseSintatica {
-struct ErroSintatico : public Erro {
+class ErroSintatico : public Erro {
+  public:
    ErroSintatico(const Token &tk, const std::string_view esperado);
    virtual ~ErroSintatico() = default;
 
@@ -111,7 +113,8 @@ struct ErroSintatico : public Erro {
 }  // namespace AnaliseSintatica
 
 namespace AnaliseSemantica {
-struct ErroSemantico : public AnaliseSintatica::ErroSintatico {
+class ErroSemantico : public AnaliseSintatica::ErroSintatico {
+  public:
    ErroSemantico(const Token &tk, const std::string_view esperado);
    ErroSemantico(const Token &tk, const TipoDado, const TipoDado);
    ~ErroSemantico() = default;

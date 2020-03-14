@@ -21,6 +21,7 @@
 
 #include "sem.hpp"
 #include "syn.hpp"
+#include "lex.hpp"
 
 using namespace AnaliseSintatica;
 using namespace AnaliseSemantica;
@@ -30,7 +31,7 @@ using namespace AnaliseSemantica;
    throw std::invalid_argument("Falta argv.");
 }
 
-int main(int argc, char *argv[]) {
+int main(const int argc, const char *const argv[]) {
    try {
       if (argc < 2) {
          usage();
