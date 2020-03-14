@@ -30,7 +30,8 @@
 struct Pos {
    long long linha;
    long long col;
-   Pos(const long long = 0, const long long = 0);
+   constexpr Pos(const long long _linha = 0, const long long _col = 0)
+       : linha(_linha), col(_col) {}
 };
 
 class Token {

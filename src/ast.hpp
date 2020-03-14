@@ -30,6 +30,8 @@
 #include "stable.hpp"
 #include "token.hpp"
 
+enum class TipoDado;
+
 namespace AnaliseSintatica {
 
 /*

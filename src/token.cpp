@@ -43,9 +43,6 @@ std::ostream& operator<<(std::ostream& out, const Token& tk) {
    return tk.print(out);
 }
 
-Pos::Pos(const long long _linha, const long long _col)
-    : linha(_linha), col(_col) {}
-
 std::ostream& operator<<(std::ostream& out, const Pos& pos) {
    out << '(' << pos.linha << ", " << pos.col << ')';
    return out;

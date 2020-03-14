@@ -19,9 +19,10 @@
 #pragma once
 #include <unordered_map>
 
-#include "enum/tipo_dado.hpp"
 #include "erro.hpp"
 #include "token.hpp"
+
+enum class TipoDado;
 
 namespace AnaliseSemantica {
 /*
@@ -30,16 +31,6 @@ namespace AnaliseSemantica {
  */
 TipoDado lexemaTipo(const std::string_view);
 std::string tipoLexema(const TipoDado);
-constexpr bool tipoSaoCompativeis(const TipoDado t1, const TipoDado t2) {
-   switch (t1) {
-      case TipoDado::INTEIRO:
-         return t2 != TipoDado::QUEBRADO;
-      case TipoDado::LOGICO:
-         return t2 == TipoDado::LOGICO;
-      default:
-         return true;
-   }
-}
 
 /*
  * Informações sobre as variáveis cmo:

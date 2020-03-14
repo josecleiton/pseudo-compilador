@@ -18,7 +18,9 @@
 
 #include "ast.hpp"
 
+#include "constexpr.hpp"
 #include "enum/prec.hpp"
+#include "enum/tipo_dado.hpp"
 #include "erro.hpp"
 
 namespace AnaliseSintatica {
