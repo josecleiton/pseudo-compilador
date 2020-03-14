@@ -57,9 +57,9 @@ class Lex {
     * Retorna o token
     */
    Token getToken(void);
-   inline const auto& getLinha(void) const { return mLinhaCount; }
-   inline const auto& getCol(void) const { return mColCount; }
-   inline auto& getFile(void) { return mInputFile; }
+   const auto& getLinha(void) const { return mLinhaCount; }
+   const auto& getCol(void) const { return mColCount; }
+   auto& getFile(void) { return mInputFile; }
    /*
     * Função para testes, lê todos os tokens e printa na tela
     */
@@ -78,7 +78,7 @@ class Lex {
    /*
     * Função auxiliar para pegar o próx char do buffer
     */
-   inline char getChar(std::string& lexema) {
+   char getChar(std::string& lexema) {
       ++mColCount;
       lexema.push_back(mInputFile.get());
       return lexema.back();
@@ -86,7 +86,7 @@ class Lex {
    /*
     * Função auxiliar para colocar char no buffer
     */
-   inline void ungetChar(std::string& lexema) {
+   void ungetChar(std::string& lexema) {
       --mColCount;
       mInputFile.unget();
       lexema.pop_back();

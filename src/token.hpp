@@ -46,8 +46,8 @@ class Token {
    static bool substituiDelSeValor(std::string &lexema);
    Token(const TipoToken tk = TipoToken::INITIAl, const std::string & = "",
          const int linha = -1, const int col = -1);
-   inline const auto &getPos(void) const { return mPos; }
-   inline std::ostream &print(std::ostream &out) const {
+   const auto &getPos(void) const { return mPos; }
+   std::ostream &print(std::ostream &out) const {
       out << '{' << static_cast<int>(tipo) << ", " << lexema << '}';
       return out;
    }
@@ -56,7 +56,7 @@ class Token {
     * apenas um shorthand para evitar tk.tipo == TipoToken::VALOR
     * visto que assim permite apenas: tk == TipoToken::VALOR
     */
-   inline operator TipoToken() const { return tipo; }
+   operator TipoToken() const { return tipo; }
 };
 
 /*

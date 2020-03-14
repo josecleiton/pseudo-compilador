@@ -55,11 +55,11 @@ class Syn {
     * lexicamente correto. A partir dai é retornada a AST resultante.
     */
    AST& parse(void);
-   inline auto proximoToken(void) {
+   auto proximoToken(void) {
       ++mTkCount;
       return mLex.getToken();
    }
-   inline auto getTkCounter(void) const { return mTkCount; }
-   inline auto& getAST(void) const { return mAST; }
+   auto getTkCounter(void) const { return mTkCount; }
+   auto& getAST(void) const { return mAST; }
 };
 }  // namespace AnaliseSintatica

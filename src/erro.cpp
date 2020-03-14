@@ -74,6 +74,19 @@ std::string_view Erro::getLinha(std::ifstream &file, std::string &str) const {
    }
    return str;
 }
+   std::string Erro::getSeta(const std::string &s) const {
+      std::string res = s;
+      std::size_t t{};
+      for (std::size_t i = 0; i < res.size(); ++i) {
+         if (!isspace(res[i])) {
+            res[i] = ' ';
+         } else if (res[i] == '\t') {
+            t = i;
+         }
+      }
+      res[t + mPos.col + 1] = '^';
+      return res;
+   }
 
 ErroLexico::ErroLexico(Lex &lex, std::string &lexema,
                        const std::string_view esperado)

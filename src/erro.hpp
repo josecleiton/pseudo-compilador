@@ -45,7 +45,7 @@ struct Erro : public std::exception {
    //      const std::string_view esperado = "");
    /* Erro(Syn* const syn; const Token& tk); */
 
-   inline const char *what() const throw() override {
+   const char *what() const throw() override {
       if (mMsg.empty()) {
          formataErro();
       }
@@ -63,7 +63,7 @@ struct Erro : public std::exception {
    /*
     * Substitui \r ou \n ou \t por espaço em branco
     */
-   inline std::size_t limpaLexema(void) const {
+   std::size_t limpaLexema(void) const {
       std::size_t count{};
       for (auto &c : mLexema) {
          if (isspace(c) and c != ' ') {
@@ -77,19 +77,7 @@ struct Erro : public std::exception {
    /*
     * Aponta para o caracter onde está o erro
     */
-   inline std::string getSeta(const std::string &s) const {
-      std::string res = s;
-      std::size_t t{};
-      for (std::size_t i = 0; i < res.size(); ++i) {
-         if (!isspace(res[i])) {
-            res[i] = ' ';
-         } else if (res[i] == '\t') {
-            t = i;
-         }
-      }
-      res[t + mPos.col + 1] = '^';
-      return res;
-   }
+   std::string getSeta(const std::string &s) const;
 
   protected:
    virtual void formataStringStream(std::ostringstream &,
@@ -103,10 +91,10 @@ struct ErroLexico : public Erro {
    ~ErroLexico() = default;
 
   protected:
-   virtual void formataStringStream(std::ostringstream &,
-                                    const std::string_view linhaErro,
-                                    const std::string_view linhaFormatada,
-                                    const std::string_view seta) const override;
+   void formataStringStream(std::ostringstream &,
+                            const std::string_view linhaErro,
+                            const std::string_view linhaFormatada,
+                            const std::string_view seta) const override;
 };
 
 namespace AnaliseSintatica {

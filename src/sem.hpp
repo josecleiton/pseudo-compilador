@@ -37,7 +37,7 @@ class Sem {
     * profundidade deve-se ir
     */
    std::size_t analisaArvore(void);
-   inline auto& getAST(void) const { return mAST; }
+   auto& getAST(void) const { return mAST; }
 };
 }  // namespace AnaliseSemantica
 

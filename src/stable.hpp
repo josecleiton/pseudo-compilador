@@ -19,10 +19,9 @@
 #pragma once
 #include <unordered_map>
 
+#include "enum/tipo_dado.hpp"
 #include "erro.hpp"
 #include "token.hpp"
-
-#include "enum/tipo_dado.hpp"
 
 namespace AnaliseSemantica {
 /*
@@ -62,7 +61,7 @@ class Dado {
    /*
     * Função auxiliar que seta valor e o tipo
     */
-   inline void setValor(const double v) {
+   void setValor(const double v) {
       valor = v;
       preencheTipo();
    }
@@ -77,7 +76,7 @@ class Dado {
     * Conversão implícita evitando coisas como:
     * d.tipo == Tipo::INTEIRO; -> d == Tipo::INTEIRO;
     */
-   inline operator TipoDado() const { return tipo; }
+   operator TipoDado() const { return tipo; }
 
   private:
    /*
@@ -98,7 +97,7 @@ class SymbolTable {
     * retorna um pair { iterator, bool }
     * verdadeiro se encontrado, senão falso
     */
-   inline auto getDado(const Token& tk) {
+   auto getDado(const Token& tk) {
       auto it = mTable.find(tk.lexema);
       return std::make_pair(it, it != mTable.end());
    }
@@ -106,8 +105,8 @@ class SymbolTable {
     * Insere nova variável na hash table
     * Se o lexema já estiver na hash table -> throw exception
     */
-   inline auto inserirVariavel(const Token& tk, const TipoDado t = {},
-                               const double v = {}) {
+   auto inserirVariavel(const Token& tk, const TipoDado t = {},
+                        const double v = {}) {
       if (getDado(tk).second) {
          throw ErroSemantico(
              tk,

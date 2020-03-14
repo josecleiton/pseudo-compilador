@@ -63,9 +63,9 @@ class AST {
       Node* super{};
 
       Node(const Token&, Node* = nullptr, const TipoAST = TipoAST::REGULAR);
-      inline auto& getLexema(void) const { return tk.lexema; }
+      auto& getLexema(void) const { return tk.lexema; }
 
-      inline operator TipoAST() const { return tipo; }
+      operator TipoAST() const { return tipo; }
       /*
        * função abstrata que tem que ser sobreescrita por todos os filhos
        */
@@ -218,7 +218,7 @@ class AST {
       NodeExpOp* raizExp{};
 
       NodeExp(const Token&, Node* = nullptr, const TipoAST = TipoAST::EXP);
-      inline auto& size(void) const { return mNodeCount; }
+      auto& size(void) const { return mNodeCount; }
       /*
        * Realiza o algoritmo descrito acima
        */
@@ -244,15 +244,15 @@ class AST {
 
      public:
       NodeExpOp(const Token&, Node* = nullptr, const TipoAST = TipoAST::EXP);
-      inline auto& getEsquerda(void) const { return childs[ESQUERDA]; }
-      inline auto& getDireita(void) const { return childs[DIREITA]; }
-      inline auto& getOp(void) const { return tk.lexema.front(); }
-      inline auto size(void) const {
+      auto& getEsquerda(void) const { return childs[ESQUERDA]; }
+      auto& getDireita(void) const { return childs[DIREITA]; }
+      auto& getOp(void) const { return tk.lexema.front(); }
+      auto size(void) const {
          return (getEsquerda() != nullptr) + (getDireita() != nullptr);
       }
-      inline auto& getEsquerda(void) { return childs[ESQUERDA]; }
-      inline auto& getDireita(void) { return childs[DIREITA]; }
-      inline auto abreParentese(void) { return mAbreParentese; }
+      auto& getEsquerda(void) { return childs[ESQUERDA]; }
+      auto& getDireita(void) { return childs[DIREITA]; }
+      auto abreParentese(void) const { return mAbreParentese; }
       void avaliar(void) override;
       /*
        * Caminho na árvore de expressão em Pos-Ordem
@@ -285,7 +285,7 @@ class AST {
      public:
       NodeExpID(const Token&, Node* = nullptr, const TipoAST = TipoAST::EXP);
       AnaliseSemantica::Dado avaliarExp(void) override;
-      inline void setTipo(const TipoDado tipo) { mSTDado->second.tipo = tipo; }
+      void setTipo(const TipoDado tipo) { mSTDado->second.tipo = tipo; }
       ~NodeExpID() override = default;
 
      private:
@@ -310,7 +310,7 @@ class AST {
      public:
       AnaliseSemantica::Dado val;
       NodeExpValor(const Token&, Node* = nullptr, const TipoAST = TipoAST::EXP);
-      inline AnaliseSemantica::Dado avaliarExp(void) override { return val; }
+      AnaliseSemantica::Dado avaliarExp(void) override { return val; }
       virtual ~NodeExpValor() override = default;
    };
 
@@ -349,7 +349,7 @@ class AST {
    /*
     * subirNivel retira n nós da mPilha
     */
-   inline auto subirNivel(const std::size_t n) {
+   auto subirNivel(const std::size_t n) {
       std::size_t i = 0;
       for (; mPilha.size() and i < n; ++i) {
          /*
@@ -368,8 +368,8 @@ class AST {
       }
       return i;
    }
-   inline Node* atual(void) { return mPilha.top(); }
-   inline auto& size(void) const { return mNodeCount; }
+   Node* atual(void) { return mPilha.top(); }
+   auto& size(void) const { return mNodeCount; }
    void trocaToken(const Token& tk);
 
   private:
