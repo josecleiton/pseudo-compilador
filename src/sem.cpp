@@ -17,13 +17,14 @@
  */
 
 #include "sem.hpp"
+#include "ast.hpp"
 
 namespace AnaliseSemantica {
 using namespace AnaliseSintatica;
 Sem::Sem(AST &ast) : mAST(ast) {}
 
 std::size_t Sem::analisaArvore(void) {
-   return mAST.DFS([this](AST::Node *no) -> bool {
+   return mAST.DFS([](AST::Node *no) -> bool {
       if (!no) {
          return false;
       }

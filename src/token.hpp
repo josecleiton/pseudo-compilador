@@ -30,6 +30,7 @@
 struct Pos {
    long long linha;
    long long col;
+
    constexpr Pos(const long long _linha = 0, const long long _col = 0)
        : linha(_linha), col(_col) {}
 };

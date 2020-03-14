@@ -18,14 +18,14 @@
 
 #include "syn.hpp"
 
+#include "erro.hpp"
+#include "lex.hpp"
+
 #ifdef DEBUG
 #include <iostream>
 #endif
 
 #include <stdexcept>
-
-#include "erro.hpp"
-#include "lex.hpp"
 
 namespace AnaliseSintatica {
 enum { NULA = 99 };

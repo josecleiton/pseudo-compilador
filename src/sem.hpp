@@ -19,12 +19,15 @@
 
 #pragma once
 
-#include "ast.hpp"
+#include <cstddef>
+
+namespace AnaliseSintatica {
+class AST;
+}
 
 namespace AnaliseSemantica {
 class Sem {
-   typedef AnaliseSintatica::AST AST;
-   AST& mAST;
+   AnaliseSintatica::AST& mAST;
 
   public:
    /*
