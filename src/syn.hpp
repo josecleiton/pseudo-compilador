@@ -57,7 +57,7 @@ class Syn {
     * lexicamente correto. A partir dai é retornada a AST resultante.
     */
    AST& parse(void);
-   Token proximoToken(void);
+   inline Token proximoToken(void);
    auto getTkCounter(void) const { return mTkCount; }
    auto& getAST(void) const { return mAST; }
 };

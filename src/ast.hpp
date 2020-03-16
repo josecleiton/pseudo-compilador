@@ -313,7 +313,7 @@ class AST {
       AnaliseSemantica::Dado val;
       NodeExpValor(const Token&, Node* = nullptr, const TipoAST = TipoAST::EXP);
       AnaliseSemantica::Dado avaliarExp(void) override { return val; }
-      virtual ~NodeExpValor() override = default;
+      ~NodeExpValor() override = default;
    };
 
   private:

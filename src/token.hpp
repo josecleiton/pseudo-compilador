@@ -26,14 +26,7 @@
 #endif
 
 #include "enum/tipo_token.hpp"
-
-struct Pos {
-   long long linha;
-   long long col;
-
-   constexpr Pos(const long long _linha = 0, const long long _col = 0)
-       : linha(_linha), col(_col) {}
-};
+#include "pos.hpp"
 
 class Token {
   private:
@@ -46,8 +39,11 @@ class Token {
     * Substitue a virgula por ponto em tokens do tipo VALOR
     */
    static bool substituiDelSeValor(std::string &lexema);
+   /* Token(const TipoToken tk = TipoToken::INITIAl, const std::string & = "",
+    */
+   /*       const int linha = -1, const int col = -1); */
    Token(const TipoToken tk = TipoToken::INITIAl, const std::string & = "",
-         const int linha = -1, const int col = -1);
+         const Pos = Pos(-1, -1));
    const auto &getPos(void) const { return mPos; }
    std::ostream &print(std::ostream &out) const {
       out << '{' << static_cast<int>(tipo) << ", " << lexema << '}';

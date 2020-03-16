@@ -22,6 +22,8 @@
 #include <stdexcept>
 #include <unordered_map>
 
+#include "pos.hpp"
+
 #if __GNUC__ > 7
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -38,10 +40,13 @@ class Lex {
    std::ifstream mInputFile;
    std::ofstream mOutputFile;
    /*
+    * Posição de leitura no arquivo de entrada
+    */
+   Pos mPos;
+   /*
     * Palavras reservadas
     */
    const std::unordered_map<std::string, TipoToken> mPalavrasReservadas;
-   std::size_t mLinhaCount{1}, mColCount{};
 
   public:
    /*
@@ -57,8 +62,9 @@ class Lex {
     * Retorna o token
     */
    Token getToken(void);
-   const auto& getLinha(void) const { return mLinhaCount; }
-   const auto& getCol(void) const { return mColCount; }
+   auto& getPos(void) const { return mPos; }
+   auto& getLinha(void) const { return mPos.linha; }
+   auto& getCol(void) const { return mPos.col; }
    auto& getFile(void) { return mInputFile; }
    /*
     * Função para testes, lê todos os tokens e printa na tela
@@ -76,10 +82,14 @@ class Lex {
     */
    TipoToken reservadaOuID(const std::string& lexema) const;
    /*
+    * Função auxiliar para criar token com atributo linha e coluna
+    */
+   inline Token criaToken(const TipoToken, const std::string& lexema) const;
+   /*
     * Função auxiliar para pegar o próx char do buffer
     */
    char getChar(std::string& lexema) {
-      ++mColCount;
+      ++mPos.col;
       lexema.push_back(mInputFile.get());
       return lexema.back();
    }
@@ -87,16 +97,16 @@ class Lex {
     * Função auxiliar para colocar char no buffer
     */
    void ungetChar(std::string& lexema) {
-      --mColCount;
+      --mPos.col;
       mInputFile.unget();
       lexema.pop_back();
    }
    /*
-    * Função auxiliar para criar token com atributo linha e coluna
+    * Função auxiliar para ajustar os contadores de linha e col
+    * na leitura de um '\n'
     */
-   Token criaToken(const TipoToken, const std::string& lexema) const;
    void proximaLinha(void) {
-      mColCount = 0;
-      ++mLinhaCount;
+      mPos.col = 0;
+      ++mPos.linha;
    }
 };

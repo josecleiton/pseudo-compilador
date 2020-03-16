@@ -18,9 +18,8 @@
 
 #include "token.hpp"
 
-Token::Token(const TipoToken _tipo, const std::string& _lexema,
-             const int _linha, const int _col)
-    : mPos({_linha, _col}), tipo(_tipo), lexema(_lexema) {}
+Token::Token(const TipoToken _tipo, const std::string& _lexema, const Pos _pos)
+    : mPos(_pos), tipo(_tipo), lexema(_lexema) {}
 
 bool Token::substituiDelSeValor(std::string& lexema) {
    std::size_t i = 0;

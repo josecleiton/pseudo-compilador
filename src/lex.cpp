@@ -36,6 +36,7 @@
 Lex::Lex(const fs::path& in, const fs::path& out)
     : mInputFile(in),
       mOutputFile(out),
+      mPos(1, 0),
       mPalavrasReservadas{{"SE", TipoToken::SE},
                           {"FACA", TipoToken::FACA},
                           {"ACABOU", TipoToken::ACABOU},
@@ -74,7 +75,7 @@ Lex::Lex(const fs::path& in, const fs::path& out)
 
 Lex::~Lex() {
 #ifdef DEBUG
-   std::clog << "[DEBUG] Lex - Linhas lidas: " << mLinhaCount << std::endl;
+   std::clog << "[DEBUG] Lex - Linhas lidas: " << getLinha() << std::endl;
 #endif
 }
 
@@ -218,7 +219,7 @@ Token Lex::proxToken(void) {
             return criaToken(TipoToken::FECHAPRNT, lexema);
          case 21:
             /* Estado de Comentário na linguagem */
-            if (c = getChar(lexema); isspace(c) and c == '\n') {
+            if (c = getChar(lexema); c == '\n') {
 #ifdef DEBUG
                lexema.pop_back();
                std::clog << "[DEBUG - Lex] {Comentário: " << lexema << '}'
@@ -245,5 +246,5 @@ TipoToken Lex::reservadaOuID(const std::string& lexema) const {
 }
 
 Token Lex::criaToken(const TipoToken tipo, const std::string& lexema) const {
-   return Token(tipo, lexema, mLinhaCount, mColCount);
+   return Token(tipo, lexema, getPos());
 }
