@@ -56,16 +56,15 @@ class Lex {
     */
    Lex(const fs::path& in, const fs::path& out = "lexemas.txt");
    ~Lex();
+   auto& getPos(void) const { return mPos; }
+   auto& getLinha(void) const { return mPos.linha; }
+   auto& getCol(void) const { return mPos.col; }
    /*
     * Pega token vindo do arquivo de entrada
     * Grava no arquivo "lexemas.txt"
     * Retorna o token
     */
    Token getToken(void);
-   auto& getPos(void) const { return mPos; }
-   auto& getLinha(void) const { return mPos.linha; }
-   auto& getCol(void) const { return mPos.col; }
-   auto& getFile(void) { return mInputFile; }
    /*
     * Função para testes, lê todos os tokens e printa na tela
     */
