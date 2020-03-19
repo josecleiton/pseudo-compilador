@@ -25,16 +25,18 @@
 #include <iostream>
 #endif
 
+#include <limits>
 #include <stdexcept>
 
 namespace AnaliseSintatica {
-enum { NULA = 99 };
+
+constexpr auto NULA = std::numeric_limits<int>::max();
 
 Syn::Syn(Lex& l) : mLex(l) {
    /*
     * Inicializa a pilha com
-    * PROGRAMA
-    * FIMARQ ($)
+    * PROGRAMA (primeira variavel da gramática, análogo ao S)
+    * FIMARQ (análogo ao $)
     */
    mPilha.push(TipoToken::FIMARQ);
    mPilha.push(TipoToken::PROGRAMA);
@@ -45,50 +47,64 @@ Syn::Syn(Lex& l) : mLex(l) {
        mLL[TipoToken::PROGRAMA][TipoToken::ID] =
            mLL[TipoToken::PROGRAMA][TipoToken::SE] =
                mLL[TipoToken::PROGRAMA][TipoToken::ENQUANTO] = 1;
+
    mLL[TipoToken::PROGRAMAX][TipoToken::TIPO] =
        mLL[TipoToken::PROGRAMAX][TipoToken::ID] =
            mLL[TipoToken::PROGRAMAX][TipoToken::SE] =
                mLL[TipoToken::PROGRAMAX][TipoToken::ENQUANTO] = 1;
+
    mLL[TipoToken::PROGRAMAX][TipoToken::FIMARQ] =
        mLL[TipoToken::PROGRAMAX][TipoToken::ACABOU] =
            mLL[TipoToken::PROGRAMAX][TipoToken::SENAO] = NULA;
+
    mLL[TipoToken::BLOCO][TipoToken::TIPO] =
        mLL[TipoToken::BLOCO][TipoToken::ID] =
            mLL[TipoToken::BLOCO][TipoToken::SE] =
                mLL[TipoToken::BLOCO][TipoToken::ENQUANTO] = 2;
+
    mLL[TipoToken::COMANDO][TipoToken::SE] = 3;
    mLL[TipoToken::COMANDO][TipoToken::ENQUANTO] = 4;
    mLL[TipoToken::COMANDO][TipoToken::TIPO] =
        mLL[TipoToken::COMANDO][TipoToken::ID] = 5;
+
    mLL[TipoToken::STAT][TipoToken::TIPO] = 6;
    mLL[TipoToken::STAT][TipoToken::ID] = 7;
+
    mLL[TipoToken::SEBLOCO][TipoToken::SE] = 8;
+
    mLL[TipoToken::NT_SE][TipoToken::SE] = 9;
+
    mLL[TipoToken::NT_SENAO][TipoToken::ACABOU] = 10;
    mLL[TipoToken::NT_SENAO][TipoToken::SENAO] = 11;
+
    mLL[TipoToken::NT_ENQUANTO][TipoToken::ENQUANTO] = 12;
+
    mLL[TipoToken::DECL][TipoToken::TIPO] = 13;
+
    mLL[TipoToken::ATRIB][TipoToken::ID] = 14;
+
    mLL[TipoToken::EXP][TipoToken::ID] =
        mLL[TipoToken::EXP][TipoToken::ABREPRNT] =
            mLL[TipoToken::EXP][TipoToken::VALOR] = 15;
    mLL[TipoToken::EXP][TipoToken::SINAL] = mLL[TipoToken::EXP][TipoToken::NEG] =
        16;
+
    mLL[TipoToken::TERMO][TipoToken::SINAL] =
        mLL[TipoToken::TERMO][TipoToken::BINOP] = 17;
    mLL[TipoToken::TERMO][TipoToken::PNTVIRG] =
        mLL[TipoToken::TERMO][TipoToken::FACA] =
            mLL[TipoToken::TERMO][TipoToken::FECHAPRNT] = NULA;
+
    mLL[TipoToken::FATOR][TipoToken::ID] = 18;
    mLL[TipoToken::FATOR][TipoToken::ABREPRNT] = 19;
    mLL[TipoToken::FATOR][TipoToken::VALOR] = 20;
+
    mLL[TipoToken::OP][TipoToken::SINAL] = 21;
    mLL[TipoToken::OP][TipoToken::BINOP] = 22;
-   /* mLL[TipoToken::UNOP][TipoToken::ID] = */
-   /*     mLL[TipoToken::UNOP][TipoToken::VALOR] = */
-   /*         mLL[TipoToken::UNOP][TipoToken::ABREPRNT] = NULA; */
+
    mLL[TipoToken::UNOP][TipoToken::SINAL] = 21;
    mLL[TipoToken::UNOP][TipoToken::NEG] = 23;
+
    mLL[TipoToken::COND][TipoToken::ID] =
        mLL[TipoToken::COND][TipoToken::ABREPRNT] =
            mLL[TipoToken::COND][TipoToken::VALOR] =

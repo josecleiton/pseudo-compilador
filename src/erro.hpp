@@ -22,7 +22,10 @@
 #include <fstream>
 #include <sstream>
 
-#include "token.hpp"
+
+#include "pos.hpp"
+
+class Token;
 enum class TipoDado;
 
 class Lex;
